@@ -3,6 +3,12 @@
 //
 // The point is that a developer sees the result without leaving GitHub. A
 // scan nobody reads is a scan that does not change behaviour.
+//
+// Usage:
+//   postScanSummary(cfg, [Trivy: 'clean', Secrets: 'none found'])
+// Params: cfg (Map) - pipeline config (unused directly; kept for call-site consistency)
+//         findings (Map) - check name -> result string, rendered as a table
+// No-op outside pull request builds (env.CHANGE_ID unset).
 def call(Map cfg, Map findings) {
     if (!env.CHANGE_ID) { return }
 

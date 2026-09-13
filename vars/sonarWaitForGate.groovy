@@ -2,6 +2,11 @@
 //
 // Uses the API rather than the plugin's waitForQualityGate(), which needs a
 // webhook back into Jenkins — awkward when Jenkins is not publicly reachable.
+//
+// Usage:
+//   sonarWaitForGate(cfg)
+// Params: cfg (Map) - pipeline config; reads cfg.quality.sonarProjectKey for the error/dashboard link
+// Returns: nothing; polls up to 10 minutes and errors out unless the gate result is OK
 def call(Map cfg) {
     def taskFile = '.scannerwork/report-task.txt'
     if (!fileExists(taskFile)) {

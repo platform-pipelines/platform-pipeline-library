@@ -1,4 +1,11 @@
 // Executes a previously created change set and waits for the stack to settle.
+//
+// Usage:
+//   cfnDeploy(cfg, envCfg, changeSet)
+// Params: cfg (Map) - pipeline config; reads cfg.appName
+//         envCfg (Map) - target environment config; envCfg.name/stackName
+//         changeSet (String) - change set name from cfnChangeSet(); a falsy value is a no-op
+// Returns: nothing; errors if the stack does not reach a complete state
 def call(Map cfg, Map envCfg, String changeSet) {
     if (!changeSet) {
         logInfo 'No change set — stack already matches the template'

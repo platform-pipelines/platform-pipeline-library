@@ -2,6 +2,11 @@
 //
 // CloudFormation has no plan-time test framework, so this is static analysis:
 // checkov for the common misconfigurations, cfn-guard for rules you write.
+//
+// Usage:
+//   cfnTest(cfg)
+// Params: cfg (Map) - pipeline config; reads cfg.infra.workingDir and cfg.lint.failOnError
+// Returns: nothing; archives checkov-report.xml and errors if checkov fails and failOnError is true
 def call(Map cfg) {
     logBanner 'Test: CloudFormation'
 

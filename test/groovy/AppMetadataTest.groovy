@@ -14,7 +14,7 @@ class AppMetadataTest extends BaseTest {
     void 'every supported tool has a container image'() {
         tools().each { tool ->
             def image = step('appToolImage').call([buildTool: tool, runtimeVersion: null])
-            assertThat(image).as("image for ${tool}").isNotNull().isNotEmpty()
+            assertThat(image?.toString()).as("image for ${tool}").isNotNull().isNotEmpty()
         }
     }
 
@@ -33,9 +33,9 @@ class AppMetadataTest extends BaseTest {
 
     @Test
     void 'runtimeVersion is honoured when supplied'() {
-        assertThat(step('appToolImage').call([buildTool: 'go', runtimeVersion: '1.23']))
+        assertThat(step('appToolImage').call([buildTool: 'go', runtimeVersion: '1.23']).toString())
             .isEqualTo('golang:1.23')
-        assertThat(step('appToolImage').call([buildTool: 'npm', runtimeVersion: '22']))
+        assertThat(step('appToolImage').call([buildTool: 'npm', runtimeVersion: '22']).toString())
             .isEqualTo('node:22-alpine')
     }
 

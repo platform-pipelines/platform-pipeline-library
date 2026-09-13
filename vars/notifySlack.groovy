@@ -1,4 +1,9 @@
 // Slack via incoming webhook — no Slack plugin required.
+//
+// Usage:
+//   notifySlack(cfg, currentBuild.currentResult)
+// Params: cfg (Map) - pipeline config; reads cfg.notify.slackChannel/on
+//         status (String) - current build result, checked against notify policy
 def call(Map cfg, String status) {
     if (!cfg?.notify?.slackChannel) { return }
 

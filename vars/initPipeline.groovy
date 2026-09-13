@@ -1,4 +1,9 @@
 // Checkout, load config, set the version environment variables.
+//
+// Usage:
+//   def cfg = initPipeline(overrides)
+// Params: overrides (Map) - inline config overrides passed through to configLoad
+// Returns: the loaded, validated pipeline config Map
 def call(Map overrides) {
     logBanner 'Initialise'
 

@@ -1,4 +1,9 @@
 // Assembles the full -D flag list for sonar-scanner.
+//
+// Usage:
+//   sh "sonar-scanner ${sonarProperties(cfg)}"
+// Params: cfg (Map) - pipeline config; reads cfg.quality.sonarProjectKey, cfg.appName, cfg.extra.sonar*
+// Returns: space-separated "-Dkey=value" flags, including PR or branch analysis params
 def call(Map cfg) {
     def props = [
         'sonar.projectKey'    : cfg.quality.sonarProjectKey,

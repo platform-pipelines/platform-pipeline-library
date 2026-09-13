@@ -4,6 +4,12 @@
 //     standardPipeline()
 //
 // Everything else is declared in .ci/config.yaml.
+//
+// Usage:
+//   standardPipeline()                       // reads .ci/config.yaml
+//   standardPipeline([quality: [minCoverage: 90]])  // inline overrides
+// Params: overrides (Map) - inline config overrides merged over .ci/config.yaml (see configLoad)
+// Returns: nothing; runs the full Init/Lint/Build/Test/Quality/Package/Scan/Deploy pipeline
 def call(Map overrides = [:]) {
 
     def cfg

@@ -1,4 +1,9 @@
 // Language-specific flags for sonar-scanner.
+//
+// Usage:
+//   def props = appSonarProps(cfg)
+// Params: cfg (Map) - pipeline config; only cfg.buildTool is read
+// Returns: Map of sonar-scanner properties for cfg.buildTool, or [:] if none apply
 def call(Map cfg) {
     switch (cfg.buildTool) {
         case 'go':

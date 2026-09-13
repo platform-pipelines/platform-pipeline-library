@@ -1,4 +1,9 @@
 // Coverage report the gate and Sonar both read, or null.
+//
+// Usage:
+//   def report = appCoverageFile(cfg)
+// Params: cfg (Map) - pipeline config; only cfg.buildTool is read
+// Returns: coverage report path for cfg.buildTool, or null if none applies
 def call(Map cfg) {
     switch (cfg.buildTool) {
         case 'go':     return 'coverage.out'

@@ -3,6 +3,12 @@
 // Two things matter here: the approver is recorded in the audit trail and
 // carried into the GitOps commit message, and by default nobody can approve
 // their own deploy.
+//
+// Usage:
+//   approvalGate(cfg, envCfg)
+// Params: cfg (Map) - pipeline config; cfg.extra.allowSelfApproval opts out of the self-approval block
+//         envCfg (Map) - target environment config; envCfg.name and envCfg.approvers are used
+// Returns: nothing; sets env.DEPLOY_APPROVER and errors if the approver is the requester
 def call(Map cfg, Map envCfg) {
     def requester = logActor()
 

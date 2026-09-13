@@ -1,5 +1,10 @@
 // Go lint: formatting, vet, then golangci-lint.
 // Ordered cheapest-first so a formatting slip fails in seconds.
+//
+// Usage:
+//   goLint(cfg)
+// Params: cfg (Map) - pipeline config; cfg.lint.autoFormat/failOnError are read
+// Returns: nothing; errors if gofmt/golangci-lint report problems and failOnError is true
 def call(Map cfg) {
     logBanner 'Lint: Go'
 

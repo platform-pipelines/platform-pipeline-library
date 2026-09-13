@@ -1,5 +1,11 @@
 // Uploads build output to Nexus over REST, so the same command works from a
 // laptop as from an agent.
+//
+// Usage:
+//   publishArtifact(cfg)
+// Params: cfg (Map) - pipeline config; reads cfg.extra.nexusRepo and cfg.appName
+// No-op when nexusRepo is not configured, the toolchain has nothing to publish,
+// or no files match the artifact glob.
 def call(Map cfg) {
     def repo = cfg.extra.nexusRepo
     def glob = appArtifacts(cfg)

@@ -3,6 +3,12 @@
 // Returns the change set name, which cfnDeploy then executes. Same principle
 // as the Terraform path: what gets executed is the thing that was reviewed,
 // not a freshly computed diff.
+//
+// Usage:
+//   def changeSet = cfnChangeSet(cfg, envCfg)
+// Params: cfg (Map) - pipeline config; reads cfg.appName, cfg.infra.template/capabilities
+//         envCfg (Map) - target environment config; envCfg.name/stackName/parameters
+// Returns: the created change set name, or null if the stack already matches the template
 def call(Map cfg, Map envCfg) {
     logBanner "Change set: ${envCfg.name}"
 
@@ -10,9 +16,25 @@ def call(Map cfg, Map envCfg) {
     def changeSet = "${stack}-${env.BUILD_NUMBER}-${env.GIT_SHORT_SHA}"
     def template = fileExists('packaged-template.yaml') ? 'packaged-template.yaml' : cfg.infra.template
 
-    def params = (envCfg.parameters ?: [:])
-        .collect { k, v -> "ParameterKey=${k},ParameterValue=${v}" }.join(' ')
-    def paramFlag = params ? "--parameters ${params}" : ''
+    def keyPattern = ~/^[A-Za-z0-9_-]+$/
+    (envCfg.parameters ?: [:]).keySet().each { k ->
+        if (!(k ==~ keyPattern)) {
+            error "cfnChangeSet: invalid CloudFormation parameter key '${k}'"
+        }
+    }
+    (cfg.infra.capabilities ?: []).each { c ->
+        if (!(c ==~ keyPattern)) {
+            error "cfnChangeSet: invalid CloudFormation capability '${c}'"
+        }
+    }
+
+    def paramsFile = 'cfn-params.json'
+    if (envCfg.parameters) {
+        writeJSON file: paramsFile, json: envCfg.parameters.collect { k, v ->
+            [ParameterKey: k, ParameterValue: v as String]
+        }
+    }
+    def paramFlag = envCfg.parameters ? "--parameters file://${paramsFile}" : ''
 
     def capabilities = (cfg.infra.capabilities ?: []).join(' ')
     def capFlag = capabilities ? "--capabilities ${capabilities}" : ''
@@ -20,28 +42,28 @@ def call(Map cfg, Map envCfg) {
     withAwsCredentials(cfg, envCfg) {
         // UPDATE fails if the stack does not exist; CREATE fails if it does.
         def exists = sh(
-            script: "aws cloudformation describe-stacks --stack-name ${stack} > /dev/null 2>&1",
+            script: "aws cloudformation describe-stacks --stack-name ${shellQuote(stack)} > /dev/null 2>&1",
             returnStatus: true
         ) == 0
 
         sh """
             aws cloudformation create-change-set \\
-              --stack-name ${stack} \\
-              --change-set-name ${changeSet} \\
+              --stack-name ${shellQuote(stack)} \\
+              --change-set-name ${shellQuote(changeSet)} \\
               --change-set-type ${exists ? 'UPDATE' : 'CREATE'} \\
-              --template-body file://${template} \\
+              --template-body ${shellQuote("file://${template}")} \\
               ${paramFlag} ${capFlag} \\
-              --tags Key=Version,Value=${env.APP_VERSION} Key=Commit,Value=${env.GIT_COMMIT}
+              --tags Key=Version,Value=${shellQuote(env.APP_VERSION)} Key=Commit,Value=${shellQuote(env.GIT_COMMIT)}
         """
 
         // Waiting can fail legitimately when the change set is empty, which
         // is a no-op deploy rather than an error.
         def ready = sh(
-            script: "aws cloudformation wait change-set-create-complete --stack-name ${stack} --change-set-name ${changeSet}",
+            script: "aws cloudformation wait change-set-create-complete --stack-name ${shellQuote(stack)} --change-set-name ${shellQuote(changeSet)}",
             returnStatus: true
         )
 
-        sh "aws cloudformation describe-change-set --stack-name ${stack} --change-set-name ${changeSet} > changeset.json || true"
+        sh "aws cloudformation describe-change-set --stack-name ${shellQuote(stack)} --change-set-name ${shellQuote(changeSet)} > changeset.json || true"
 
         def summary = sh(
             script: "python3 ${useScript('cfn_changeset_summary.py')} changeset.json",
@@ -59,7 +81,7 @@ def call(Map cfg, Map envCfg) {
         }
 
         if (summary.startsWith('no changes')) {
-            sh "aws cloudformation delete-change-set --stack-name ${stack} --change-set-name ${changeSet} || true"
+            sh "aws cloudformation delete-change-set --stack-name ${shellQuote(stack)} --change-set-name ${shellQuote(changeSet)} || true"
             env.CFN_HAS_CHANGES = 'false'
             logInfo 'Stack already matches the template'
             return null

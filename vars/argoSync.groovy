@@ -2,6 +2,12 @@
 //
 // Argo would sync on its own, but blocking here means a green build actually
 // means "the deploy landed", which is what people assume it means.
+//
+// Usage:
+//   argoSync(cfg, envCfg)
+// Params: cfg (Map) - pipeline config; cfg.appName names the Argo app
+//         envCfg (Map) - target environment config; envCfg.name suffixes the Argo app name
+// Returns: nothing; blocks until Argo CD reports the app healthy and synced, or times out after 10 minutes
 def call(Map cfg, Map envCfg) {
     def app = "${cfg.appName}-${envCfg.name}"
 

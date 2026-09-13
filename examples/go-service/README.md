@@ -1,0 +1,37 @@
+# go-service example
+
+A full end-to-end example of this library's capabilities applied to a Go
+application repo — everything `examples/config-go.yaml` leaves out for
+brevity is turned on here: full quality gate, image signing, SBOM, and a
+three-environment gitops promotion path with an approval gate in front of
+prod.
+
+## Using this in a real repo
+
+1. Copy `Jenkinsfile` to the root of your repo.
+2. Copy `config.yaml` to `.ci/config.yaml` in your repo, then edit the
+   values (`appName`, `imageRepo`, `gitopsRepo`, environment names/paths,
+   Slack channel, approvers) to match your service.
+3. Make sure the credentials this library expects
+   (`github-token`, `sonar-token`, `slack-webhook`, `ghcr-credentials`) are
+   configured on the controller — see the root README's Credentials table.
+
+## What each section demonstrates
+
+- **Container image** — `containerize: true` with `kaniko-docker`; swap to
+  `kaniko-k8s` or `buildah` per the trade-off table in the root README.
+- **lint** — `failOnError: true`, so `gofmt`/`go vet`/`golangci-lint`
+  failures block the build rather than just reporting.
+- **environments** — `dev` (every branch), `staging` (main), `prod` (main,
+  gated). Deploys run in that order, sequentially, so a broken dev build
+  never reaches staging.
+- **quality** — Sonar, Trivy (with an ignore-unfixed carve-out), secret
+  scanning, dependency checking, a coverage floor, SBOM generation, and
+  cosign image signing all turned on.
+- **notify** — Slack on every state change, plus GitHub status checks.
+- **extra** — a free-form field the pipeline never reads; use it for your
+  own team's tooling.
+
+See the root [README.md](../../README.md) for the full stage list, the
+credentials table, and how the CloudFormation/Terraform infra shape differs
+from this application shape.

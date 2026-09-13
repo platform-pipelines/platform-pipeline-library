@@ -3,6 +3,13 @@
 // No -var flags here on purpose: the saved plan already has every value baked
 // in. Passing vars to `apply` with a plan file is an error in Terraform, and
 // that strictness is a feature — it is what makes the approval meaningful.
+//
+// Usage:
+//   terraformApply(cfg, envCfg, planFile)
+// Params: cfg (Map) - pipeline config; reads cfg.infra.workingDir
+//         envCfg (Map) - target environment config; envCfg.name for logging
+//         planFile (String) - path to the previously approved plan file
+// Returns: nothing; errors out if planFile no longer exists
 def call(Map cfg, Map envCfg, String planFile) {
     logBanner "Apply: ${envCfg.name}"
 

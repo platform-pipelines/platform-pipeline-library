@@ -1,5 +1,14 @@
 // Commits one file to another repo via the contents API, so the GitOps bump
 // needs no clone and no push credentials.
+//
+// Usage:
+//   githubCommitFile(repo: 'acme/gitops', path: 'apps/api/values.yaml', content: yamlText)
+// Params: args.repo (String) - owner/name of the target repo
+//         args.branch (String) - branch to commit to (default 'main')
+//         args.path (String) - file path within the repo
+//         args.content (String) - new file content, base64-encoded before sending
+//         args.message (String) - commit message (default "chore: update <path>")
+// Returns: nothing; errors if the commit fails
 def call(Map args) {
     def slug    = args.repo
     def branch  = args.branch ?: 'main'

@@ -3,6 +3,11 @@
 // Trivy generates it, so no extra tool is needed. An SBOM is what lets you
 // answer "are we affected by this CVE" in minutes across every deployed
 // service, instead of rebuilding each one to find out.
+//
+// Usage:
+//   generateSbom(cfg)
+// Params: cfg (Map) - pipeline config; cfg.quality.sbom, cfg.imageRepo are read
+// Returns: nothing; archives sbom.cdx.json and logs a component summary
 def call(Map cfg) {
     if (!cfg.quality.sbom) {
         logDebug 'SBOM generation disabled'

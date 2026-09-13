@@ -2,6 +2,11 @@
 //
 // Console logs rotate; this file is the durable answer to "who deployed what,
 // when, from which commit" when someone asks six months later.
+//
+// Usage:
+//   logAudit('infra.changeset', [environment: envCfg.name, stack: stack])
+// Params: action (String) - short dotted event name
+//         details (Map) - extra fields merged into the JSON record
 def call(String action, Map details = [:]) {
     def record = [
         timestamp: new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC')),

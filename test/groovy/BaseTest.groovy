@@ -13,6 +13,7 @@ abstract class BaseTest extends BasePipelineTest {
 
     Map<String, String> existingFiles = [:]
     List<String> shellCommands = []
+    List<String> envVars = []
 
     @Before
     void setUp() {
@@ -56,7 +57,7 @@ abstract class BaseTest extends BasePipelineTest {
 
     /**
      * Registers every vars file as a callable step so scripts can call each
-     * other. Loading is lazy and cached — loading all 99 up front would be
+     * other. Loading is lazy and cached — loading every step up front would be
      * slow, and most tests touch only a handful.
      */
     private void registerLibrarySteps() {
@@ -73,65 +74,77 @@ abstract class BaseTest extends BasePipelineTest {
                 }
 
                 // The arities the library actually uses.
-                helper.registerAllowedMethod(name, [], invoke)
-                helper.registerAllowedMethod(name, [String], invoke)
-                helper.registerAllowedMethod(name, [Map], invoke)
-                helper.registerAllowedMethod(name, [Map, Map], invoke)
-                helper.registerAllowedMethod(name, [Map, String], invoke)
-                helper.registerAllowedMethod(name, [String, String], invoke)
-                helper.registerAllowedMethod(name, [String, String, String], invoke)
+                helper.with {
+                    registerAllowedMethod(name, [], invoke)
+                    registerAllowedMethod(name, [String], invoke)
+                    registerAllowedMethod(name, [Map], invoke)
+                    registerAllowedMethod(name, [Map, Map], invoke)
+                    registerAllowedMethod(name, [Map, String], invoke)
+                    registerAllowedMethod(name, [String, String], invoke)
+                    registerAllowedMethod(name, [String, String, String], invoke)
+                    registerAllowedMethod(name, [String, Closure], invoke)
+                    registerAllowedMethod(name, [Map, Closure], invoke)
+                    registerAllowedMethod(name, [Map, Map, Closure], invoke)
+                }
             }
     }
 
     private void registerJenkinsSteps() {
-        helper.registerAllowedMethod('echo', [String]) { println "    $it" }
-        helper.registerAllowedMethod('error', [String]) { throw new RuntimeException(it) }
+        helper.with {
+            registerAllowedMethod('echo', [String]) { println "    $it" }
+            registerAllowedMethod('error', [String]) { throw new RuntimeException(it) }
 
-        helper.registerAllowedMethod('fileExists', [String]) { String p -> existingFiles.containsKey(p) }
-        helper.registerAllowedMethod('readFile', [String]) { String p -> existingFiles[p] ?: '' }
-        helper.registerAllowedMethod('writeFile', [Map]) { Map m -> existingFiles[m.file] = m.text }
-        helper.registerAllowedMethod('libraryResource', [String]) { String p -> "# stub: ${p}" }
+            registerAllowedMethod('fileExists', [String]) { String p -> existingFiles.containsKey(p) }
+            registerAllowedMethod('readFile', [String]) { String p -> existingFiles[p] ?: '' }
+            registerAllowedMethod('writeFile', [Map]) { Map m -> existingFiles[m.file] = m.text }
+            registerAllowedMethod('writeJSON', [Map]) { Map m -> existingFiles[m.file] = groovy.json.JsonOutput.toJson(m.json) }
+            registerAllowedMethod('libraryResource', [String]) { String p -> "# stub: ${p}" }
 
-        helper.registerAllowedMethod('readYaml', [Map]) { Map m ->
-            new org.yaml.snakeyaml.Yaml().load(existingFiles[m.file] ?: '') ?: [:]
-        }
-        helper.registerAllowedMethod('readProperties', [Map]) { Map m ->
-            Properties p = new Properties()
-            p.load(new StringReader(existingFiles[m.file] ?: ''))
-            return p as Map
-        }
+            registerAllowedMethod('readYaml', [Map]) { Map m ->
+                new org.yaml.snakeyaml.Yaml().load(existingFiles[m.file] ?: '') ?: [:]
+            }
+            registerAllowedMethod('readProperties', [Map]) { Map m ->
+                Properties p = new Properties()
+                p.load(new StringReader(existingFiles[m.file] ?: ''))
+                return p as Map
+            }
 
-        helper.registerAllowedMethod('sh', [String]) { String cmd ->
-            shellCommands << cmd
-            return null
-        }
-        helper.registerAllowedMethod('sh', [Map]) { Map m ->
-            shellCommands << m.script
-            if (m.returnStdout) { return stubStdout(m.script) }
-            if (m.returnStatus) { return stubStatus(m.script) }
-            return null
-        }
+            registerAllowedMethod('sh', [String]) { String cmd ->
+                shellCommands << cmd
+                return null
+            }
+            registerAllowedMethod('sh', [Map]) { Map m ->
+                shellCommands << m.script
+                if (m.returnStdout) { return stubStdout(m.script) }
+                if (m.returnStatus) { return stubStatus(m.script) }
+                return null
+            }
 
-        helper.registerAllowedMethod('withCredentials', [List, Closure]) { l, c -> c.call() }
-        helper.registerAllowedMethod('string', [Map]) { it }
-        helper.registerAllowedMethod('usernamePassword', [Map]) { it }
-        helper.registerAllowedMethod('text', [Map]) { it }
+            registerAllowedMethod('withCredentials', [List, Closure]) { l, c -> c.call() }
+            registerAllowedMethod('withEnv', [List, Closure]) { List vars, Closure c ->
+                vars.each { envVars << it }
+                c.call()
+            }
+            registerAllowedMethod('string', [Map]) { it }
+            registerAllowedMethod('usernamePassword', [Map]) { it }
+            registerAllowedMethod('text', [Map]) { it }
 
-        helper.registerAllowedMethod('archiveArtifacts', [Map]) { }
-        helper.registerAllowedMethod('junit', [Map]) { }
-        helper.registerAllowedMethod('stash', [Map]) { }
-        helper.registerAllowedMethod('unstash', [String]) { }
-        helper.registerAllowedMethod('findFiles', [Map]) { [] }
-        helper.registerAllowedMethod('checkout', [Object]) { }
+            registerAllowedMethod('archiveArtifacts', [Map]) { }
+            registerAllowedMethod('junit', [Map]) { }
+            registerAllowedMethod('stash', [Map]) { }
+            registerAllowedMethod('unstash', [String]) { }
+            registerAllowedMethod('findFiles', [Map]) { [] }
+            registerAllowedMethod('checkout', [Object]) { }
 
-        helper.registerAllowedMethod('timeout', [Map, Closure]) { m, c -> c.call() }
-        helper.registerAllowedMethod('waitUntil', [Map, Closure]) { m, c -> c.call() }
-        helper.registerAllowedMethod('node', [String, Closure]) { s, c -> c.call() }
-        helper.registerAllowedMethod('stage', [String, Closure]) { s, c -> c.call() }
-        helper.registerAllowedMethod('container', [String, Closure]) { s, c -> c.call() }
-        helper.registerAllowedMethod('input', [Map]) { [APPROVER: 'ops.lead', REASON: 'CHG-1234'] }
-        helper.registerAllowedMethod('parallel', [Map]) { Map m ->
-            m.findAll { k, v -> v instanceof Closure }.each { k, v -> v.call() }
+            registerAllowedMethod('timeout', [Map, Closure]) { m, c -> c.call() }
+            registerAllowedMethod('waitUntil', [Map, Closure]) { m, c -> c.call() }
+            registerAllowedMethod('node', [String, Closure]) { s, c -> c.call() }
+            registerAllowedMethod('stage', [String, Closure]) { s, c -> c.call() }
+            registerAllowedMethod('container', [String, Closure]) { s, c -> c.call() }
+            registerAllowedMethod('input', [Map]) { [APPROVER: 'ops.lead', REASON: 'CHG-1234'] }
+            registerAllowedMethod('parallel', [Map]) { Map m ->
+                m.findAll { k, v -> v instanceof Closure }.each { k, v -> v.call() }
+            }
         }
 
         // docker.image(name).inside(args) { body }

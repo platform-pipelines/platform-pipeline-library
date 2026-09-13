@@ -1,5 +1,11 @@
 // Edits the previous bot comment carrying the same marker instead of adding
 // another. Without this, a busy PR collects twenty identical scan reports.
+//
+// Usage:
+//   githubUpsertComment('<!-- sonar-report -->', reportMarkdown)
+// Params: marker (String) - hidden marker text identifying the bot comment
+//         markdown (String) - comment body, appended after the marker
+// Returns: nothing; no-op outside PR builds (no env.CHANGE_ID)
 def call(String marker, String markdown) {
     if (!env.CHANGE_ID) { return }
 

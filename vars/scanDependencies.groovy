@@ -1,5 +1,10 @@
 // OWASP Dependency-Check. Opt-in: it is slow and needs a warm NVD cache to
 // be tolerable, so most repos rely on Trivy instead.
+//
+// Usage:
+//   scanDependencies(cfg)
+// Params: cfg (Map) - pipeline config; reads cfg.appName and cfg.extra.dependencyCheckCvss (default 7)
+// Returns: nothing; archives the report and errors out if a CVSS-scored CVE meets the threshold
 def call(Map cfg) {
     logBanner 'Dependency-Check'
 

@@ -3,6 +3,11 @@
 // Not used by standardPipeline — githubUpsertComment is, because it replaces
 // rather than accumulates. This one is kept as public API for consumers who
 // want a one-off comment from a custom stage in their own Jenkinsfile.
+//
+// Usage:
+//   githubComment('Deployed to staging.')
+// Params: markdown (String) - comment body
+// Returns: nothing; no-op outside PR builds (no env.CHANGE_ID)
 def call(String markdown) {
     if (!env.CHANGE_ID) {
         logDebug 'Not a PR build — skipping comment'

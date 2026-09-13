@@ -4,6 +4,19 @@
 // This is the riskiest string handling in the library: a regex that silently
 // fails to match means the pipeline reports success while the old image stays
 // deployed. Covered by UpdateManifestTest.
+//
+// Usage:
+//   def updated = manifestBumpImage(yamlText, 'ghcr.io/acme/api:1.4.0')
+// Params: yamlText (String) - manifest content (kustomization, plain k8s, or helm values)
+//         image (String) - full image reference including tag
+// Returns: yamlText with the matching image/tag lines rewritten to the new tag
+//
+// @NonCPS: pure regex/string manipulation with no pipeline steps other than
+// error() — running it un-transformed avoids CPS overhead on every
+// replaceAll closure invocation.
+import com.cloudbees.groovy.cps.NonCPS
+
+@NonCPS
 def call(String yamlText, String image) {
     // lastIndexOf, not split on ':' — registry.local:5000/acme/api:1.4.0
     // contains two colons and only the last separates the tag.

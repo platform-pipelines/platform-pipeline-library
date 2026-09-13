@@ -1,4 +1,9 @@
 // Routes to the right test step for this repo's buildTool.
+//
+// Usage:
+//   testApp(cfg)
+// Params: cfg (Map) - pipeline config; reads cfg.buildTool to pick the test step
+// Returns: nothing; delegates to the matching *Test step, or errors on an unsupported buildTool
 def call(Map cfg) {
     switch (cfg.buildTool) {
         case 'go':          goTest(cfg);         break

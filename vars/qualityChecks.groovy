@@ -2,6 +2,11 @@
 //
 // failFast is off deliberately: seeing every problem in one run beats fixing
 // them one build at a time.
+//
+// Usage:
+//   parallel(qualityChecks(cfg))
+// Params: cfg (Map) - pipeline config; reads cfg.quality.* to decide which gates apply
+// Returns: Map of check name -> Closure, suitable for parallel(), plus failFast: false
 def call(Map cfg) {
     def checks = [:]
 

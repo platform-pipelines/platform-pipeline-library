@@ -1,6 +1,11 @@
 // Returns a list of problems. Collects every error rather than throwing on
 // the first, so a misconfigured repo is fixed in one pass instead of five
 // failed builds.
+//
+// Usage:
+//   def problems = configValidate(cfg)
+// Params: cfg (Map) - fully merged config to validate (see configLoad)
+// Returns: List of human-readable problem strings; empty when cfg is valid
 def call(Map cfg) {
     def errors = []
     def supported = configSupportedTools()
@@ -35,7 +40,10 @@ def call(Map cfg) {
         errors << "containerize must be false for ${cfg.buildTool}"
     }
 
-    if (cfg.deployStrategy == 'cloudformation' && !cfg.infra.region) {
+    // buildTool: cloudformation dispatches cfnBuild/cfnPackage independently
+    // of deployStrategy, and both paths call withAwsCredentials, so either
+    // one needing infra.region is enough to require it.
+    if ((cfg.deployStrategy == 'cloudformation' || cfg.buildTool == 'cloudformation') && !cfg.infra.region) {
         errors << 'infra.region is required for cloudformation'
     }
     if (!(cfg.notify.on in ['always', 'failure', 'change'])) {

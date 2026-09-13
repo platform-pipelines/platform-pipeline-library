@@ -1,4 +1,9 @@
 // JUnit XML glob, or null when the toolchain produces none.
+//
+// Usage:
+//   def glob = appTestReport(cfg)
+// Params: cfg (Map) - pipeline config; only cfg.buildTool is read
+// Returns: JUnit XML glob for cfg.buildTool, or null if none applies
 def call(Map cfg) {
     switch (cfg.buildTool) {
         case 'go':     return 'test-results.xml'

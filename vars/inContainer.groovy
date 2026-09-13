@@ -1,5 +1,12 @@
 // Runs a body inside a container image, with a named volume at /cache so
 // dependency downloads survive between builds.
+//
+// Usage:
+//   inContainer('golang:1.23', '.gocache') { sh 'go build ./...' }
+// Params: image (String) - container image to run in
+//         cacheDir (String) - cache directory name, mounted at /cache when non-empty
+//         body (Closure) - steps to run inside the container
+// Returns: nothing; runs body() inside docker.image(image).inside(...)
 def call(String image, String cacheDir, Closure body) {
     def mount = ''
     if (cacheDir) {

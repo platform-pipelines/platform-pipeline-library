@@ -1,4 +1,9 @@
 // Lint report glob, for surfacing in the build UI.
+//
+// Usage:
+//   def glob = appLintReport(cfg)
+// Params: cfg (Map) - pipeline config; only cfg.buildTool is read
+// Returns: lint report glob for cfg.buildTool, or null if none applies
 def call(Map cfg) {
     switch (cfg.buildTool) {
         case 'go':     return 'golangci-report.xml'

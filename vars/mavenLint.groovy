@@ -1,5 +1,9 @@
 // Checkstyle plus SpotBugs. Both write XML that Jenkins can surface, and both
 // run offline once the plugin jars are cached.
+//
+// Usage:
+//   mavenLint(cfg)
+// Params: cfg (Map) - pipeline config; reads cfg.lint.autoFormat and cfg.lint.failOnError
 def call(Map cfg) {
     logBanner 'Lint: Java (Maven)'
 

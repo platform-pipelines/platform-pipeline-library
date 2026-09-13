@@ -1,5 +1,11 @@
 // One environment. Routes on deployStrategy, because deploying an application
 // and deploying infrastructure share an approval model but nothing else.
+//
+// Usage:
+//   deployToEnvironment(cfg, envCfg)
+// Params: cfg (Map) - pipeline config; cfg.deployStrategy picks the route
+//         envCfg (Map) - target environment config
+// Returns: nothing; delegates to deployGitops/deployTerraform/deployCloudFormation
 def call(Map cfg, Map envCfg) {
     logBanner "Deploy -> ${envCfg.name}"
 

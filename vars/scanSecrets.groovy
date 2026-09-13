@@ -1,5 +1,10 @@
 // Gitleaks across the repo history, not just HEAD. A secret committed and
 // later reverted is still a leaked secret.
+//
+// Usage:
+//   scanSecrets(cfg)
+// Params: cfg (Map) - pipeline config; unused here, kept for call-signature consistency across quality checks
+// Returns: nothing; archives gitleaks-report.json and errors out if any secret is detected
 def call(Map cfg) {
     logBanner 'Secret scan'
 

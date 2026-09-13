@@ -6,6 +6,11 @@
 // Worth being blunt about: signing only matters if something verifies. Pair
 // this with an admission policy (Kyverno, Sigstore policy-controller) that
 // rejects unsigned images, or it is paperwork.
+//
+// Usage:
+//   signImage(cfg)
+// Params: cfg (Map) - pipeline config; reads cfg.quality.signImage/sbom and cfg.imageRepo
+// Returns: nothing; a no-op unless cfg.quality.signImage is true and env.IMAGE_DIGEST is set
 def call(Map cfg) {
     if (!cfg.quality.signImage) {
         logDebug 'Image signing disabled'

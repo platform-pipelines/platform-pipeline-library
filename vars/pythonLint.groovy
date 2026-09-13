@@ -1,4 +1,8 @@
 // Ruff covers what flake8, isort and pyupgrade used to, in one fast pass.
+//
+// Usage:
+//   pythonLint(cfg)
+// Params: cfg (Map) - pipeline config; reads cfg.lint.autoFormat and cfg.lint.failOnError
 def call(Map cfg) {
     logBanner 'Lint: Python'
 

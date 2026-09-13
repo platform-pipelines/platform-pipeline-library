@@ -1,5 +1,9 @@
 // Kaniko authenticates from a docker config file — there is no daemon to
 // run `docker login` against.
+//
+// Usage:
+//   kanikoDockerConfig()
+// Writes /kaniko/.docker/config.json using the REGISTRY_CREDENTIALS_ID credential.
 def call() {
     withCredentials([usernamePassword(
         credentialsId   : env.REGISTRY_CREDENTIALS_ID ?: 'ghcr-credentials',

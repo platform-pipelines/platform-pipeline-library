@@ -1,4 +1,8 @@
 // Routes to the right package step for this repo's buildTool.
+//
+// Usage:
+//   packageApp(cfg)
+// Params: cfg (Map) - pipeline config; reads cfg.buildTool
 def call(Map cfg) {
     switch (cfg.buildTool) {
         case 'go':          goPackage(cfg);         break

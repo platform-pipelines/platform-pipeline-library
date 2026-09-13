@@ -1,4 +1,9 @@
 // Id of the existing bot comment carrying this marker, or empty string.
+//
+// Usage:
+//   def id = githubFindComment('<!-- sonar-report -->')
+// Params: marker (String) - hidden marker text identifying the bot comment
+// Returns: comment id as a String, or '' if no comment carries the marker
 def call(String marker) {
     def script = useScript('find_pr_comment.py')
 

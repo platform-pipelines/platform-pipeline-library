@@ -1,6 +1,11 @@
 // Terraform lint: formatting, then validation, then tflint.
 //
 // fmt first because it is instant and catches the most common review comment.
+//
+// Usage:
+//   terraformLint(cfg)
+// Params: cfg (Map) - pipeline config; reads cfg.infra.workingDir, cfg.lint.autoFormat/failOnError
+// Returns: nothing; errors out on a formatting/validation/tflint failure when cfg.lint.failOnError is true
 def call(Map cfg) {
     logBanner 'Lint: Terraform'
 

@@ -1,6 +1,10 @@
 // Baseline every consuming repo inherits. Anything not set in .ci/config.yaml
 // comes from here, so adding a new capability with a safe default does not
 // require touching every repo.
+//
+// Usage:
+//   def defaults = configDefaults()
+// Returns: Map of every recognized top-level config key with its default value
 def call() {
     [
         appName        : null,

@@ -1,4 +1,9 @@
 // SonarQube analysis, then the quality gate if the config demands it.
+//
+// Usage:
+//   scanSonar(cfg)
+// Params: cfg (Map) - pipeline config; reads cfg.quality.failOnQualityGate
+// Returns: nothing; runs sonar-scanner and, if configured, blocks on sonarWaitForGate(cfg)
 def call(Map cfg) {
     logBanner 'SonarQube'
 

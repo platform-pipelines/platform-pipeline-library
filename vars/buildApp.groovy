@@ -1,4 +1,9 @@
 // Routes to the right build step for this repo's buildTool.
+//
+// Usage:
+//   buildApp(cfg)
+// Params: cfg (Map) - pipeline config; cfg.buildTool selects the build step
+// Returns: nothing; errors if buildTool is unsupported
 def call(Map cfg) {
     switch (cfg.buildTool) {
         case 'go':          goBuild(cfg);         break

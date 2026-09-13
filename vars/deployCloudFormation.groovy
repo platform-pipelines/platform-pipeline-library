@@ -1,4 +1,10 @@
 // Infrastructure deploy: create a change set, gate on it, execute it.
+//
+// Usage:
+//   deployCloudFormation(cfg, envCfg)
+// Params: cfg (Map) - pipeline config
+//         envCfg (Map) - target environment config; envCfg.requiresApproval gates on approvalGate
+// Returns: nothing; a no-op when the change set has no changes to apply
 def call(Map cfg, Map envCfg) {
     def changeSet = cfnChangeSet(cfg, envCfg)
 

@@ -1,3 +1,7 @@
+// Usage:
+//   gradleLint(cfg)
+// Params: cfg (Map) - pipeline config; cfg.lint.autoFormat/failOnError are read
+// Returns: nothing; errors if checkstyle/spotbugs report violations and failOnError is true
 def call(Map cfg) {
     logBanner 'Lint: Java (Gradle)'
 

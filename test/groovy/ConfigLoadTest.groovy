@@ -14,9 +14,9 @@ containerize: false
         def cfg = step('configLoad').call()
 
         assertThat(cfg.appName).isEqualTo('demo')
-        assertThat(cfg.quality.sonar).isTrue()
+        assertThat(cfg.quality.sonar as boolean).isTrue()
         assertThat(cfg.quality.trivyFailOn).containsExactly('HIGH', 'CRITICAL')
-        assertThat(cfg.lint.enabled).isTrue()
+        assertThat(cfg.lint.enabled as boolean).isTrue()
         assertThat(cfg.notify.on).isEqualTo('change')
     }
 
@@ -33,7 +33,7 @@ quality:
 
         assertThat(cfg.quality.minCoverage).isEqualTo(90)
         // sibling keys survive the merge rather than being wiped
-        assertThat(cfg.quality.sonar).isTrue()
+        assertThat(cfg.quality.sonar as boolean).isTrue()
     }
 
     @Test

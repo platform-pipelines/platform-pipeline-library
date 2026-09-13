@@ -2,6 +2,11 @@
 //
 // Policy checks belong here rather than in the security stage because a
 // policy failure is a logic error in the change, not a vulnerability.
+//
+// Usage:
+//   terraformTest(cfg)
+// Params: cfg (Map) - pipeline config; reads cfg.infra.workingDir/policyDir
+// Returns: nothing; runs terraform test if present, and conftest against a plan if policyDir is set
 def call(Map cfg) {
     logBanner 'Test: Terraform'
 

@@ -1,4 +1,8 @@
 // Routes to the right lint step for this repo's buildTool.
+//
+// Usage:
+//   lintApp(cfg)
+// Params: cfg (Map) - pipeline config; reads cfg.lint.enabled and cfg.buildTool
 def call(Map cfg) {
     if (!cfg.lint.enabled) {
         logInfo 'Lint disabled in config'

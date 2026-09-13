@@ -1,4 +1,8 @@
 // ESLint, Prettier, and a TypeScript typecheck when tsconfig is present.
+//
+// Usage:
+//   nodeLint(cfg)
+// Params: cfg (Map) - pipeline config; reads cfg.lint.autoFormat and cfg.lint.failOnError
 def call(Map cfg) {
     logBanner 'Lint: Node'
     nodeInstall(cfg)

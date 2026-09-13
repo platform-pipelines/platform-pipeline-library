@@ -2,6 +2,11 @@
 //
 // Rootless buildah still needs subuid/subgid ranges and fuse-overlayfs on the
 // host, so it is not a drop-in for every fleet — hence opt-in.
+//
+// Usage:
+//   buildImageBuildah(cfg)
+// Params: cfg (Map) - pipeline config; reads cfg.dockerfile and cfg.imageRepo
+// Returns: nothing; builds and pushes the image plus every extra tag
 def call(Map cfg) {
     def tags = ([env.IMAGE_TAG] + imageExtraTags())
     def labels = imageLabels(cfg).findAll { k, v -> v }

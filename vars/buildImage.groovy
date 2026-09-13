@@ -3,6 +3,11 @@
 // Routes to an implementation because how you build an image without a root
 // daemon depends entirely on where your agents run. Set `imageBuilder:` in
 // .ci/config.yaml, or leave it and get the docker-hosted kaniko default.
+//
+// Usage:
+//   buildImage(cfg)
+// Params: cfg (Map) - pipeline config; reads cfg.dockerfile, cfg.imageRepo, cfg.imageBuilder
+// Returns: nothing; sets env.IMAGE_DIGEST/env.IMAGE_REF and errors if the Dockerfile or imageBuilder is invalid
 def call(Map cfg) {
     if (!fileExists(cfg.dockerfile)) {
         error "Dockerfile not found at ${cfg.dockerfile}"

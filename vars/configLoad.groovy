@@ -1,5 +1,11 @@
 // Reads .ci/config.yaml, layers it over defaults, applies inline overrides,
 // validates, and returns a plain Map.
+//
+// Usage:
+//   def cfg = configLoad()
+//   def cfg = configLoad([configFile: '.ci/other.yaml', quality: [minCoverage: 90]])
+// Params: overrides (Map) - inline overrides merged in last; 'configFile' key picks the yaml path
+// Returns: fully merged and validated config Map; errors if validation finds any problems
 def call(Map overrides = [:]) {
     def opts = [:] + overrides
     def path = opts.remove('configFile') ?: '.ci/config.yaml'

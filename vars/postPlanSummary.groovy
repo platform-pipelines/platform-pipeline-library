@@ -1,5 +1,12 @@
 // Puts the plan summary on the PR so reviewers see the blast radius without
 // digging through build logs.
+//
+// Usage:
+//   postPlanSummary(cfg, envCfg, planSummaryText)
+// Params: cfg (Map) - pipeline config (unused directly; kept for call-site consistency)
+//         envCfg (Map) - target environment config; envCfg.name is shown in the comment
+//         summary (String) - plan/change-set summary text
+// No-op outside pull request builds (env.CHANGE_ID unset).
 def call(Map cfg, Map envCfg, String summary) {
     if (!env.CHANGE_ID) { return }
 

@@ -5,6 +5,11 @@
 //   release/*  -> 1.4.0-rc.42
 //   hotfix/*   -> 1.4.0-hotfix.42.gab12cd3
 //   feature/*  -> 1.4.0-feature-login.42.gab12cd3
+//
+// Usage:
+//   def version = versionResolve()
+// Params: branch (String) - branch to resolve (default env.BRANCH_NAME)
+// Returns: a version string shaped by the branch pattern (see examples above)
 def call(String branch = null) {
     def b     = branch ?: env.BRANCH_NAME
     def base  = versionBase()

@@ -3,6 +3,11 @@
 //
 // Skipped when no artifactBucket is configured, since templates with no local
 // references do not need it.
+//
+// Usage:
+//   cfnPackage(cfg)
+// Params: cfg (Map) - pipeline config; reads cfg.infra.template/artifactBucket, cfg.appName
+// Returns: nothing; writes and archives packaged-template.yaml, or skips if artifactBucket is unset
 def call(Map cfg) {
     if (!cfg.infra.artifactBucket) {
         logInfo 'No infra.artifactBucket — skipping cloudformation package'

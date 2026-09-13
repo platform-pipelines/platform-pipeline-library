@@ -3,6 +3,14 @@
 
 plugins {
     id 'groovy'
+    id 'codenarc'
+}
+
+codenarc {
+    toolVersion = '4.0.0'
+    configFile = file('config/codenarc/codenarc.groovy')
+    maxPriority1Violations = 0
+    maxPriority2Violations = 0
 }
 
 repositories {
@@ -12,7 +20,16 @@ repositories {
 
 dependencies {
     implementation 'org.codehaus.groovy:groovy-all:3.0.19'
-    testImplementation 'com.lesfurets:jenkins-pipeline-unit:1.19'
+    implementation 'com.lesfurets:jenkins-pipeline-unit:1.19'
+    // vars/*.groovy references Jenkins workflow-plugin classes directly
+    // (e.g. @NonCPS, FlowInterruptedException in requestApproval.groovy).
+    // jenkins-pipeline-unit only carries these as compileOnly upstream, so
+    // they need to be declared here too for vars/ (the main sourceSet) to
+    // compile at all.
+    implementation 'com.cloudbees:groovy-cps:4378.v7a_08f1b_b_f8f4'
+    implementation 'org.jenkins-ci.plugins.workflow:workflow-step-api:724.v538c2362b_dfb_@jar'
+    implementation 'org.jenkins-ci.plugins.workflow:workflow-support:1015.v785e5a_b_b_8b_22@jar'
+    implementation 'org.jenkins-ci.plugins:pipeline-input-step:560.v56198a_642157@jar'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.assertj:assertj-core:3.25.3'
     testImplementation 'org.yaml:snakeyaml:2.2'

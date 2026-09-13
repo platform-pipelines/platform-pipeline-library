@@ -3,6 +3,13 @@
 //
 // Rollback is a git revert, and cluster state is auditable from git history
 // without asking Jenkins anything.
+//
+// Usage:
+//   updateManifest(cfg: cfg, env: envCfg, image: "${cfg.imageRepo}:${env.IMAGE_TAG}")
+// Params: args.cfg (Map) - pipeline config; reads cfg.gitopsRepo/gitopsBranch/appName
+//         args.env (Map) - target environment config; reads envCfg.name/manifestPath
+//         args.image (String) - full image reference to bump the manifest to
+// Returns: nothing; commits the manifest change, or logs and returns if already up to date
 def call(Map args) {
     def cfg    = args.cfg
     def envCfg = args.env

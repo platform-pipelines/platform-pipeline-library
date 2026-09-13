@@ -1,5 +1,10 @@
 // CloudFormation lint: cfn-lint over every template, then a syntax check by
 // the service itself.
+//
+// Usage:
+//   cfnLint(cfg)
+// Params: cfg (Map) - pipeline config; reads cfg.infra.workingDir and cfg.lint.failOnError
+// Returns: nothing; errors if cfn-lint fails and cfg.lint.failOnError is true
 def call(Map cfg) {
     logBanner 'Lint: CloudFormation'
 

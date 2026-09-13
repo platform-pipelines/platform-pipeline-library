@@ -1,4 +1,8 @@
 // Defaults applied to each entry under `environments:`.
+//
+// Usage:
+//   def defaults = configEnvDefaults()
+// Returns: Map of default values for one `environments:` entry
 def call() {
     [
         name                  : null,

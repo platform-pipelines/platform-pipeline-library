@@ -1,5 +1,10 @@
 // Fails the build when coverage is below the configured minimum.
 // Skipped entirely when quality.minCoverage is unset.
+//
+// Usage:
+//   checkCoverage(cfg)
+// Params: cfg (Map) - pipeline config; reads cfg.quality.minCoverage
+// Returns: nothing; sets a GitHub commit status and errors if coverage is below the minimum
 def call(Map cfg) {
     def minimum = cfg.quality.minCoverage
     if (minimum == null) { return }

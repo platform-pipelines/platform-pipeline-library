@@ -2,6 +2,10 @@
 //
 // Walks the causes chain rather than reading BUILD_USER, which only exists
 // if you install the build-user-vars plugin — deliberately not in plugins.txt.
+//
+// Usage:
+//   def who = logActor()
+// Returns: the user id, trigger name (scm-trigger/timer/branch-indexing), or 'unknown'
 def call() {
     try {
         def causes = currentBuild.getBuildCauses()

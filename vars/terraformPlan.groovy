@@ -4,6 +4,12 @@
 // `terraform plan` — is what apply consumes. Re-planning after approval is
 // the classic infrastructure pipeline bug: you approve plan A and apply
 // plan B, because the world moved in between.
+//
+// Usage:
+//   def planFile = terraformPlan(cfg, envCfg)
+// Params: cfg (Map) - pipeline config; reads cfg.infra.workingDir/varFiles
+//         envCfg (Map) - target environment config; envCfg.name/varFiles
+// Returns: the plan file name (also archived as <name>.json/.txt); errors out if the plan itself fails
 def call(Map cfg, Map envCfg) {
     logBanner "Plan: ${envCfg.name}"
 

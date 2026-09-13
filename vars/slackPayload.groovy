@@ -1,4 +1,10 @@
 // Builds the Slack attachment body.
+//
+// Usage:
+//   def payload = slackPayload(cfg, currentBuild.currentResult)
+// Params: cfg (Map) - pipeline config; reads cfg.appName and cfg.notify.slackChannel
+//         status (String) - build result: SUCCESS/FAILURE/UNSTABLE/ABORTED
+// Returns: Map payload ready for the Slack step (channel + one colored attachment)
 def call(Map cfg, String status) {
     def colours = [SUCCESS: '#2eb886', FAILURE: '#cc0000', UNSTABLE: '#e8a317', ABORTED: '#808080']
     def icons   = [SUCCESS: ':white_check_mark:', FAILURE: ':x:', UNSTABLE: ':warning:', ABORTED: ':black_square_for_stop:']

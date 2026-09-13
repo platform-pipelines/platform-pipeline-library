@@ -1,7 +1,12 @@
 // Trivy scan of a filesystem or an image.
 //
+// Usage:
 //   scanTrivy(cfg: cfg, target: '.', type: 'fs')
 //   scanTrivy(cfg: cfg, target: 'ghcr.io/acme/api:1.4.0', type: 'image')
+// Params: args.cfg (Map) - pipeline config; reads cfg.quality.trivyFailOn/trivyIgnoreUnfixed
+//         args.target (String) - path or image ref to scan (default '.')
+//         args.type (String) - 'fs' or 'image' (default 'fs')
+// Returns: nothing; archives trivy-<type>.* and errors out on a vulnerability at trivyFailOn severity
 def call(Map args) {
     def cfg    = args.cfg
     def target = args.target ?: '.'

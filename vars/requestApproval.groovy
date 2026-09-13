@@ -1,5 +1,11 @@
 // The input() call, with rejection and timeout distinguished so the audit log
 // records which one happened.
+//
+// Usage:
+//   requestApproval(cfg, envCfg)
+// Params: cfg (Map) - pipeline config; used for appName and env.APP_VERSION context
+//         envCfg (Map) - target environment config; reads name, approvers, approvalTimeoutMinutes
+// Returns: the approver's username (APPROVER submitter parameter), or the pipeline errors out on reject/timeout
 def call(Map cfg, Map envCfg) {
     try {
         timeout(time: envCfg.approvalTimeoutMinutes, unit: 'MINUTES') {
