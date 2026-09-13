@@ -1,0 +1,38 @@
+# CloudFormation repo.
+
+appName: billing-stack
+buildTool: cloudformation
+
+infra:
+  workingDir: templates
+  template: templates/root.yaml
+  artifactBucket: acme-cfn-artifacts
+  region: us-east-1
+  capabilities: [CAPABILITY_IAM, CAPABILITY_NAMED_IAM]
+
+environments:
+  - name: dev
+    stackName: billing-dev
+    parameters:
+      Environment: dev
+      InstanceType: t3.small
+    branchPattern: "*"
+
+  - name: prod
+    stackName: billing-prod
+    parameters:
+      Environment: prod
+      InstanceType: m6i.large
+    assumeRole: arn:aws:iam::444455556666:role/JenkinsDeploy
+    branchPattern: main
+    requiresApproval: true
+    approvers: [platform-leads, finance-eng]
+
+quality:
+  sonar: false
+  trivy: true
+  secretScan: true
+
+notify:
+  slackChannel: "#billing-infra"
+  on: always

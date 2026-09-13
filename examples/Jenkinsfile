@@ -1,0 +1,3 @@
+@Library('company-pipeline@v2') _
+
+standardPipeline()

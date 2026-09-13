@@ -1,0 +1,13 @@
+# Python worker, no container.
+appName: report-worker
+buildTool: python
+runtimeVersion: "3.12"
+containerize: false
+
+quality:
+  sonar: true
+  minCoverage: 80
+
+notify:
+  slackChannel: "#data-ci"
+  on: failure

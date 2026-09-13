@@ -1,0 +1,11 @@
+@Library('company-pipeline@v2') _
+
+// Overrides merge over .ci/config.yaml. Use sparingly — config.yaml is the
+// preferred place, since it is readable without knowing Groovy.
+standardPipeline(
+    quality: [
+        minCoverage: 85,
+        dependencyCheck: true
+    ],
+    notify: [on: 'always']
+)

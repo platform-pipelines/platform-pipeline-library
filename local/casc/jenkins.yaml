@@ -1,0 +1,102 @@
+# Whole controller config as code. Rebuilding Jenkins from scratch is a
+# docker compose up, not a two-day recovery.
+
+jenkins:
+  systemMessage: "Managed by JCasC. Do not configure through the UI."
+  numExecutors: 0            # controller never runs builds
+  mode: EXCLUSIVE
+  scmCheckoutRetryCount: 3
+
+  authorizationStrategy:
+    roleBased:
+      roles:
+        global:
+          - name: admin
+            permissions: [Overall/Administer]
+            entries:
+              - group: platform-leads
+          - name: developer
+            permissions:
+              - Overall/Read
+              - Job/Build
+              - Job/Read
+              - Job/Cancel
+            entries:
+              - group: developers
+
+  securityRealm:
+    local:
+      allowsSignup: false
+
+  nodes:
+    - permanent:
+        name: linux-agent-1
+        labelString: "linux docker"
+        numExecutors: 4
+        remoteFS: /home/jenkins/agent
+        launcher:
+          inbound:
+            workDirSettings:
+              disabled: false
+
+security:
+  globalJobDslSecurityConfiguration:
+    useScriptSecurity: true
+  scriptApproval:
+    approvedSignatures:
+      - "method java.lang.String lastIndexOf java.lang.String"
+
+unclassified:
+  location:
+    url: http://localhost:8080/
+    adminAddress: platform@acme.example
+
+  globalLibraries:
+    libraries:
+      - name: company-pipeline
+        defaultVersion: main
+        implicit: false
+        allowVersionOverride: true
+        retriever:
+          modernSCM:
+            scm:
+              git:
+                remote: https://github.com/acme/jenkins-shared-library.git
+                credentialsId: github-token
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - string:
+              scope: GLOBAL
+              id: github-token
+              secret: "${GITHUB_TOKEN}"
+              description: GitHub App installation token
+          - string:
+              scope: GLOBAL
+              id: sonar-token
+              secret: "${SONAR_TOKEN}"
+              description: SonarQube analysis token
+          - string:
+              scope: GLOBAL
+              id: slack-webhook
+              secret: "${SLACK_WEBHOOK}"
+              description: Slack incoming webhook
+          - string:
+              scope: GLOBAL
+              id: argocd-token
+              secret: "${ARGOCD_TOKEN}"
+              description: Argo CD API token
+          - usernamePassword:
+              scope: GLOBAL
+              id: ghcr-credentials
+              username: "${GHCR_USER}"
+              password: "${GHCR_TOKEN}"
+              description: GitHub Container Registry
+          - usernamePassword:
+              scope: GLOBAL
+              id: nexus-credentials
+              username: "${NEXUS_USER}"
+              password: "${NEXUS_PASS}"
+              description: Nexus repository

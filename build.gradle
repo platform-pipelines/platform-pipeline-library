@@ -1,0 +1,38 @@
+// Runs the library's own tests locally. No Jenkins instance required.
+//   ./gradlew test
+
+plugins {
+    id 'groovy'
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://repo.jenkins-ci.org/releases/' }
+}
+
+dependencies {
+    implementation 'org.codehaus.groovy:groovy-all:3.0.19'
+    testImplementation 'com.lesfurets:jenkins-pipeline-unit:1.19'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.assertj:assertj-core:3.25.3'
+    testImplementation 'org.yaml:snakeyaml:2.2'
+}
+
+sourceSets {
+    main {
+        groovy { srcDirs = ['vars'] }
+        resources { srcDirs = ['resources'] }
+    }
+    test {
+        groovy { srcDirs = ['test/groovy'] }
+        resources { srcDirs = ['test/resources'] }
+    }
+}
+
+test {
+    useJUnit()
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+        exceptionFormat 'full'
+    }
+}

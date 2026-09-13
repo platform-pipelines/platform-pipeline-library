@@ -1,0 +1,24 @@
+# Deliberately short. Everything the library needs is a shell command or a
+# REST call, so scanning, notifications, and deploys need no plugin at all.
+#
+# Bump versions in a PR, rebuild, run the library test suite against the new
+# image, then promote. Never install through the UI.
+
+configuration-as-code:1850.va_a_1c33fd75e0
+workflow-aggregator:600.vb_57cdd26fdd7
+pipeline-stage-view:2.34
+github-branch-source:1797.v86fdb_4d57d43
+git:5.4.1
+credentials-binding:681.vf91669a_32e45
+docker-workflow:580.vc0c340686b_54
+pipeline-utility-steps:2.16.2
+timestamper:1.27
+ws-cleanup:0.46
+junit:1256.v3f5f2c1b_9c8f
+antisamy-markup-formatter:162.v0e6ec0fcfcf6
+
+# Only needed for imageBuilder: kaniko-k8s, which runs kaniko as a sidecar in
+# the agent pod. The default (kaniko-docker) works without it. Uncomment this
+# and add a pod template with a 'kaniko' container if you want image builds
+# with no docker socket anywhere.
+# kubernetes:4306.vc91e951ea_eb_d

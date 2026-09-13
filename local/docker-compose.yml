@@ -1,0 +1,42 @@
+# Local stack for developing the library. Everything the pipeline talks to,
+# on one machine, so you can run a real build before touching shared infra.
+#
+#   docker compose up -d
+#   Jenkins   http://localhost:8080
+#   SonarQube http://localhost:9000  (admin/admin)
+#   Nexus     http://localhost:8081
+
+services:
+  jenkins:
+    build: .
+    ports: ["8080:8080", "50000:50000"]
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      CASC_JENKINS_CONFIG: /var/jenkins_home/casc/jenkins.yaml
+      JAVA_OPTS: -Djenkins.install.runSetupWizard=false
+      SONAR_HOST_URL: http://sonarqube:9000
+      NEXUS_URL: http://nexus:8081
+    depends_on: [sonarqube]
+
+  sonarqube:
+    image: sonarqube:10-community
+    ports: ["9000:9000"]
+    environment:
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+    volumes:
+      - sonar_data:/opt/sonarqube/data
+      - sonar_ext:/opt/sonarqube/extensions
+
+  nexus:
+    image: sonatype/nexus3:latest
+    ports: ["8081:8081"]
+    volumes:
+      - nexus_data:/nexus-data
+
+volumes:
+  jenkins_home:
+  sonar_data:
+  sonar_ext:
+  nexus_data:
