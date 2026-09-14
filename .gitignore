@@ -18,3 +18,7 @@ out/
 .vscode/
 
 .DS_Store
+
+# mkdocs
+.venv-docs/
+site/

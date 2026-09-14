@@ -22,5 +22,5 @@ ${rows}
 
 Version `${env.APP_VERSION}` · commit `${env.GIT_SHORT_SHA}` · [build log](${env.BUILD_URL})"""
 
-    githubUpsertComment('<!-- company-pipeline:scan-summary -->', body)
+    githubUpsertComment('<!-- platform-pipeline:scan-summary -->', body)
 }

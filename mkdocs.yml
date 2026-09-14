@@ -1,0 +1,192 @@
+site_name: platform-pipeline
+site_description: Reference documentation for the platform-pipeline Jenkins shared library
+repo_url: https://github.com/platform-pipelines/platform-pipeline-library
+repo_name: platform-pipelines/platform-pipeline-library
+docs_dir: docs
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - content.code.copy
+
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - CI/CD:
+    - Overview: ci-cd/index.md
+    - Language builds & tests:
+      - goBuild: ci-cd/goBuild.md
+      - goLint: ci-cd/goLint.md
+      - goPackage: ci-cd/goPackage.md
+      - goTest: ci-cd/goTest.md
+      - gradleBuild: ci-cd/gradleBuild.md
+      - gradleLint: ci-cd/gradleLint.md
+      - gradleOpts: ci-cd/gradleOpts.md
+      - gradlePackage: ci-cd/gradlePackage.md
+      - gradleTest: ci-cd/gradleTest.md
+      - mavenBuild: ci-cd/mavenBuild.md
+      - mavenLint: ci-cd/mavenLint.md
+      - mavenOpts: ci-cd/mavenOpts.md
+      - mavenPackage: ci-cd/mavenPackage.md
+      - mavenTest: ci-cd/mavenTest.md
+      - nodeBuild: ci-cd/nodeBuild.md
+      - nodeInstall: ci-cd/nodeInstall.md
+      - nodeLint: ci-cd/nodeLint.md
+      - nodePackage: ci-cd/nodePackage.md
+      - nodeTest: ci-cd/nodeTest.md
+      - pythonBuild: ci-cd/pythonBuild.md
+      - pythonLint: ci-cd/pythonLint.md
+      - pythonPackage: ci-cd/pythonPackage.md
+      - pythonTest: ci-cd/pythonTest.md
+      - dockerOnlyBuild: ci-cd/dockerOnlyBuild.md
+      - dockerOnlyLint: ci-cd/dockerOnlyLint.md
+      - dockerOnlyPackage: ci-cd/dockerOnlyPackage.md
+      - dockerOnlyTest: ci-cd/dockerOnlyTest.md
+    - Images & containers:
+      - buildImage: ci-cd/buildImage.md
+      - buildImageBuildah: ci-cd/buildImageBuildah.md
+      - buildImageKanikoDocker: ci-cd/buildImageKanikoDocker.md
+      - buildImageKanikoK8s: ci-cd/buildImageKanikoK8s.md
+      - imageExtraTags: ci-cd/imageExtraTags.md
+      - imageLabels: ci-cd/imageLabels.md
+      - kanikoArgs: ci-cd/kanikoArgs.md
+      - kanikoDockerConfig: ci-cd/kanikoDockerConfig.md
+      - inBuildContainer: ci-cd/inBuildContainer.md
+      - inContainer: ci-cd/inContainer.md
+      - inToolContainer: ci-cd/inToolContainer.md
+      - usingToolbox: ci-cd/usingToolbox.md
+      - signImage: ci-cd/signImage.md
+      - generateSbom: ci-cd/generateSbom.md
+    - Quality & scanning:
+      - qualityChecks: ci-cd/qualityChecks.md
+      - checkCoverage: ci-cd/checkCoverage.md
+      - coveragePercent: ci-cd/coveragePercent.md
+      - scanDependencies: ci-cd/scanDependencies.md
+      - scanIac: ci-cd/scanIac.md
+      - scanSecrets: ci-cd/scanSecrets.md
+      - scanSonar: ci-cd/scanSonar.md
+      - scanTrivy: ci-cd/scanTrivy.md
+      - sonarProperties: ci-cd/sonarProperties.md
+      - sonarWaitForGate: ci-cd/sonarWaitForGate.md
+      - trivySummary: ci-cd/trivySummary.md
+      - appSonarProps: ci-cd/appSonarProps.md
+      - appLintReport: ci-cd/appLintReport.md
+      - appCoverageFile: ci-cd/appCoverageFile.md
+      - appTestReport: ci-cd/appTestReport.md
+      - lintApp: ci-cd/lintApp.md
+      - archiveLintReports: ci-cd/archiveLintReports.md
+    - Pipeline orchestration:
+      - standardPipeline: ci-cd/standardPipeline.md
+      - initPipeline: ci-cd/initPipeline.md
+      - buildApp: ci-cd/buildApp.md
+      - packageApp: ci-cd/packageApp.md
+      - testApp: ci-cd/testApp.md
+      - approvalGate: ci-cd/approvalGate.md
+      - requestApproval: ci-cd/requestApproval.md
+      - postPlanSummary: ci-cd/postPlanSummary.md
+      - postScanSummary: ci-cd/postScanSummary.md
+      - publishArtifact: ci-cd/publishArtifact.md
+      - appArtifacts: ci-cd/appArtifacts.md
+      - appCacheDir: ci-cd/appCacheDir.md
+      - appToolImage: ci-cd/appToolImage.md
+      - manifestBumpImage: ci-cd/manifestBumpImage.md
+      - updateManifest: ci-cd/updateManifest.md
+  - Cloud:
+    - Overview: cloud/index.md
+    - AWS:
+      - assumeAwsRole: cloud/assumeAwsRole.md
+      - withAwsCredentials: cloud/withAwsCredentials.md
+    - CloudFormation:
+      - cfnBuild: cloud/cfnBuild.md
+      - cfnChangeSet: cloud/cfnChangeSet.md
+      - cfnDeploy: cloud/cfnDeploy.md
+      - cfnLint: cloud/cfnLint.md
+      - cfnPackage: cloud/cfnPackage.md
+      - cfnTemplates: cloud/cfnTemplates.md
+      - cfnTest: cloud/cfnTest.md
+      - deployCloudFormation: cloud/deployCloudFormation.md
+    - Terraform:
+      - terraformApply: cloud/terraformApply.md
+      - terraformBuild: cloud/terraformBuild.md
+      - terraformInit: cloud/terraformInit.md
+      - terraformLint: cloud/terraformLint.md
+      - terraformPackage: cloud/terraformPackage.md
+      - terraformPlan: cloud/terraformPlan.md
+      - terraformTest: cloud/terraformTest.md
+      - deployTerraform: cloud/deployTerraform.md
+    - GitOps & deploy routing:
+      - deployGitops: cloud/deployGitops.md
+      - deployToEnvironment: cloud/deployToEnvironment.md
+      - argoSync: cloud/argoSync.md
+      - isInfraRepo: cloud/isInfraRepo.md
+      - configInfraTools: cloud/configInfraTools.md
+  - Other:
+    - Overview: other/index.md
+    - Configuration:
+      - configDefaults: other/configDefaults.md
+      - configEnvDefaults: other/configEnvDefaults.md
+      - configEnvironmentsFor: other/configEnvironmentsFor.md
+      - configGlobToRegex: other/configGlobToRegex.md
+      - configLoad: other/configLoad.md
+      - configMerge: other/configMerge.md
+      - configSupportedTools: other/configSupportedTools.md
+      - configValidate: other/configValidate.md
+    - GitHub integration:
+      - githubApiRequest: other/githubApiRequest.md
+      - githubApiUrl: other/githubApiUrl.md
+      - githubComment: other/githubComment.md
+      - githubCommitFile: other/githubCommitFile.md
+      - githubCredentialsId: other/githubCredentialsId.md
+      - githubFetchFile: other/githubFetchFile.md
+      - githubFileSha: other/githubFileSha.md
+      - githubFindComment: other/githubFindComment.md
+      - githubRepoSlug: other/githubRepoSlug.md
+      - githubSetStatus: other/githubSetStatus.md
+      - githubUpsertComment: other/githubUpsertComment.md
+    - Notifications:
+      - notifySlack: other/notifySlack.md
+      - slackPayload: other/slackPayload.md
+      - slackShouldNotify: other/slackShouldNotify.md
+    - Logging:
+      - logActor: other/logActor.md
+      - logAudit: other/logAudit.md
+      - logBanner: other/logBanner.md
+      - logDebug: other/logDebug.md
+      - logError: other/logError.md
+      - logInfo: other/logInfo.md
+      - logWarn: other/logWarn.md
+    - Versioning:
+      - versionBase: other/versionBase.md
+      - versionImageTag: other/versionImageTag.md
+      - versionResolve: other/versionResolve.md
+      - versionShortSha: other/versionShortSha.md
+      - versionSlug: other/versionSlug.md
+    - Utilities:
+      - shellQuote: other/shellQuote.md
+      - useScript: other/useScript.md

@@ -1,24 +1,38 @@
 # Deliberately short. Everything the library needs is a shell command or a
 # REST call, so scanning, notifications, and deploys need no plugin at all.
 #
-# Bump versions in a PR, rebuild, run the library test suite against the new
-# image, then promote. Never install through the UI.
+# Unversioned on purpose: jenkins-plugin-cli resolves one mutually-compatible
+# set of latest versions against the pinned Jenkins core in the Dockerfile,
+# rather than a hand-picked set of versions that drift out of sync with each
+# other over time (that's what broke this image before — see git history).
+# Bump the Jenkins core version in a PR, rebuild, run the library test suite
+# against the new image, then promote. Never install through the UI.
 
-configuration-as-code:1850.va_a_1c33fd75e0
-workflow-aggregator:600.vb_57cdd26fdd7
-pipeline-stage-view:2.34
-github-branch-source:1797.v86fdb_4d57d43
-git:5.4.1
-credentials-binding:681.vf91669a_32e45
-docker-workflow:580.vc0c340686b_54
-pipeline-utility-steps:2.16.2
-timestamper:1.27
-ws-cleanup:0.46
-junit:1256.v3f5f2c1b_9c8f
-antisamy-markup-formatter:162.v0e6ec0fcfcf6
+configuration-as-code
+workflow-aggregator
+pipeline-stage-view
+github-branch-source
+git
+credentials-binding
+docker-workflow
+pipeline-utility-steps
+timestamper
+ws-cleanup
+junit
+antisamy-markup-formatter
+
+# JCasC's jenkins.yaml uses authorizationStrategy.roleBased, which comes from
+# this plugin — without it JCasC fails to boot with an UnknownAttributesException.
+role-strategy
+
+# The mina-sshd-api-core detached plugin bundled in the base image needs a
+# recent ssh-credentials; pin it explicitly so dependency resolution doesn't
+# leave it too old. Same story for json-path-api, needed by github-branch-source.
+ssh-credentials
+json-path-api
 
 # Only needed for imageBuilder: kaniko-k8s, which runs kaniko as a sidecar in
 # the agent pod. The default (kaniko-docker) works without it. Uncomment this
 # and add a pod template with a 'kaniko' container if you want image builds
 # with no docker socket anywhere.
-# kubernetes:4306.vc91e951ea_eb_d
+# kubernetes

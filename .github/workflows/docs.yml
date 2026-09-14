@@ -1,0 +1,39 @@
+name: Docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "vars/**"
+      - "mkdocs.yml"
+      - ".github/workflows/docs.yml"
+  pull_request:
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build docs site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Install docs dependencies
+        run: |
+          uv venv .venv-docs
+          uv pip install --python .venv-docs/bin/python -r docs/requirements.txt
+
+      - name: Build site
+        run: uv run --python .venv-docs/bin/python mkdocs build --strict
+
+      - name: Deploy to GitHub Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: uv run --python .venv-docs/bin/python mkdocs gh-deploy --force

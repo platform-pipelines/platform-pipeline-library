@@ -40,8 +40,6 @@ jenkins:
               disabled: false
 
 security:
-  globalJobDslSecurityConfiguration:
-    useScriptSecurity: true
   scriptApproval:
     approvedSignatures:
       - "method java.lang.String lastIndexOf java.lang.String"
@@ -53,7 +51,7 @@ unclassified:
 
   globalLibraries:
     libraries:
-      - name: company-pipeline
+      - name: platform-pipeline
         defaultVersion: main
         implicit: false
         allowVersionOverride: true
@@ -61,7 +59,7 @@ unclassified:
           modernSCM:
             scm:
               git:
-                remote: https://github.com/acme/jenkins-shared-library.git
+                remote: https://github.com/platform-pipelines/platform-pipeline-library.git
                 credentialsId: github-token
 
 credentials:

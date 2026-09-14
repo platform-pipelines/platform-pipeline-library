@@ -20,5 +20,5 @@ def call(Map cfg, Map envCfg, String summary) {
 ${destructive ? 'Resources will be destroyed or recreated. Check that state loss is expected before approving.\n' : ''}
 Version `${env.APP_VERSION}` · commit `${env.GIT_SHORT_SHA}` · [full plan](${env.BUILD_URL}artifact/)"""
 
-    githubUpsertComment("<!-- company-pipeline:plan:${envCfg.name} -->", body)
+    githubUpsertComment("<!-- platform-pipeline:plan:${envCfg.name} -->", body)
 }

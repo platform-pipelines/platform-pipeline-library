@@ -1,6 +1,6 @@
 # ci-toolbox
 
-One image with every toolchain and scanner `company-pipeline` uses.
+One image with every toolchain and scanner `platform-pipeline` uses.
 
 ## Build
 

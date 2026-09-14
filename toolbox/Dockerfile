@@ -229,5 +229,5 @@ WORKDIR /home/jenkins/agent
 RUN go env -w GOCACHE=/home/jenkins/.cache/go-build && go version
 
 LABEL org.opencontainers.image.title="ci-toolbox" \
-      org.opencontainers.image.description="All toolchains and scanners for company-pipeline" \
-      org.opencontainers.image.source="https://github.com/acme/jenkins-shared-library"
+      org.opencontainers.image.description="All toolchains and scanners for platform-pipeline" \
+      org.opencontainers.image.source="https://github.com/platform-pipelines/platform-pipeline-library"

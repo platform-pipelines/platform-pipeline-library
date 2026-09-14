@@ -1,6 +1,6 @@
 // The single entrypoint every consuming repo calls.
 //
-//     @Library('company-pipeline@v2') _
+//     @Library('platform-pipeline@main') _
 //     standardPipeline()
 //
 // Everything else is declared in .ci/config.yaml.

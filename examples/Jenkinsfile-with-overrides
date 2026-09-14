@@ -1,4 +1,4 @@
-@Library('company-pipeline@v2') _
+@Library('platform-pipeline@main') _
 
 // Overrides merge over .ci/config.yaml. Use sparingly — config.yaml is the
 // preferred place, since it is readable without knowing Groovy.

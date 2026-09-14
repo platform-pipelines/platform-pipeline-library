@@ -1,4 +1,4 @@
-# company-pipeline
+# platform-pipeline
 
 Jenkins shared library for GitHub → lint → build → test → scan → GHCR →
 GitOps → Argo CD.
@@ -6,7 +6,7 @@ GitOps → Argo CD.
 A consuming repo's Jenkinsfile is two lines:
 
 ```groovy
-@Library('company-pipeline@v2') _
+@Library('platform-pipeline@main') _
 standardPipeline()
 ```
 
@@ -182,11 +182,16 @@ Jenkins :8080, SonarQube :9000, Nexus :8081. Jenkins builds from `plugins.txt`
 
 ## Versioning this library
 
-Consuming repos pin a tag: `@Library('company-pipeline@v2')`. Never let them
-track `main`, or one library change breaks every pipeline at once.
+Consuming repos currently point at `@Library('platform-pipeline@main')` (see
+`examples/`). Floating on `main` means every merge to this repo reaches every
+pipeline on its next build — convenient while the library is young and
+changing fast, but it also means one bad merge breaks every pipeline at once.
 
-Release: PR → unit tests → merge → tag `v2.x` → smoke test one canary repo →
-announce.
+Once the library and its consumers stabilize, switch to pinned release tags
+instead (`@Library('platform-pipeline@v2')`): PR → unit tests → merge → tag
+`v2.x` → smoke test one canary repo → move consumers to the new tag →
+announce. Tags are the safer default for a mature library; `main` is a
+deliberate, temporary trade-off, not the long-term plan.
 
 ## Credentials
 
