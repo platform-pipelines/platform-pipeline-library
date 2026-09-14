@@ -5,7 +5,7 @@
 
 appName: platform-network
 buildTool: terraform
-runtimeVersion: "1.17"
+runtimeVersion: "1.16"
 
 infra:
   workingDir: terraform

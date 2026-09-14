@@ -60,11 +60,15 @@ local-clean:
 
 local-restart: local-down local-up
 
+# The toolbox is amd64-only (see toolbox/Dockerfile); pinning the platform
+# keeps the build working on Apple Silicon instead of crashing under emulation.
+TOOLBOX_PLATFORM := linux/amd64
+
 toolbox-build:
-	docker build -t $(TOOLBOX_TAG) toolbox/
+	docker build --platform $(TOOLBOX_PLATFORM) -t $(TOOLBOX_TAG) toolbox/
 
 toolbox-verify: toolbox-build
-	docker run --rm $(TOOLBOX_TAG) bash < toolbox/verify.sh
+	docker run --rm --platform $(TOOLBOX_PLATFORM) -i $(TOOLBOX_TAG) bash < toolbox/verify.sh
 
 DOCS_VENV := .venv-docs
 
