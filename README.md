@@ -147,15 +147,29 @@ Metadata: `appToolImage`, `appTestReport`, `appCoverageFile`, `appArtifacts`,
 `AppMetadataTest` walks `configSupportedTools`, so a missing metadata case
 fails the build rather than silently producing a stage that does nothing.
 
-## Running the tests
+## Local development
+
+### Running the tests
 
 ```bash
-./gradlew test
+make test    # Groovy / jenkins-pipeline-unit suite      (./gradlew test)
+make lint    # CodeNarc over vars/ and test/             (./gradlew codenarcMain codenarcTest)
+make check   # test + lint — exactly what CI runs
 ```
 
 No Jenkins instance. `BaseTest` registers every `vars` file as a callable step
 so cross-step calls resolve, and records shell commands so tests assert on what
 would have run.
+
+CodeNarc's ruleset lives at `config/codenarc/codenarc.groovy` and is zero
+tolerance for priority-1/2 violations — `make check` fails the same way CI's
+`.github/workflows/ci.yml` does.
+
+Groovy 3.0.19 (this project's compiler) cannot read class files newer than
+Java 17. On macOS, the Makefile auto-detects a JDK 17 via
+`/usr/libexec/java_home -v 17` and exports `JAVA_HOME` for you. On other
+platforms, point `JAVA_HOME` at a JDK 17 yourself before running `make test`
+or `./gradlew`.
 
 The Python resource scripts are testable on their own:
 
@@ -171,16 +185,37 @@ means the pipeline goes green while the old image stays deployed, so it is
 covered against kustomize, plain manifests, Helm values, registries with ports,
 inline list items, and the already-current no-op.
 
-## Local stack
+### CI toolbox
+
+The pipeline shells out to Java, Node, Go, Python, Trivy, Gitleaks, hadolint,
+and more, all bundled into one `ci-toolbox` image (see `toolbox/`) so the
+same tool versions run in CI and on a laptop.
 
 ```bash
-cd local
-export GITHUB_TOKEN=... SONAR_TOKEN=... SLACK_WEBHOOK=...
-docker compose up -d
+make toolbox-build    # build ci-toolbox:local
+make toolbox-verify   # build, then run toolbox/verify.sh inside it
 ```
 
-Jenkins :8080, SonarQube :9000, Nexus :8081. Jenkins builds from `plugins.txt`
-— pinned, no UI installs.
+`toolbox-verify` smoke-tests that every tool the pipeline depends on exists
+at the expected version inside the image — run it after bumping any tool
+version in `toolbox/Dockerfile`.
+
+### Local stack
+
+```bash
+make local-up        # build and start Jenkins + SonarQube + Nexus in the background
+make local-logs       # follow logs for all services
+make local-down       # stop the stack, keep data volumes
+make local-clean      # stop the stack and delete data volumes
+make local-restart    # local-down + local-up
+```
+
+Set `GITHUB_TOKEN`, `SONAR_TOKEN`, and `SLACK_WEBHOOK` in your environment
+before `make local-up` if you want those integrations to work against the
+local stack.
+
+Jenkins :8080, SonarQube :9000 (admin/admin), Nexus :8081. Jenkins builds
+from `local/plugins.txt` — pinned, no UI installs.
 
 ## Versioning this library
 
