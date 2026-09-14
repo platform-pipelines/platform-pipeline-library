@@ -1,25 +1,49 @@
 # githubCredentialsId
 
-String credential holding a GitHub App installation token or fine-grained PAT
-with `contents:write` and `statuses:write`.
+ID of the Jenkins string credential holding a GitHub App installation token or
+fine-grained PAT with `contents:write` and `statuses:write`.
 
-## Signature
+## Syntax
 
 ```groovy
-def call()
+githubCredentialsId()
 ```
+
+## Parameters
+
+None. Reads the environment variable below.
+
+| Environment variable | Required | Default | Sample value |
+|---|---|---|---|
+| `GITHUB_CREDENTIALS_ID` | no | `github-token` | `github-app-orders` |
 
 ## Returns
 
 `env.GITHUB_CREDENTIALS_ID` if set, else `'github-token'`.
 
-## Usage
+## Examples
 
 ```groovy
-def credId = githubCredentialsId()
+githubCredentialsId()      // → 'github-token'
+
+withCredentials([string(credentialsId: githubCredentialsId(), variable: 'GH_TOKEN')]) {
+    sh 'curl -sS -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/user'
+}
 ```
 
-Used by every step that authenticates to GitHub, via `withCredentials([string(credentialsId: githubCredentialsId(), ...)])`.
+Using a different credential for one job:
+
+```groovy
+withEnv(['GITHUB_CREDENTIALS_ID=github-app-orders']) {
+    standardPipeline()
+}
+```
+
+## How it fits
+
+Used by every step that authenticates to GitHub:
+[`githubApiRequest`](githubApiRequest.md), [`githubFetchFile`](githubFetchFile.md),
+[`githubFileSha`](githubFileSha.md) and [`githubFindComment`](githubFindComment.md).
 
 ## Source
 

@@ -2,21 +2,46 @@
 
 Single source of truth for legal `imageBuilder` values.
 
-## Signature
+## Syntax
 
 ```groovy
-def call()
+configImageBuilders()
 ```
+
+## Parameters
+
+None.
 
 ## Returns
 
-`List` — `['kaniko-docker', 'kaniko-k8s', 'buildah']`.
+`List<String>` — `['kaniko-docker', 'kaniko-k8s', 'buildah']`.
 
-## Usage
+| Value | Implementation | Needs |
+|---|---|---|
+| `kaniko-docker` (default) | [buildImageKanikoDocker](../ci-cd/buildImageKanikoDocker.md) | a docker socket on the agent |
+| `kaniko-k8s` | [buildImageKanikoK8s](../ci-cd/buildImageKanikoK8s.md) | `kubernetes` plugin + a pod template with a `kaniko` container |
+| `buildah` | [buildImageBuildah](../ci-cd/buildImageBuildah.md) | toolbox agent with subuid/subgid and fuse-overlayfs |
+
+## Examples
 
 ```groovy
-def builders = configImageBuilders()
+configImageBuilders()                  // → ['kaniko-docker', 'kaniko-k8s', 'buildah']
+'buildah' in configImageBuilders()     // → true
 ```
+
+Choosing one in `.ci/config.yaml`:
+
+```yaml
+imageBuilder: kaniko-k8s
+```
+
+An unsupported value fails validation with:
+
+```
+imageBuilder 'docker' unsupported (use: kaniko-docker, kaniko-k8s, buildah)
+```
+
+## How it fits
 
 Read by [`configValidate`](configValidate.md) and by
 [buildImage](../ci-cd/buildImage.md)'s error message. Adding a builder means

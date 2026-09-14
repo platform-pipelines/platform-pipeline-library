@@ -1,31 +1,53 @@
 # appCoverageFile
 
-Coverage report path the gate and Sonar both read, or `null`.
+Coverage report path that both the coverage gate and Sonar read, or `null`.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+appCoverageFile(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config; only `cfg.buildTool` is read. |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config; only `cfg.buildTool` is read. |
 
 ## Returns
 
-The coverage report path for `cfg.buildTool` (e.g. `coverage.xml` for
-`python`), or `null` if none applies.
+A report path `String` for `cfg.buildTool`, or `null`:
 
-## Usage
+| `buildTool` | Report | Format | Written by |
+|---|---|---|---|
+| `go` | `coverage.out` | Go coverprofile | [goTest](goTest.md) |
+| `python` | `coverage.xml` | Cobertura | [pythonTest](pythonTest.md) |
+| `maven` | `target/site/jacoco/jacoco.xml` | JaCoCo | [mavenTest](mavenTest.md) |
+| `gradle` | `build/reports/jacoco/test/jacocoTestReport.xml` | JaCoCo | [gradleTest](gradleTest.md) |
+| `npm` | `coverage/lcov.info` | lcov | your `npm test` script |
+| `terraform`, `cloudformation`, `docker-only` | `null` | — | — |
+
+## Examples
 
 ```groovy
-def report = appCoverageFile(cfg)
+appCoverageFile([buildTool: 'python'])     // → 'coverage.xml'
+appCoverageFile([buildTool: 'terraform'])  // → null
 ```
 
+For `npm`, make sure the test script writes lcov to that path, e.g. with Jest:
+
+```json
+{
+  "scripts": {
+    "test": "jest --coverage --coverageReporters=lcov --reporters=default --reporters=jest-junit"
+  }
+}
+```
+
+## How it fits
+
 Used by [coveragePercent](coveragePercent.md) and [checkCoverage](checkCoverage.md).
+[appSonarProps](appSonarProps.md) points Sonar at the same files.
 
 ## Source
 

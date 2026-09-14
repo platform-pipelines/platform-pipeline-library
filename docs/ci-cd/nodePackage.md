@@ -3,27 +3,47 @@
 Stamps `package.json` with the resolved version and produces an `npm pack`
 tarball.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+nodePackage(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config (unused directly; kept for dispatch signature parity). |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config; unused, kept so every `*Package` step has the same signature. |
+
+Reads `env.APP_VERSION`.
 
 ## Returns
 
-Nothing — runs `npm version <APP_VERSION> --no-git-tag-version` then `npm pack`.
+Nothing. Writes `<name>-<version>.tgz` in the workspace root, which
+[appArtifacts](appArtifacts.md) (`*.tgz`) archives and
+[publishArtifact](publishArtifact.md) uploads.
 
-## Usage
+## Examples
 
 ```groovy
 nodePackage(cfg)
 ```
+
+Runs (with `APP_VERSION=1.4.0`):
+
+```bash
+npm version 1.4.0 --no-git-tag-version --allow-same-version
+npm pack
+```
+
+For `"name": "checkout-api"` this produces `checkout-api-1.4.0.tgz`; for a
+scoped `"name": "@acme/checkout-api"` it produces `acme-checkout-api-1.4.0.tgz`.
+
+`npm version` needs valid semver, which every
+[versionResolve](../other/versionResolve.md) shape is
+(e.g. `1.4.0-feature-login.42.gab12cd3`).
+
+## How it fits
 
 Called by [packageApp](packageApp.md) when `cfg.buildTool == 'npm'`.
 

@@ -2,34 +2,48 @@
 
 Blob sha of a file in a repo, or empty string if it does not exist yet.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(String slug, String branch, String path)
+githubFileSha(String slug, String branch, String path)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `slug` | `String` | `owner/name` of the repo; anything else is rejected before reaching the shell. |
-| `branch` | `String` | Branch or ref to look in. |
-| `path` | `String` | File path within the repo. |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `slug` | `String` | yes | — | `owner/name` of the repo; anything else is rejected before reaching the shell. |
+| `branch` | `String` | yes | — | Branch or ref to look in. |
+| `path` | `String` | yes | — | File path within the repo. |
 
 ## Returns
 
-Blob sha as a `String`, or `''` if the file does not exist.
+The blob sha as a `String` (40 hex characters), or `''` if the file does not
+exist. Fails the build if `slug` is malformed.
 
-## Usage
+## Examples
 
 ```groovy
-def sha = githubFileSha('acme/gitops', 'main', 'apps/api/values.yaml')
+githubFileSha('acme/gitops-manifests', 'main', 'apps/orders-api/prod/kustomization.yaml')
+// → '3f1c9e0b7a2d4c8e9f0a1b2c3d4e5f60718293a4'
+
+githubFileSha('acme/gitops-manifests', 'main', 'apps/new-service/dev/kustomization.yaml')
+// → ''   (file not created yet)
 ```
+
+Create-or-update decision, as [`githubCommitFile`](githubCommitFile.md) does it:
+
+```groovy
+def payload = [message: 'chore: update values', content: encoded, branch: 'main']
+def sha = githubFileSha('acme/gitops-manifests', 'main', 'apps/orders-api/values.yaml')
+if (sha) { payload.sha = sha }   // replace; omit for create
+```
+
+## How it fits
 
 Parses the contents API response via the bundled `github_file_sha.py`
 script (see [`useScript`](useScript.md)). Used by
-[`githubCommitFile`](githubCommitFile.md) to decide whether it's creating or
-replacing a file.
+[`githubCommitFile`](githubCommitFile.md).
 
 ## Source
 

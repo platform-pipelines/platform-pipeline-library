@@ -2,33 +2,65 @@
 
 Which environments the given branch is permitted to reach.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg, String branch)
+configEnvironmentsFor(Map cfg, String branch)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config; reads `cfg.environments`. |
+| `branch` | `String` | yes | — | Branch name to match against each environment's `branchPattern`, usually `env.BRANCH_NAME`. |
+
+### Config keys read
+
+| Key | Default | Sample value |
 |---|---|---|
-| `cfg` | `Map` | Pipeline config; reads `cfg.environments`. |
-| `branch` | `String` | Branch name to match against each environment's `branchPattern`. |
+| `environments[].branchPattern` | `main` | `"*"`, `main`, `release/*` |
 
 ## Returns
 
-`List` of environment config `Map`s the branch is permitted to reach (may be
-empty).
+A `List` of environment config `Map`s the branch may deploy to, in declaration
+order. The list is empty when nothing matches, or when `branch` is `null`/empty.
 
-## Usage
+## Examples
 
-```groovy
-def envs = configEnvironmentsFor(cfg, env.BRANCH_NAME)
+Given:
+
+```yaml
+environments:
+  - name: dev
+    branchPattern: "*"
+  - name: staging
+    branchPattern: release/*
+  - name: prod
+    branchPattern: main
 ```
 
+```groovy
+configEnvironmentsFor(cfg, 'main')*.name              // → ['dev', 'prod']
+configEnvironmentsFor(cfg, 'release/1.4')*.name       // → ['dev', 'staging']
+configEnvironmentsFor(cfg, 'feature/login')*.name     // → ['dev']
+configEnvironmentsFor(cfg, null)                      // → []
+```
+
+Typical use:
+
+```groovy
+configEnvironmentsFor(cfg, env.BRANCH_NAME).each { envCfg ->
+    deployToEnvironment(cfg, envCfg)
+}
+```
+
+## How it fits
+
 Matches each environment's `branchPattern` by converting it to a regex via
-[`configGlobToRegex`](configGlobToRegex.md). A null/empty `branch` reaches no
-environments rather than throwing.
+[`configGlobToRegex`](configGlobToRegex.md). Used by
+[standardPipeline](../ci-cd/standardPipeline.md)'s Deploy stage and by
+[initPipeline](../ci-cd/initPipeline.md)'s build summary line.
 
 ## Source
 

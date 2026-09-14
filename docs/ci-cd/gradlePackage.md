@@ -3,27 +3,42 @@
 Assembles a Gradle project's build artifact, stamped with the resolved
 version.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+gradlePackage(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config (unused; kept for dispatcher parity). |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config; unused, kept so every `*Package` step has the same signature. |
+
+Reads `env.APP_VERSION`.
 
 ## Returns
 
-Nothing — runs `gradle assemble` with `-Pversion=${env.APP_VERSION}`.
+Nothing. Jars land in `build/libs/`, which [appArtifacts](appArtifacts.md)
+(`build/libs/*.jar`) archives and [publishArtifact](publishArtifact.md)
+uploads.
 
-## Usage
+## Examples
 
 ```groovy
 gradlePackage(cfg)
 ```
+
+Runs (with `APP_VERSION=1.4.0`):
+
+```bash
+gradle --no-daemon --console=plain assemble -Pversion=1.4.0
+```
+
+`-Pversion` sets the project version, so with `rootProject.name = "catalog-service"`
+the output is `build/libs/catalog-service-1.4.0.jar`.
+
+## How it fits
 
 Called by [packageApp](packageApp.md) when `cfg.buildTool == 'gradle'`.
 

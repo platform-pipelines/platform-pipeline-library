@@ -1,32 +1,55 @@
 # githubFindComment
 
-Id of the existing bot comment carrying this marker, or empty string.
+Id of the existing PR comment carrying a hidden marker, or empty string.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(String marker)
+githubFindComment(String marker)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `marker` | `String` | Hidden marker text identifying the bot comment. |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `marker` | `String` | yes | — | Hidden text that identifies the comment, conventionally an HTML comment such as `<!-- platform-pipeline:scan-summary -->`. |
+
+Reads `env.CHANGE_ID` (the PR number) and the repo from
+[`githubRepoSlug`](githubRepoSlug.md). Only call it on PR builds.
 
 ## Returns
 
-Comment id as a `String`, or `''` if no comment carries the marker.
+The comment id as a `String`, or `''` if no comment on the PR contains the
+marker. Only the first 100 comments are searched.
 
-## Usage
+## Examples
 
 ```groovy
-def id = githubFindComment('<!-- sonar-report -->')
+githubFindComment('<!-- platform-pipeline:scan-summary -->')   // → '1873345123'
+githubFindComment('<!-- my-team:perf-report -->')              // → ''  (not posted yet)
 ```
 
+Edit-or-create by hand:
+
+```groovy
+def marker = '<!-- my-team:perf-report -->'
+def id = githubFindComment(marker)
+def body = groovy.json.JsonOutput.toJson([body: "${marker}\n\np95 latency: 212 ms"])
+
+if (id) {
+    githubApiRequest(method: 'PATCH', path: "/repos/${githubRepoSlug()}/issues/comments/${id}", body: body)
+} else {
+    githubApiRequest(method: 'POST', path: "/repos/${githubRepoSlug()}/issues/${env.CHANGE_ID}/comments", body: body)
+}
+```
+
+That is exactly what [`githubUpsertComment`](githubUpsertComment.md) does, so
+prefer calling it.
+
+## How it fits
+
 Parses the PR comments list via the bundled `find_pr_comment.py` script (see
-[`useScript`](useScript.md)). Used by [`githubUpsertComment`](githubUpsertComment.md)
-to decide whether to edit an existing comment or create a new one.
+[`useScript`](useScript.md)). Used by [`githubUpsertComment`](githubUpsertComment.md).
 
 ## Source
 

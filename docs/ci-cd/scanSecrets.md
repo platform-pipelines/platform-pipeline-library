@@ -3,35 +3,69 @@
 Runs Gitleaks across the repo's full history, not just `HEAD` — a secret
 committed and later reverted is still a leaked secret.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+scanSecrets(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config; unused here, kept for call-signature consistency across quality checks. |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config; unused, kept so every quality check has the same signature. |
+
+### Config keys read
+
+| Key | Default | Sample value | Effect |
+|---|---|---|---|
+| `quality.secretScan` | `true` | `false` | Turns the check on (read by [qualityChecks](qualityChecks.md)). |
+
+Uses `.gitleaks.toml` from the repo root when present.
 
 ## Returns
 
-Nothing. Archives `gitleaks-report.json` and throws if any secret is
-detected.
+Nothing. Archives `gitleaks-report.json` (secrets redacted) and sets commit
+status `ci/secrets`. Fails the build with
+`Gitleaks found potential secrets. Rotate anything real, then allowlist false positives in .gitleaks.toml`.
 
-## Usage
+## Examples
 
 ```groovy
 scanSecrets(cfg)
 ```
 
-!!! note
-    A false positive is allowlisted in `.gitleaks.toml`, not by disabling the
-    check — the error message points there directly.
+Runs:
+
+```bash
+gitleaks detect --source . --config .gitleaks.toml \
+  --report-format json --report-path gitleaks-report.json --redact --exit-code 1 --no-banner
+```
+
+(`--config` is only passed when `.gitleaks.toml` exists.)
+
+Allowlisting a false positive — in `.gitleaks.toml`, never by turning the
+check off:
+
+```toml
+[extend]
+useDefault = true
+
+[allowlist]
+description = "test fixtures"
+paths = ['''tests/fixtures/.*\.pem''']
+regexes = ['''EXAMPLE_KEY_[A-Z0-9]{16}''']
+```
+
+!!! note "History needs a full clone"
+    Gitleaks scans the git history available in the workspace. A shallow
+    checkout only has the latest commits.
+
+## How it fits
 
 Called from [qualityChecks](qualityChecks.md) when `cfg.quality.secretScan`
-is `true`.
+is `true`. Runs via [inToolContainer](inToolContainer.md)
+(`zricethezav/gitleaks:latest` off the toolbox).
 
 ## Source
 

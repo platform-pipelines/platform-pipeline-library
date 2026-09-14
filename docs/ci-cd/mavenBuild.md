@@ -2,30 +2,46 @@
 
 Compiles a Maven project.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+mavenBuild(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config (unused directly; kept for dispatch signature parity). |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config; unused, kept so every `*Build` step has the same signature. |
 
 ## Returns
 
-Nothing — runs `mvn clean compile`.
+Nothing. Fails the build on a compile error.
 
-## Usage
+## Examples
+
+```yaml
+appName: catalog-service
+buildTool: maven
+runtimeVersion: "21"
+```
 
 ```groovy
 mavenBuild(cfg)
 ```
 
-Called by [buildApp](buildApp.md) when `cfg.buildTool == 'maven'`. Uses the
-shared flags from [mavenOpts](mavenOpts.md).
+Runs:
+
+```bash
+mvn -B -ntp -Dmaven.repo.local=.m2 clean compile
+```
+
+Off the toolbox this runs in `maven:3.9-eclipse-temurin-21`.
+
+## How it fits
+
+Called by [buildApp](buildApp.md) when `cfg.buildTool == 'maven'`. Flags
+come from [mavenOpts](mavenOpts.md).
 
 ## Source
 

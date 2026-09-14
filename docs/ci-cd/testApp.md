@@ -2,35 +2,66 @@
 
 Routes to the right test step for this repo's `buildTool`.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+testApp(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config; reads `cfg.buildTool` to pick the test step. |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config; `cfg.buildTool` selects the test step. |
 
 ## Returns
 
-Nothing. Delegates to the matching `*Test` step, or throws on an unsupported
-`buildTool`.
+Nothing. Fails the build for an unknown tool:
+`No test step for buildTool 'rust'`.
 
-## Usage
+| `buildTool` | Step | What it runs | Reports |
+|---|---|---|---|
+| `go` | [goTest](goTest.md) | `go test ./... -race` | `test-results.xml`, `coverage.out` |
+| `python` | [pythonTest](pythonTest.md) | `pytest --cov` | `test-results.xml`, `coverage.xml` |
+| `maven` | [mavenTest](mavenTest.md) | `mvn verify -DskipITs` | Surefire XML, JaCoCo XML |
+| `gradle` | [gradleTest](gradleTest.md) | `gradle test jacocoTestReport` | test-results XML, JaCoCo XML |
+| `npm` | [nodeTest](nodeTest.md) | `npm test` | whatever the script writes (`junit.xml`, `coverage/lcov.info`) |
+| `terraform` | [terraformTest](../cloud/terraformTest.md) | `terraform test`, conftest | — |
+| `cloudformation` | [cfnTest](../cloud/cfnTest.md) | checkov | `checkov-report.xml` |
+| `docker-only` | [dockerOnlyTest](dockerOnlyTest.md) | nothing | — |
 
-```groovy
-testApp(cfg)
+## Examples
+
+```yaml
+buildTool: maven
 ```
 
-Dispatches to [goTest](goTest.md), [pythonTest](pythonTest.md),
-[mavenTest](mavenTest.md), [gradleTest](gradleTest.md),
-[nodeTest](nodeTest.md), [terraformTest](../cloud/terraformTest.md),
-[cfnTest](../cloud/cfnTest.md), or [dockerOnlyTest](dockerOnlyTest.md) by
-`cfg.buildTool`. Called from the `Test` stage of
-[standardPipeline](standardPipeline.md).
+```groovy
+testApp(cfg)             // → mavenTest(cfg)
+```
+
+Running tests and always publishing results, as `standardPipeline` does:
+
+```groovy
+stage('Test') {
+    steps {
+        script { inBuildContainer(cfg) { testApp(cfg) } }
+    }
+    post {
+        always {
+            script {
+                def reports = appTestReport(cfg)
+                if (reports) { junit allowEmptyResults: true, testResults: reports }
+                checkCoverage(cfg)
+            }
+        }
+    }
+}
+```
+
+## How it fits
+
+Called from the `Test` stage of [standardPipeline](standardPipeline.md).
 
 ## Source
 

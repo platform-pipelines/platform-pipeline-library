@@ -3,27 +3,38 @@
 No-op package step for `docker-only` repos — the image itself is the
 artifact.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+dockerOnlyPackage(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config (unused; kept for dispatcher parity). |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config; unused, kept so every `*Package` step has the same signature. |
 
 ## Returns
 
-Nothing — logs `docker-only: the image is the artifact`.
+Nothing. Logs one line.
 
-## Usage
+## Examples
 
 ```groovy
 dockerOnlyPackage(cfg)
 ```
+
+Output:
+
+```
+[INFO]  docker-only: the image is the artifact
+```
+
+The image is still built and pushed afterwards by [buildImage](buildImage.md),
+because `containerize` defaults to `true`.
+
+## How it fits
 
 Called by [packageApp](packageApp.md) when `cfg.buildTool == 'docker-only'`.
 

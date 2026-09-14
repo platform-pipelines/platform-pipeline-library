@@ -1,27 +1,50 @@
 # logDebug
 
-Only emitted when `PIPELINE_DEBUG=true`, so normal logs stay readable.
+Debug line. Only emitted when `PIPELINE_DEBUG=true`, so normal logs stay
+readable.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(String msg)
+logDebug 'message'
+logDebug(String msg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `msg` | `String` | The message to log. |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `msg` | `String` | yes | — | The message to log. |
+
+| Environment variable | Required | Default | Effect |
+|---|---|---|---|
+| `PIPELINE_DEBUG` | no | unset | `true` prints debug lines; anything else hides them. |
 
 ## Returns
 
-Nothing. No-op unless `env.PIPELINE_DEBUG == 'true'`.
+Nothing. Writes `[DEBUG] <msg>` when `env.PIPELINE_DEBUG == 'true'`, otherwise
+does nothing.
 
-## Usage
+## Examples
 
 ```groovy
-logDebug "cache dir resolved to ${dir}"
+logDebug "cache dir resolved to ${appCacheDir(cfg)}"
+```
+
+Turning debug output on for one run:
+
+```groovy
+withEnv(['PIPELINE_DEBUG=true']) {
+    standardPipeline()
+}
+```
+
+Output with debug on:
+
+```
+[DEBUG] cache dir resolved to .pip-cache
+[DEBUG] Toolbox agent — running in place
+[DEBUG] GitHub ok: status ci/jenkins=pending
 ```
 
 ## Source

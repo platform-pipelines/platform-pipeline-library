@@ -4,36 +4,69 @@ Deploys to one environment, routing on `deployStrategy` — because deploying
 an application and deploying infrastructure share an approval model but
 nothing else.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg, Map envCfg)
+deployToEnvironment(Map cfg, Map envCfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config; `cfg.deployStrategy` picks the route. |
+| `envCfg` | `Map` | yes | — | One entry from `cfg.environments`. |
+
+### Config keys read
+
+| Key | Default | Sample value |
 |---|---|---|
-| `cfg` | `Map` | Pipeline config; `cfg.deployStrategy` picks the route. |
-| `envCfg` | `Map` | Target environment config. |
+| `deployStrategy` | derived — `gitops` for apps, `buildTool` for infra | `gitops` |
+| `environments[].name` | — | `prod` |
+| `environments[].requiresApproval` | `false` | `true` |
 
 ## Returns
 
-Nothing — delegates to [deployGitops](deployGitops.md),
-[deployTerraform](deployTerraform.md), or
-[deployCloudFormation](deployCloudFormation.md), and errors on an unknown
-`deployStrategy`.
+Nothing. Delegates as below, and fails the build on an unknown strategy:
+`Unknown deployStrategy 'helm'. Use: gitops, terraform, cloudformation`.
 
-## Usage
+| `deployStrategy` | Order of operations |
+|---|---|
+| `gitops` | [approvalGate](../ci-cd/approvalGate.md) (if required) → [deployGitops](deployGitops.md) |
+| `terraform` | [deployTerraform](deployTerraform.md): plan → gate → apply |
+| `cloudformation` | [deployCloudFormation](deployCloudFormation.md): change set → gate → execute |
+
+For `gitops`, the gate runs *before* the manifest bump — once it's committed,
+Argo acts on it, so the gate has to come first. For `terraform`/`cloudformation`,
+the gate sits inside the delegate, between plan and apply, so the approver
+sees the actual diff.
+
+## Examples
 
 ```groovy
-deployToEnvironment(cfg, envCfg)
+deployToEnvironment(cfg, cfg.environments.find { it.name == 'prod' })
 ```
 
-For `gitops`, the [approvalGate](../ci-cd/approvalGate.md) runs *before* the
-manifest bump — once it's committed, Argo acts on it, so the gate has to
-come first. For `terraform`/`cloudformation`, the gate sits inside the
-delegate, between plan and apply, so the approver sees the actual diff.
+Deploying every environment this branch may reach, one after another (what
+[standardPipeline](../ci-cd/standardPipeline.md) does):
+
+```groovy
+configEnvironmentsFor(cfg, env.BRANCH_NAME).each { envCfg ->
+    stage("Deploy: ${envCfg.name}") {
+        node('linux') {
+            deployToEnvironment(cfg, envCfg)
+        }
+    }
+}
+```
+
+Log output begins with:
+
+```
+====================================================================
+  Deploy -> prod
+====================================================================
+```
 
 ## Source
 

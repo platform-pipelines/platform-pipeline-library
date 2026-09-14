@@ -3,31 +3,73 @@
 Runs OWASP Dependency-Check. Opt-in: it's slow and needs a warm NVD cache to
 be tolerable, so most repos rely on [scanTrivy](scanTrivy.md) instead.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+scanDependencies(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config; reads `cfg.appName` and `cfg.quality.dependencyCheckCvss` (default `7`). |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config. |
+
+### Config keys read
+
+| Key | Default | Sample value | Effect |
+|---|---|---|---|
+| `quality.dependencyCheck` | `false` | `true` | Turns the check on (read by [qualityChecks](qualityChecks.md)). |
+| `quality.dependencyCheckCvss` | `7` | `8.5` | Fail on any CVE with CVSS ≥ this, 0–10. |
+| `appName` | — | `orders-api` | Project name in the report. |
 
 ## Returns
 
-Nothing. Archives the report and throws if a CVE at or above the CVSS
-threshold is found.
+Nothing. Archives `dependency-check-report/*` (HTML, JSON, XML, …) and sets
+commit status `ci/dependency-check`. Fails the build with
+`Dependency-Check found vulnerabilities at CVSS >= 7` when the threshold is
+met.
 
-## Usage
+## Examples
+
+```yaml
+# .ci/config.yaml — from examples/python-service
+appName: orders-api
+quality:
+  dependencyCheck: true
+  dependencyCheckCvss: 7
+```
 
 ```groovy
 scanDependencies(cfg)
 ```
 
-Called from [qualityChecks](qualityChecks.md) when `cfg.quality.dependencyCheck`
-is `true`.
+Runs, in `owasp/dependency-check:latest` with the NVD data on the
+`dc-nvd-cache` volume:
+
+```bash
+/usr/share/dependency-check/bin/dependency-check.sh \
+  --project "orders-api" \
+  --scan . \
+  --format ALL \
+  --out dependency-check-report \
+  --failOnCVSS 7 \
+  --disableAssembly
+```
+
+The step passes no `--suppression` file, so a false positive has to be
+resolved by upgrading or replacing the dependency, or by raising
+`quality.dependencyCheckCvss`.
+
+!!! note "Docker required"
+    This step always uses `docker.image(...)`, even on toolbox agents
+    (Dependency-Check isn't in the toolbox image), so the agent needs a
+    docker socket.
+
+## How it fits
+
+Called from [qualityChecks](qualityChecks.md) when
+`cfg.quality.dependencyCheck` is `true`.
 
 ## Source
 

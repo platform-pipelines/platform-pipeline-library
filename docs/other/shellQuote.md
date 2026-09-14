@@ -10,26 +10,38 @@ is how you embed a single quote inside single quotes.
     [`assumeAwsRole`](../cloud/assumeAwsRole.md), and [`cfnChangeSet`](../cloud/cfnChangeSet.md)
     for examples of exactly this pattern closing a shell-injection gap.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(String s)
+shellQuote(String s)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `s` | `String` | Value to make safe as a single shell argument. |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `s` | `String` | yes | — | Value to pass to the shell as exactly one argument. |
 
 ## Returns
 
-`s` wrapped in single quotes, with any embedded quote escaped.
+`s` wrapped in single quotes, with each embedded `'` rewritten as `'\''`.
 
-## Usage
+## Examples
+
+| Input | Output | The shell sees |
+|---|---|---|
+| `orders-api` | `'orders-api'` | `orders-api` |
+| `my stack` | `'my stack'` | `my stack` (one argument) |
+| `it's` | `'it'\''s'` | `it's` |
+| `x; rm -rf /` | `'x; rm -rf /'` | `x; rm -rf /` (literal text, not a command) |
+| `$HOME` | `'$HOME'` | `$HOME` (not expanded) |
 
 ```groovy
-sh "curl ${shellQuote(url)}"
+def url = "https://api.github.com/repos/acme/orders-api/contents/${path}?ref=${branch}"
+sh "curl -sS ${shellQuote(url)}"
+
+def stack = envCfg.stackName          // from config — never trust it in a shell
+sh "aws cloudformation describe-stacks --stack-name ${shellQuote(stack)}"
 ```
 
 ## Source

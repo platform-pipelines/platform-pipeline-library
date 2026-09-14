@@ -2,27 +2,51 @@
 
 Installs requirements and compiles all modules as a fast syntax check.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+pythonBuild(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config (unused directly; kept for dispatch signature parity). |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config; unused, kept so every `*Build` step has the same signature. |
 
 ## Returns
 
-Nothing — runs `pip install -r requirements.txt` then `python -m compileall -q .`.
+Nothing. Fails the build if `requirements.txt` is missing, an install fails,
+or any file has a syntax error.
 
-## Usage
+## Examples
+
+```yaml
+# .ci/config.yaml — from examples/python-service
+appName: orders-api
+buildTool: python
+runtimeVersion: "3.12"
+```
 
 ```groovy
 pythonBuild(cfg)
 ```
+
+Runs:
+
+```bash
+pip install --no-cache-dir -r requirements.txt
+python -m compileall -q .
+```
+
+Off the toolbox this runs in `python:3.12-slim`.
+
+!!! note "requirements.txt is required"
+    Projects that keep dependencies only in `pyproject.toml` need a
+    `requirements.txt` (for example `-e .` or an exported lock file) for
+    this step.
+
+## How it fits
 
 Called by [buildApp](buildApp.md) when `cfg.buildTool == 'python'`.
 

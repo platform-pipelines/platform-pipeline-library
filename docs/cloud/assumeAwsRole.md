@@ -12,34 +12,83 @@ between an audit you can answer and one you cannot.
     it reaches `aws sts assume-role`, so a malformed or malicious value is
     rejected up front rather than reaching a shell command.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(String roleArn, Closure body)
+assumeAwsRole(String roleArn) {
+    // steps that use the role
+}
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `roleArn` | `String` | IAM role ARN to assume; must match `arn:aws:iam::<12 digits>:role/<name>`. |
-| `body` | `Closure` | Code to run with `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` exported for the assumed role. |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `roleArn` | `String` | yes | — | IAM role ARN; must match `arn:aws:iam::<12 digits>:role/<name>`. |
+| `body` | `Closure` | yes | — | Steps to run with the assumed role's credentials. |
+
+Base credentials that are allowed to call `sts:AssumeRole` must already be in
+the environment — normally from [withAwsCredentials](withAwsCredentials.md).
 
 ## Returns
 
-Nothing. Throws if `roleArn` fails validation, or if `aws sts assume-role`
-doesn't return exactly three credential fields.
+Nothing. Inside `body` these are set for a 1-hour session:
 
-## Usage
+| Variable | Sample value |
+|---|---|
+| `AWS_ACCESS_KEY_ID` | `ASIA…` |
+| `AWS_SECRET_ACCESS_KEY` | `…` |
+| `AWS_SESSION_TOKEN` | `…` |
+
+The STS session name is `jenkins-<BUILD_NUMBER>-<GIT_SHORT_SHA>` (max 64
+characters), e.g. `jenkins-42-ab12cd3`.
+
+Fails the build with `assumeAwsRole: invalid role ARN '…'` for a bad ARN, or
+`Failed to assume <arn>` if STS doesn't return credentials.
+
+## Examples
 
 ```groovy
 assumeAwsRole('arn:aws:iam::123456789012:role/deploy') {
-    sh 'aws s3 ls'
+    sh 'aws sts get-caller-identity'
 }
 ```
 
+Output:
+
+```json
+{
+  "UserId": "AROA...:jenkins-42-ab12cd3",
+  "Account": "123456789012",
+  "Arn": "arn:aws:sts::123456789012:assumed-role/deploy/jenkins-42-ab12cd3"
+}
+```
+
+Using it with base credentials from Jenkins directly:
+
+```groovy
+withCredentials([usernamePassword(credentialsId: 'aws-credentials',
+                                  usernameVariable: 'AWS_ACCESS_KEY_ID',
+                                  passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+    withEnv(['AWS_REGION=eu-west-1']) {
+        assumeAwsRole('arn:aws:iam::111122223333:role/JenkinsDeploy') {
+            sh 'aws s3 ls s3://acme-terraform-state/'
+        }
+    }
+}
+```
+
+| `roleArn` | Accepted? |
+|---|---|
+| `arn:aws:iam::111122223333:role/JenkinsDeploy` | yes |
+| `arn:aws:iam::111122223333:role/team.ci@deploy` | yes |
+| `arn:aws:iam::1111:role/JenkinsDeploy` | no — account id must be 12 digits |
+| `arn:aws:iam::111122223333:role/x; rm -rf /` | no |
+
+## How it fits
+
 Typically not called directly — [`withAwsCredentials`](withAwsCredentials.md)
-calls it when `cfg.infra.assumeRole` (or `envCfg.assumeRole`) is set.
+calls it when `envCfg.assumeRole` or `cfg.infra.assumeRole` is set.
 
 ## Source
 

@@ -1,27 +1,44 @@
 # logWarn
 
-Warning line. Does not affect build result on its own.
+Warning line. Does not affect the build result on its own.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(String msg)
+logWarn 'message'
+logWarn(String msg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `msg` | `String` | The message to log. |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `msg` | `String` | yes | — | The message to log. |
 
 ## Returns
 
-Nothing — writes `[WARN]  <msg>` to the build log.
+Nothing — writes `[WARN]  <msg>` to the build log. To also mark the build
+yellow, call Jenkins's `unstable('reason')` step.
 
-## Usage
+## Examples
 
 ```groovy
 logWarn "GitHub call failed: ${what}"
+```
+
+Warn and mark the build unstable:
+
+```groovy
+if (!fileExists('coverage.xml')) {
+    logWarn 'No coverage.xml — coverage gate skipped'
+    unstable 'coverage report missing'
+}
+```
+
+Output:
+
+```
+[WARN]  No coverage.xml — coverage gate skipped
 ```
 
 ## Source

@@ -2,34 +2,61 @@
 
 Routes to the right build step for this repo's `buildTool`.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+buildApp(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config; `cfg.buildTool` selects the build step. |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config; `cfg.buildTool` selects the build step. |
 
 ## Returns
 
-Nothing. Throws if `buildTool` is unsupported.
+Nothing. Fails the build for an unknown tool:
+`No build step for buildTool 'rust'`.
 
-## Usage
+| `buildTool` | Step | What it runs |
+|---|---|---|
+| `go` | [goBuild](goBuild.md) | `go mod download`, `go build ./...` |
+| `python` | [pythonBuild](pythonBuild.md) | `pip install -r requirements.txt`, `python -m compileall` |
+| `maven` | [mavenBuild](mavenBuild.md) | `mvn clean compile` |
+| `gradle` | [gradleBuild](gradleBuild.md) | `gradle classes` |
+| `npm` | [nodeBuild](nodeBuild.md) | `npm ci`, `npm run build --if-present` |
+| `terraform` | [terraformBuild](../cloud/terraformBuild.md) | `terraform init`, `terraform validate` |
+| `cloudformation` | [cfnBuild](../cloud/cfnBuild.md) | `aws cloudformation validate-template` |
+| `docker-only` | [dockerOnlyBuild](dockerOnlyBuild.md) | nothing |
 
-```groovy
-buildApp(cfg)
+## Examples
+
+```yaml
+buildTool: gradle
 ```
 
-Dispatches to [goBuild](goBuild.md), [pythonBuild](pythonBuild.md),
-[mavenBuild](mavenBuild.md), [gradleBuild](gradleBuild.md),
-[nodeBuild](nodeBuild.md), [terraformBuild](../cloud/terraformBuild.md),
-[cfnBuild](../cloud/cfnBuild.md), or [dockerOnlyBuild](dockerOnlyBuild.md) by
-`cfg.buildTool`. Called from the `Build` stage of
-[standardPipeline](standardPipeline.md).
+```groovy
+buildApp(cfg)      // → gradleBuild(cfg)
+```
+
+Inside a custom stage, in the right container:
+
+```groovy
+stage('Build') {
+    agent { label 'linux' }
+    steps {
+        script {
+            unstash 'source'
+            inBuildContainer(cfg) { buildApp(cfg) }
+        }
+    }
+}
+```
+
+## How it fits
+
+Called from the `Build` stage of [standardPipeline](standardPipeline.md).
 
 ## Source
 

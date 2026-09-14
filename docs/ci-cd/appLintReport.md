@@ -2,28 +2,41 @@
 
 Lint report glob, for surfacing in the build UI.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+appLintReport(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config; only `cfg.buildTool` is read. |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config; only `cfg.buildTool` is read. |
 
 ## Returns
 
-The lint report glob for `cfg.buildTool` (e.g. `eslint-report.xml` for
-`npm`), or `null` if none applies.
+A report glob `String` for `cfg.buildTool`, or `null`:
 
-## Usage
+| `buildTool` | Report | Written by |
+|---|---|---|
+| `go` | `golangci-report.xml` | [goLint](goLint.md) |
+| `python` | `ruff-report.xml` | [pythonLint](pythonLint.md) |
+| `maven` | `target/checkstyle-result.xml` | [mavenLint](mavenLint.md) |
+| `gradle` | `build/reports/checkstyle/*.xml` | [gradleLint](gradleLint.md) |
+| `npm` | `eslint-report.xml` | [nodeLint](nodeLint.md) |
+| `terraform` | `tflint-report.xml` | [terraformLint](../cloud/terraformLint.md) |
+| `cloudformation` | `cfn-lint-report.xml` | [cfnLint](../cloud/cfnLint.md) |
+| `docker-only` | `null` | — |
+
+## Examples
 
 ```groovy
-def glob = appLintReport(cfg)
+appLintReport([buildTool: 'npm'])            // → 'eslint-report.xml'
+appLintReport([buildTool: 'docker-only'])    // → null
 ```
+
+## How it fits
 
 Used by [archiveLintReports](archiveLintReports.md).
 

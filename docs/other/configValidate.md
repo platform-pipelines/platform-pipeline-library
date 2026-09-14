@@ -4,35 +4,44 @@ Returns a list of problems. Collects every error rather than throwing on the
 first, so a misconfigured repo is fixed in one pass instead of five failed
 builds.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+configValidate(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Fully merged config to validate (see [`configLoad`](configLoad.md)). |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | **Fully merged** config to validate (defaults already applied — see [`configLoad`](configLoad.md)). |
 
 ## Returns
 
-`List` of human-readable problem strings; empty when `cfg` is valid.
-
-## Usage
-
-```groovy
-def problems = configValidate(cfg)
-```
+`List<String>` of human-readable problems; empty when `cfg` is valid. It never
+fails the build itself — [`configLoad`](configLoad.md) does that when the list
+is non-empty.
 
 ## What it checks
 
-- `appName` and `buildTool` are present, and `buildTool` is in [`configSupportedTools`](configSupportedTools.md).
-- `containerize: true` requires `imageRepo`, and `imageBuilder` must be in [`configImageBuilders`](configImageBuilders.md).
-- `quality.signImage` requires `containerize: true`.
-- `deployStrategy` must be in [`configDeployStrategies`](configDeployStrategies.md), and `gitops` with declared environments requires `gitopsRepo`.
-- Infrastructure repos (`buildTool` in [`configInfraTools`](../cloud/configInfraTools.md)) must have `containerize: false`.
+| Rule | Error message |
+|---|---|
+| `appName` present | `appName is required` |
+| `buildTool` present and in [`configSupportedTools`](configSupportedTools.md) | `buildTool is required` / `buildTool 'x' unsupported (use: …)` |
+| `containerize: true` needs `imageRepo` | `imageRepo is required when containerize is true` |
+| `imageBuilder` in [`configImageBuilders`](configImageBuilders.md) (when containerized) | `imageBuilder 'x' unsupported (use: …)` |
+| `quality.signImage` needs `containerize: true` | `quality.signImage requires containerize: true` |
+| `deployStrategy` in [`configDeployStrategies`](configDeployStrategies.md) | `deployStrategy 'x' unsupported (use: …)` |
+| gitops + environments needs `gitopsRepo` | `gitopsRepo is required when environments are declared with deployStrategy: gitops` |
+| infra `buildTool` needs `containerize: false` | `containerize must be false for terraform` |
+| CloudFormation needs `infra.region` | `infra.region is required for cloudformation` |
+| `notify.on` is `always` / `failure` / `change` | `notify.on must be always, failure or change` |
+| `quality.minCoverage` in 0–100 | `quality.minCoverage must be between 0 and 100` |
+| `quality.dependencyCheckCvss` a number in 0–10 | `quality.dependencyCheckCvss must be a number between 0 and 10` |
+| every environment has a `name` | `environments[0].name is required` |
+| gitops environments have `manifestPath` | `environments[0].manifestPath is required for deployStrategy: gitops` |
+| `requiresApproval: true` needs `approvers` | `environments[1] (prod) requires approval but lists no approvers` |
+| environment names are unique | `environment 'dev' is declared more than once` |
 
 !!! note "infra.region is required whenever CloudFormation is reachable"
     `buildTool: cloudformation` dispatches `cfnBuild`/`cfnPackage`
@@ -43,8 +52,39 @@ def problems = configValidate(cfg)
     miss a config that explicitly overrides `deployStrategy` away from the
     value implied by `buildTool`.
 
-- `notify.on` must be `always` / `failure` / `change`, `quality.minCoverage` (if set) must be between 0 and 100, and `quality.dependencyCheckCvss` must be a number between 0 and 10.
-- Every environment needs a `name` (unique across the list); `gitops` environments also need `manifestPath`; `requiresApproval: true` needs a non-empty `approvers`.
+## Examples
+
+**Valid config:**
+
+```groovy
+def cfg = configMerge(configDefaults(), [appName: 'orders-api', buildTool: 'python',
+                                         imageRepo: 'ghcr.io/acme/orders-api',
+                                         deployStrategy: 'gitops'])
+configValidate(cfg)      // → []
+```
+
+**Several problems at once:**
+
+```yaml
+appName: orders-api
+buildTool: python          # containerize defaults to true, but no imageRepo
+quality:
+  minCoverage: 120
+environments:
+  - name: prod
+    requiresApproval: true # no approvers, no manifestPath, no gitopsRepo
+```
+
+```groovy
+configValidate(cfg)
+// → [
+//   'imageRepo is required when containerize is true',
+//   'gitopsRepo is required when environments are declared with deployStrategy: gitops',
+//   'quality.minCoverage must be between 0 and 100',
+//   'environments[0].manifestPath is required for deployStrategy: gitops',
+//   'environments[0] (prod) requires approval but lists no approvers',
+// ]
+```
 
 Unknown keys are not validation errors — they are reported as warnings by
 [`configUnknownKeys`](configUnknownKeys.md).

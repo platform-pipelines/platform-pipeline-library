@@ -2,34 +2,62 @@
 
 Routes to the right package step for this repo's `buildTool`.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+packageApp(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config; reads `cfg.buildTool`. |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config; `cfg.buildTool` selects the package step. |
 
 ## Returns
 
-Nothing — dispatches to the matching `*Package` step.
+Nothing. Fails the build for an unknown tool:
+`No package step for buildTool 'rust'`.
 
-## Usage
+| `buildTool` | Step | Output |
+|---|---|---|
+| `go` | [goPackage](goPackage.md) | `dist/<appName>` |
+| `python` | [pythonPackage](pythonPackage.md) | `dist/*.whl`, `dist/*.tar.gz` |
+| `maven` | [mavenPackage](mavenPackage.md) | `target/*.jar` |
+| `gradle` | [gradlePackage](gradlePackage.md) | `build/libs/*.jar` |
+| `npm` | [nodePackage](nodePackage.md) | `<name>-<version>.tgz` |
+| `terraform` | [terraformPackage](../cloud/terraformPackage.md) | nothing (plan is made at deploy) |
+| `cloudformation` | [cfnPackage](../cloud/cfnPackage.md) | `packaged-template.yaml` (when `infra.artifactBucket` is set) |
+| `docker-only` | [dockerOnlyPackage](dockerOnlyPackage.md) | nothing (image is the artifact) |
 
-```groovy
-packageApp(cfg)
+## Examples
+
+```yaml
+buildTool: python
 ```
 
-Dispatches to [goPackage](goPackage.md), [pythonPackage](pythonPackage.md),
-[mavenPackage](mavenPackage.md), [gradlePackage](gradlePackage.md),
-[nodePackage](nodePackage.md), [terraformPackage](../cloud/terraformPackage.md),
-[cfnPackage](../cloud/cfnPackage.md), or [dockerOnlyPackage](dockerOnlyPackage.md)
-by `cfg.buildTool`. Called from the `Package` stage of
-[standardPipeline](standardPipeline.md).
+```groovy
+packageApp(cfg)                     // → pythonPackage(cfg)
+```
+
+Packaging, then archiving and publishing the result — what the `Package`
+stage does:
+
+```groovy
+inBuildContainer(cfg) { packageApp(cfg) }
+
+def artifacts = appArtifacts(cfg)                 // 'dist/*'
+if (artifacts) {
+    archiveArtifacts artifacts: artifacts, allowEmptyArchive: true, fingerprint: true
+}
+if (!isInfraRepo(cfg)) {
+    publishArtifact(cfg)
+}
+```
+
+## How it fits
+
+Called from the `Package` stage of [standardPipeline](standardPipeline.md).
 
 ## Source
 

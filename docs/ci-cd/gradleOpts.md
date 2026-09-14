@@ -4,21 +4,34 @@ Shared Gradle CLI flags used by every `gradle*` step. No daemon in CI: a
 Gradle daemon survives between builds and leaks state across jobs, which is
 exactly what you don't want on a shared agent.
 
-## Signature
+## Syntax
 
 ```groovy
-def call()
+gradleOpts()
 ```
+
+## Parameters
+
+None.
 
 ## Returns
 
-The shared Gradle CLI flags as a `String`: `--no-daemon --console=plain`.
+The `String` `--no-daemon --console=plain`.
 
-## Usage
+| Flag | Why |
+|---|---|
+| `--no-daemon` | no state carried between builds on a shared agent |
+| `--console=plain` | no progress-bar escape codes in the Jenkins log |
+
+## Examples
 
 ```groovy
-sh "gradle ${gradleOpts()} test"
+gradleOpts()                              // → '--no-daemon --console=plain'
+sh "gradle ${gradleOpts()} test"          // gradle --no-daemon --console=plain test
+sh "gradle ${gradleOpts()} dependencies --configuration runtimeClasspath"
 ```
+
+## How it fits
 
 Used by [gradleBuild](gradleBuild.md), [gradleLint](gradleLint.md),
 [gradlePackage](gradlePackage.md), and [gradleTest](gradleTest.md).

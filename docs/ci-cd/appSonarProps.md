@@ -1,29 +1,43 @@
 # appSonarProps
 
-Language-specific flags for `sonar-scanner`.
+Language-specific properties for `sonar-scanner`.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+appSonarProps(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config; only `cfg.buildTool` is read. |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config; only `cfg.buildTool` is read. |
 
 ## Returns
 
-A `Map` of `sonar-scanner` properties for `cfg.buildTool` (coverage report
-paths, JaCoCo/binaries locations, etc.), or `[:]` if none apply.
+A `Map` of Sonar property → value for `cfg.buildTool`, or `[:]`:
 
-## Usage
+| `buildTool` | Properties |
+|---|---|
+| `go` | `sonar.go.coverage.reportPaths=coverage.out` |
+| `python` | `sonar.python.coverage.reportPaths=coverage.xml` |
+| `maven` | `sonar.java.binaries=target/classes`<br>`sonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml`<br>`sonar.junit.reportPaths=target/surefire-reports` |
+| `gradle` | `sonar.java.binaries=build/classes`<br>`sonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml` |
+| `npm` | `sonar.javascript.lcov.reportPaths=coverage/lcov.info` |
+| others | none |
+
+## Examples
 
 ```groovy
-def props = appSonarProps(cfg)
+appSonarProps([buildTool: 'python'])
+// → ['sonar.python.coverage.reportPaths': 'coverage.xml']
+
+appSonarProps([buildTool: 'terraform'])
+// → [:]
 ```
+
+## How it fits
 
 Merged into the flag list built by [sonarProperties](sonarProperties.md).
 

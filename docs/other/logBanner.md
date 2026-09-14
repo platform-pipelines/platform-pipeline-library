@@ -2,27 +2,43 @@
 
 Visual stage separator. Makes long console logs scannable.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(String title)
+logBanner 'Title'
+logBanner(String title)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `title` | `String` | Text to print, boxed between two rule lines. |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `title` | `String` | yes | — | Text to print between two 68-character rule lines. |
 
 ## Returns
 
 Nothing — prints the banner to the build log.
 
-## Usage
+## Examples
 
 ```groovy
 logBanner 'Initialise'
+logBanner "Deploy -> ${envCfg.name}"
 ```
+
+Output:
+
+```
+====================================================================
+  Deploy -> prod
+====================================================================
+```
+
+## How it fits
+
+Every library step that does real work opens with one (`Lint: Go`,
+`Build: Python`, `Trivy fs: .`, `Plan: prod`, …), so you can search the log
+for a stage by its banner.
 
 ## Source
 
