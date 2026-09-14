@@ -12,7 +12,12 @@
 # Every version below was resolved from the project's release feed and every
 # download URL verified to resolve before being pinned here.
 #
-#   docker build -t ghcr.io/acme/ci-toolbox:1.0.0 .
+# The image is linux/amd64 only: every download below is an x86_64 build.
+# On an arm64 host (Apple Silicon) build it with --platform, or dynamically
+# linked tools such as the AWS CLI crash under emulation (`make toolbox-build`
+# does this for you):
+#
+#   docker build --platform linux/amd64 -t ghcr.io/acme/ci-toolbox:1.0.0 .
 
 # ---------------------------------------------------------------------------
 # Stage 1: fetch static binaries. Keeping downloads out of the final stage
@@ -97,7 +102,10 @@ RUN set -eux; \
       "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux-x64.zip"; \
     unzip -q sonar.zip; \
     mv "sonar-scanner-${SONAR_SCANNER_VERSION}-linux-x64" /out/sonar-scanner; \
-    rm -rf /out/sonar-scanner/jre sonar.zip
+    rm -rf /out/sonar-scanner/jre sonar.zip; \
+    # The launcher hardcodes use_embedded_jre=true, which points JAVA_HOME at
+    # the jre/ just deleted. Use the image's JDK instead.
+    sed -i 's/^use_embedded_jre=true/use_embedded_jre=false/' /out/sonar-scanner/bin/sonar-scanner
 
 # ---------------------------------------------------------------------------
 # Stage 2: the runtime image.
@@ -109,13 +117,14 @@ FROM eclipse-temurin:21-jdk-noble
 # Maven stays on 3.x: 4.0.0 is released but is a large behavioural change and
 # not every plugin in the ecosystem has caught up.
 ARG MAVEN_VERSION=3.9.16
-ARG GRADLE_VERSION=9.8.0
+ARG GRADLE_VERSION=9.7.1
 # Node 24 is Active LTS. 26 is current but not yet LTS.
 ARG NODE_MAJOR=24
 # golangci-lint 2.13 added go1.27 support, so these two move together.
 ARG GO_VERSION=1.27.0
 ARG RUFF_VERSION=0.16.4
-ARG TERRAFORM_VERSION=1.17.0
+# 1.17 is still in beta; pin the latest stable release.
+ARG TERRAFORM_VERSION=1.16.2
 ARG CHECKOV_VERSION=3.3.15
 ARG CFN_LINT_VERSION=1.55.1
 
@@ -126,10 +135,13 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # --- base OS packages -------------------------------------------------------
 # git and curl are needed by the pipeline itself; python3 backs the library's
 # resource scripts; jq is for ad-hoc debugging in a shell on the agent.
+# buildah + fuse-overlayfs + uidmap back `imageBuilder: buildah`
+# (buildImageBuildah); the host still needs subuid/subgid ranges for uid 1000.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git curl ca-certificates gnupg jq bash tar gzip unzip xz-utils \
         python3 python3-pip python3-venv \
         openssh-client rsync make \
+        buildah fuse-overlayfs uidmap \
     && rm -rf /var/lib/apt/lists/*
 
 # --- Node ------------------------------------------------------------------
@@ -217,7 +229,11 @@ ENV PATH="/usr/local/go/bin:${MAVEN_HOME}/bin:${GRADLE_HOME}/bin:/opt/sonar-scan
 # --- unprivileged user ------------------------------------------------------
 # uid 1000 matches the default Jenkins agent uid, so a mounted workspace does
 # not end up root-owned.
-RUN groupadd -g 1000 jenkins \
+# Ubuntu 24.04 (noble) images ship an `ubuntu` user holding uid/gid 1000, so
+# remove it first or groupadd fails with "GID '1000' already exists".
+RUN (userdel -r ubuntu 2>/dev/null || true) \
+ && (groupdel ubuntu 2>/dev/null || true) \
+ && groupadd -g 1000 jenkins \
  && useradd -u 1000 -g jenkins -m -s /bin/bash jenkins \
  && mkdir -p /home/jenkins/agent "$GOPATH" \
  && chown -R jenkins:jenkins /home/jenkins

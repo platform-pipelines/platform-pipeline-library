@@ -3,14 +3,14 @@
 //
 // Usage:
 //   publishArtifact(cfg)
-// Params: cfg (Map) - pipeline config; reads cfg.extra.nexusRepo and cfg.appName
-// No-op when nexusRepo is not configured, the toolchain has nothing to publish,
-// or no files match the artifact glob.
+// Params: cfg (Map) - pipeline config; reads cfg.publish.nexusRepo and cfg.appName
+// No-op when publish.nexusRepo is not configured, the toolchain has nothing to
+// publish, or no files match the artifact glob.
 def call(Map cfg) {
-    def repo = cfg.extra.nexusRepo
+    def repo = cfg.publish?.nexusRepo
     def glob = appArtifacts(cfg)
 
-    if (!repo) { logDebug 'No nexusRepo configured — skipping publish'; return }
+    if (!repo) { logDebug 'No publish.nexusRepo configured — skipping publish'; return }
     if (!glob) { logDebug 'This toolchain produces no publishable artifact'; return }
 
     def files = findFiles(glob: glob)

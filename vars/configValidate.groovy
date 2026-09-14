@@ -20,14 +20,14 @@ def call(Map cfg) {
         errors << 'imageRepo is required when containerize is true'
     }
 
-    def builders = ['kaniko-docker', 'kaniko-k8s', 'buildah']
+    def builders = configImageBuilders()
     if (cfg.containerize && !(cfg.imageBuilder in builders)) {
         errors << "imageBuilder '${cfg.imageBuilder}' unsupported (use: ${builders.join(', ')})"
     }
     if (cfg.quality.signImage && !cfg.containerize) {
         errors << 'quality.signImage requires containerize: true'
     }
-    def strategies = ['gitops', 'terraform', 'cloudformation']
+    def strategies = configDeployStrategies()
     if (cfg.deployStrategy && !(cfg.deployStrategy in strategies)) {
         errors << "deployStrategy '${cfg.deployStrategy}' unsupported (use: ${strategies.join(', ')})"
     }
@@ -51,6 +51,10 @@ def call(Map cfg) {
     }
     if (cfg.quality.minCoverage != null && !(cfg.quality.minCoverage in 0..100)) {
         errors << 'quality.minCoverage must be between 0 and 100'
+    }
+    def cvss = cfg.quality.dependencyCheckCvss
+    if (cvss != null && !(cvss instanceof Number && cvss >= 0 && cvss <= 10)) {
+        errors << 'quality.dependencyCheckCvss must be a number between 0 and 10'
     }
 
     def seen = [] as Set

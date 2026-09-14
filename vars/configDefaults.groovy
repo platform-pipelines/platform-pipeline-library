@@ -2,6 +2,10 @@
 // comes from here, so adding a new capability with a safe default does not
 // require touching every repo.
 //
+// This map is also the schema: configUnknownKeys warns about any key in a
+// repo's config that does not appear here, so every recognised key must be
+// listed — with null when it has no default.
+//
 // Usage:
 //   def defaults = configDefaults()
 // Returns: Map of every recognized top-level config key with its default value
@@ -13,11 +17,11 @@ def call() {
         imageRepo      : null,
         containerize   : true,
         dockerfile     : 'Dockerfile',
-        // kaniko-docker | kaniko-k8s | buildah — see the buildImage* steps
+        // see configImageBuilders
         imageBuilder   : 'kaniko-docker',
         gitopsRepo     : null,
         gitopsBranch   : 'main',
-        // gitops | terraform | cloudformation — defaulted from buildTool
+        // see configDeployStrategies — defaulted from buildTool
         deployStrategy : null,
         infra          : [
             workingDir      : '.',
@@ -39,17 +43,28 @@ def call() {
             autoFormat : false,
         ],
         quality        : [
-            sonar             : true,
-            sonarProjectKey   : null,
-            failOnQualityGate : true,
-            trivy             : true,
-            trivyFailOn       : ['HIGH', 'CRITICAL'],
-            trivyIgnoreUnfixed: true,
-            secretScan        : true,
-            dependencyCheck   : false,
-            minCoverage       : null,
-            sbom              : true,
-            signImage         : false,
+            sonar              : true,
+            sonarProjectKey    : null,
+            sonarSources       : '.',
+            sonarExclusions    : '**/node_modules/**,**/target/**,**/build/**,**/dist/**',
+            failOnQualityGate  : true,
+            trivy              : true,
+            trivyFailOn        : ['HIGH', 'CRITICAL'],
+            trivyIgnoreUnfixed : true,
+            secretScan         : true,
+            dependencyCheck    : false,
+            dependencyCheckCvss: 7,
+            minCoverage        : null,
+            sbom               : true,
+            signImage          : false,
+        ],
+        publish        : [
+            // Nexus repository for build artifacts; publishing is skipped when unset
+            nexusRepo: null,
+        ],
+        approval       : [
+            // true lets the person who triggered a build approve its deploy
+            allowSelfApproval: false,
         ],
         notify         : [
             slackChannel: null,
@@ -57,6 +72,7 @@ def call() {
             githubChecks: true,
             emails      : [],
         ],
+        // Free-form: never read by the pipeline, never checked for unknown keys.
         extra          : [:],
     ]
 }

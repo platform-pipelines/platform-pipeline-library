@@ -1,9 +1,8 @@
 # .ci/config.yaml — drop this in the root of a consuming repo.
 #
-# This is the Gradle-flavored Java example (the root examples/config.yaml is
-# Maven). Same language, different build tool, to show that Java isn't tied
-# to one build tool and that gradleLint/gradleBuild/gradleTest/gradlePackage
-# are exercised the same way mavenLint/mavenBuild/mavenTest/mavenPackage are.
+# The Gradle-flavored Java example. Switching to Maven is `buildTool: maven`:
+# same stages, with mavenLint/mavenBuild/mavenTest/mavenPackage exercised the
+# same way gradleLint/gradleBuild/gradleTest/gradlePackage are here.
 
 appName: catalog-service
 buildTool: gradle         # maven | gradle | npm | python | go | docker-only
@@ -47,6 +46,7 @@ environments:
 quality:
   sonar: true
   sonarProjectKey: acme_catalog-service
+  sonarExclusions: "**/generated/**,**/build/**"
   failOnQualityGate: true
   trivy: true
   trivyFailOn: [HIGH, CRITICAL]
@@ -62,7 +62,8 @@ notify:
   on: change              # always | failure | change
   githubChecks: true
 
-extra:
+publish:
   nexusRepo: maven-releases   # Gradle still publishes JVM artifacts to Nexus
-  sonarExclusions: "**/generated/**,**/build/**"
-  allowSelfApproval: false
+
+approval:
+  allowSelfApproval: false    # the default, spelled out: nobody approves their own deploy

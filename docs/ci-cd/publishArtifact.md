@@ -13,11 +13,12 @@ def call(Map cfg)
 
 | Name | Type | Description |
 |---|---|---|
-| `cfg` | `Map` | Pipeline config; reads `cfg.extra.nexusRepo` and `cfg.appName`. |
+| `cfg` | `Map` | Pipeline config; reads `cfg.publish.nexusRepo` and `cfg.appName`. |
 
 ## Returns
 
-Nothing. No-op when `nexusRepo` isn't configured, the toolchain has nothing
+Nothing. No-op when `publish.nexusRepo` isn't configured (the old
+`extra.nexusRepo` still works, with a deprecation warning), the toolchain has nothing
 to publish (see [appArtifacts](appArtifacts.md)), or no files match the
 artifact glob.
 

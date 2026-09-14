@@ -12,7 +12,7 @@ def call(String slug, String branch, String path)
 
 | Name | Type | Description |
 |---|---|---|
-| `slug` | `String` | `owner/name` of the repo. |
+| `slug` | `String` | `owner/name` of the repo; anything else is rejected before reaching the shell. |
 | `branch` | `String` | Branch or ref to look in. |
 | `path` | `String` | File path within the repo. |
 

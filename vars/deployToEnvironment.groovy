@@ -23,6 +23,6 @@ def call(Map cfg, Map envCfg) {
         case 'cloudformation': deployCloudFormation(cfg, envCfg); break
 
         default:
-            error "Unknown deployStrategy '${cfg.deployStrategy}'"
+            error "Unknown deployStrategy '${cfg.deployStrategy}'. Use: ${configDeployStrategies().join(', ')}"
     }
 }

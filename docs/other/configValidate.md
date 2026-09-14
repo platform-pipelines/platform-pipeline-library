@@ -29,9 +29,9 @@ def problems = configValidate(cfg)
 ## What it checks
 
 - `appName` and `buildTool` are present, and `buildTool` is in [`configSupportedTools`](configSupportedTools.md).
-- `containerize: true` requires `imageRepo`, and `imageBuilder` must be one of `kaniko-docker` / `kaniko-k8s` / `buildah`.
+- `containerize: true` requires `imageRepo`, and `imageBuilder` must be in [`configImageBuilders`](configImageBuilders.md).
 - `quality.signImage` requires `containerize: true`.
-- `deployStrategy` must be `gitops` / `terraform` / `cloudformation`, and `gitops` with declared environments requires `gitopsRepo`.
+- `deployStrategy` must be in [`configDeployStrategies`](configDeployStrategies.md), and `gitops` with declared environments requires `gitopsRepo`.
 - Infrastructure repos (`buildTool` in [`configInfraTools`](../cloud/configInfraTools.md)) must have `containerize: false`.
 
 !!! note "infra.region is required whenever CloudFormation is reachable"
@@ -43,8 +43,11 @@ def problems = configValidate(cfg)
     miss a config that explicitly overrides `deployStrategy` away from the
     value implied by `buildTool`.
 
-- `notify.on` must be `always` / `failure` / `change`, and `quality.minCoverage` (if set) must be between 0 and 100.
+- `notify.on` must be `always` / `failure` / `change`, `quality.minCoverage` (if set) must be between 0 and 100, and `quality.dependencyCheckCvss` must be a number between 0 and 10.
 - Every environment needs a `name` (unique across the list); `gitops` environments also need `manifestPath`; `requiresApproval: true` needs a non-empty `approvers`.
+
+Unknown keys are not validation errors — they are reported as warnings by
+[`configUnknownKeys`](configUnknownKeys.md).
 
 ## Source
 

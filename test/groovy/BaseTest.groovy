@@ -81,6 +81,7 @@ abstract class BaseTest extends BasePipelineTest {
                     registerAllowedMethod(name, [Map, Map], invoke)
                     registerAllowedMethod(name, [Map, String], invoke)
                     registerAllowedMethod(name, [String, String], invoke)
+                    registerAllowedMethod(name, [String, List], invoke)
                     registerAllowedMethod(name, [String, String, String], invoke)
                     registerAllowedMethod(name, [String, Closure], invoke)
                     registerAllowedMethod(name, [Map, Closure], invoke)
@@ -139,6 +140,7 @@ abstract class BaseTest extends BasePipelineTest {
             registerAllowedMethod('timeout', [Map, Closure]) { m, c -> c.call() }
             registerAllowedMethod('waitUntil', [Map, Closure]) { m, c -> c.call() }
             registerAllowedMethod('node', [String, Closure]) { s, c -> c.call() }
+            registerAllowedMethod('dir', [String, Closure]) { s, c -> c.call() }
             registerAllowedMethod('stage', [String, Closure]) { s, c -> c.call() }
             registerAllowedMethod('container', [String, Closure]) { s, c -> c.call() }
             registerAllowedMethod('input', [Map]) { [APPROVER: 'ops.lead', REASON: 'CHG-1234'] }

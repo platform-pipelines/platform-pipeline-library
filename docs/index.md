@@ -28,12 +28,17 @@ grouped by what it does rather than alphabetically:
    [Go](https://github.com/platform-pipelines/platform-pipeline-library/tree/main/examples/go-service),
    [Java](https://github.com/platform-pipelines/platform-pipeline-library/tree/main/examples/java-service),
    [Python](https://github.com/platform-pipelines/platform-pipeline-library/tree/main/examples/python-service),
-   and [Node](https://github.com/platform-pipelines/platform-pipeline-library/tree/main/examples/node-service),
-   or the minimal per-language configs under `examples/`.
+   [Node](https://github.com/platform-pipelines/platform-pipeline-library/tree/main/examples/node-service),
+   [Terraform](https://github.com/platform-pipelines/platform-pipeline-library/tree/main/examples/terraform-stack),
+   and [CloudFormation](https://github.com/platform-pipelines/platform-pipeline-library/tree/main/examples/cloudformation-stack).
+   Only `appName`, `buildTool` and (for container builds) `imageRepo` are
+   required; everything else has a default.
 3. [`configLoad`](other/configLoad.md) reads that file, layers it over
    [`configDefaults`](other/configDefaults.md), and validates it via
    [`configValidate`](other/configValidate.md) — start there if you want to
-   understand exactly what fields are recognized.
+   understand exactly what fields are recognized. A misspelled key is logged
+   with a "did you mean" hint by [`configUnknownKeys`](other/configUnknownKeys.md),
+   and the first lines of the Init stage summarise what the build will do.
 
 For the design rationale (why no `src/` classes, why config is data, why
 parsing lives in Python), see the root

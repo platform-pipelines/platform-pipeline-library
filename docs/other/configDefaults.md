@@ -14,7 +14,12 @@ def call()
 
 `Map` of every recognized top-level config key with its default value —
 `appName`, `buildTool`, `containerize`, `infra`, `environments`, `lint`,
-`quality`, `notify`, `extra`, and more.
+`quality`, `publish`, `approval`, `notify`, `extra`, and more.
+
+This map is also the schema: [`configUnknownKeys`](configUnknownKeys.md) warns
+about any key a repo writes that does not appear here. A new key therefore has
+to be added here, even when its default is `null`. `extra` is the one
+free-form section — the pipeline never reads or checks it.
 
 ## Usage
 

@@ -1,9 +1,9 @@
 # Example: containerized Python service
 
-A full end-to-end config for a Python web service, as opposed to
-`examples/config-python.yaml`, which is deliberately minimal (`containerize:
-false`, a background worker with no image, no deploy). This example turns on
-every major capability the library offers for an application repo.
+A full end-to-end config for a Python web service (`orders-api`). It turns on
+every major capability the library offers for an application repo. A
+background worker with no image would instead set `containerize: false` and
+drop `imageRepo`, `gitopsRepo` and `environments`.
 
 ## What this demonstrates
 
@@ -14,10 +14,8 @@ every major capability the library offers for an application repo.
   coverage floor, an SBOM, and cosign image signing.
 - **Multi-environment GitOps deploy** — dev (every branch), staging (`main`),
   and prod (`main`, gated behind approval with named approvers and a timeout).
+- **Artifact publishing** — `publish.nexusRepo` uploads the built wheel/sdist.
 - **Notifications** — Slack on every result change, plus GitHub check runs.
-- **`extra:`** — repo-specific values (`nexusRepo`, Sonar exclusions, a
-  self-approval flag) that no core step reads directly but downstream tooling
-  or policy can.
 
 ## Adapting this to a real repo
 
@@ -36,6 +34,7 @@ every major capability the library offers for an application repo.
 | `gitopsRepo` / `gitopsBranch` | where a passing build commits the new image tag |
 | `lint` | ruff + mypy; `failOnError: true` means lint problems fail the build |
 | `environments` | one deploy target per Argo CD app, gated by branch and (for prod) approval |
-| `quality` | Sonar, Trivy, secret scan, dependency scan, coverage floor, SBOM, signing |
+| `quality` | Sonar (incl. exclusions), Trivy, secret scan, dependency scan, coverage floor, SBOM, signing |
+| `publish` | where build artifacts are uploaded |
+| `approval` | whether the person who triggered a build may approve its deploy |
 | `notify` | Slack channel/trigger and GitHub status checks |
-| `extra` | repo-specific values not read by any core step |

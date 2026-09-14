@@ -24,18 +24,20 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('build.gradle') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('build.gradle', 'gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      # ./gradlew, not the runner's preinstalled gradle, so CI uses the same
+      # pinned Gradle version as `make check` on a laptop.
       - name: Run tests
-        run: gradle test --console=plain
+        run: ./gradlew test --console=plain
 
       - name: Run CodeNarc (vars/)
-        run: gradle codenarcMain --console=plain
+        run: ./gradlew codenarcMain --console=plain
 
       - name: Run CodeNarc (test/)
-        run: gradle codenarcTest --console=plain
+        run: ./gradlew codenarcTest --console=plain
 
       - name: Upload test report
         if: always()

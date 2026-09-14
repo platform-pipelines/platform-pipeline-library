@@ -13,7 +13,7 @@ def call(Map cfg)
 
 | Name | Type | Description |
 |---|---|---|
-| `cfg` | `Map` | Pipeline config; reads `cfg.appName` and `cfg.extra.dependencyCheckCvss` (default `7`). |
+| `cfg` | `Map` | Pipeline config; reads `cfg.appName` and `cfg.quality.dependencyCheckCvss` (default `7`). |
 
 ## Returns
 

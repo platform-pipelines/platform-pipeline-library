@@ -11,7 +11,9 @@ is built on top of.
 - [configDefaults](configDefaults.md), [configEnvDefaults](configEnvDefaults.md) — the baseline every repo inherits.
 - [configMerge](configMerge.md) — recursive map merge (right side wins).
 - [configValidate](configValidate.md) — collects every config problem in one pass instead of failing on the first.
-- [configSupportedTools](configSupportedTools.md) — the `buildTool` allowlist; see [configInfraTools](../cloud/configInfraTools.md) (in Cloud) for the infra-vs-app subset.
+- [configUnknownKeys](configUnknownKeys.md), [configClosestKey](configClosestKey.md) — warn about typos in config, with a "did you mean" hint.
+- [configDeprecatedKeys](configDeprecatedKeys.md) — keys that moved (e.g. `extra.nexusRepo` → `publish.nexusRepo`) and still work with a warning.
+- [configSupportedTools](configSupportedTools.md), [configImageBuilders](configImageBuilders.md), [configDeployStrategies](configDeployStrategies.md) — the allowlists for `buildTool`, `imageBuilder` and `deployStrategy`; see [configInfraTools](../cloud/configInfraTools.md) (in Cloud) for the infra-vs-app subset.
 - [configEnvironmentsFor](configEnvironmentsFor.md), [configGlobToRegex](configGlobToRegex.md) — which declared environments a given branch reaches.
 
 ## GitHub integration

@@ -1,7 +1,8 @@
 // Policy checks over the templates.
 //
 // CloudFormation has no plan-time test framework, so this is static analysis:
-// checkov for the common misconfigurations, cfn-guard for rules you write.
+// checkov for the common misconfigurations. Its JUnit report is what
+// appTestReport publishes for cloudformation repos.
 //
 // Usage:
 //   cfnTest(cfg)

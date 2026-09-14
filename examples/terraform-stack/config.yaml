@@ -1,0 +1,41 @@
+# .ci/config.yaml — Terraform infrastructure repo.
+#
+# containerize, deployStrategy, sbom and signImage are derived from
+# `buildTool: terraform`, so they are not repeated here.
+
+appName: platform-network
+buildTool: terraform
+runtimeVersion: "1.16"
+
+infra:
+  workingDir: terraform
+  varFiles: [common.tfvars]
+  policyDir: policies          # conftest/OPA rules run against the plan
+  region: eu-west-1
+
+environments:
+  - name: dev
+    workspace: dev
+    backendConfig: backends/dev.hcl
+    varFiles: [common.tfvars, dev.tfvars]
+    branchPattern: "*"
+
+  - name: prod
+    workspace: prod
+    backendConfig: backends/prod.hcl
+    varFiles: [common.tfvars, prod.tfvars]
+    assumeRole: arn:aws:iam::111122223333:role/JenkinsDeploy
+    branchPattern: main
+    requiresApproval: true       # the gate sits between plan and apply
+    approvers: [platform-leads]
+    approvalTimeoutMinutes: 240
+
+quality:
+  sonar: false                 # Sonar adds little over tflint + trivy config
+  trivy: true                  # runs `trivy config` for IaC repos
+  trivyFailOn: [HIGH, CRITICAL]
+  secretScan: true
+
+notify:
+  slackChannel: "#platform-infra"
+  on: always                   # infra changes are worth announcing every time

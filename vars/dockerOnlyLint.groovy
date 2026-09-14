@@ -6,7 +6,8 @@
 // Returns: nothing; errors if hadolint reports problems and failOnError is true
 def call(Map cfg) {
     logBanner 'Lint: Dockerfile'
-    def status = sh(script: "hadolint ${cfg.dockerfile} || true", returnStatus: true)
+    // No `|| true` here: it would force the status to 0 and make failOnError a no-op.
+    def status = sh(script: "hadolint ${cfg.dockerfile}", returnStatus: true)
     if (status != 0 && cfg.lint.failOnError) {
         error 'hadolint reported problems'
     }

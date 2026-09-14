@@ -39,6 +39,26 @@ jenkins:
             workDirSettings:
               disabled: false
 
+  # Only needed for imageBuilder: kaniko-k8s (see vars/buildImageKanikoK8s.groovy),
+  # which runs kaniko as a sidecar container named 'kaniko' in the agent pod.
+  # Requires the kubernetes plugin (commented out in local/plugins.txt).
+  #
+  # clouds:
+  #   - kubernetes:
+  #       name: k8s
+  #       serverUrl: https://kubernetes.default
+  #       namespace: jenkins
+  #       templates:
+  #         - name: kaniko
+  #           label: "linux kaniko"
+  #           containers:
+  #             - name: jnlp
+  #               image: jenkins/inbound-agent:latest
+  #             - name: kaniko
+  #               image: gcr.io/kaniko-project/executor:v1.23.2-debug
+  #               command: /busybox/cat
+  #               ttyEnabled: true
+
 security:
   scriptApproval:
     approvedSignatures:
@@ -98,3 +118,14 @@ credentials:
               username: "${NEXUS_USER}"
               password: "${NEXUS_PASS}"
               description: Nexus repository
+          - usernamePassword:
+              scope: GLOBAL
+              id: aws-credentials
+              username: "${AWS_ACCESS_KEY_ID}"
+              password: "${AWS_SECRET_ACCESS_KEY}"
+              description: AWS access key (terraform / cloudformation; roles are assumed from it)
+          - string:
+              scope: GLOBAL
+              id: cosign-oidc-token
+              secret: "${COSIGN_OIDC_TOKEN}"
+              description: OIDC identity token for keyless cosign signing

@@ -15,14 +15,14 @@ def call(Map cfg) {
 
     logBanner "Build image ${cfg.imageRepo}:${env.IMAGE_TAG}"
 
-    kanikoDockerConfig()
+    kanikoDockerConfig(cfg)
 
     switch (cfg.imageBuilder) {
         case 'kaniko-k8s':    buildImageKanikoK8s(cfg);    break
         case 'kaniko-docker': buildImageKanikoDocker(cfg); break
         case 'buildah':       buildImageBuildah(cfg);      break
         default:
-            error "Unknown imageBuilder '${cfg.imageBuilder}'. Use kaniko-docker, kaniko-k8s or buildah."
+            error "Unknown imageBuilder '${cfg.imageBuilder}'. Use: ${configImageBuilders().join(', ')}"
     }
 
     env.IMAGE_DIGEST = fileExists('image-digest.txt') ? readFile('image-digest.txt').trim() : ''

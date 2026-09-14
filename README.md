@@ -12,7 +12,71 @@ A consuming repo's Jenkinsfile is two lines:
 standardPipeline()
 ```
 
-Everything else is declared in `.ci/config.yaml`.
+Everything else is declared in `.ci/config.yaml`. Start from the example
+closest to your repo:
+
+| Example | Shape |
+|---|---|
+| [`examples/go-service`](examples/go-service) | Go app, kaniko-docker, three gitops environments |
+| [`examples/java-service`](examples/java-service) | Gradle app, kaniko-k8s, Nexus publish |
+| [`examples/node-service`](examples/node-service) | npm app, strict lint with autofix |
+| [`examples/python-service`](examples/python-service) | Python app, buildah on toolbox agents |
+| [`examples/terraform-stack`](examples/terraform-stack) | Terraform: plan → approve → apply |
+| [`examples/cloudformation-stack`](examples/cloudformation-stack) | CloudFormation: change set → approve → execute |
+
+Every example is loaded by `ExamplesConfigTest`, so they cannot drift from
+what the library accepts.
+
+## Config reference
+
+Only `appName`, `buildTool`, and `imageRepo` (when `containerize: true`) are
+required. Everything else defaults from
+[`configDefaults`](vars/configDefaults.groovy); environment entries default
+from [`configEnvDefaults`](vars/configEnvDefaults.groovy).
+
+| Section | Keys |
+|---|---|
+| top level | `appName`, `buildTool`, `runtimeVersion`, `imageRepo`, `containerize` (true), `dockerfile` (`Dockerfile`), `imageBuilder` (`kaniko-docker`), `gitopsRepo`, `gitopsBranch` (`main`), `deployStrategy` (derived) |
+| `lint` | `enabled` (true), `failOnError` (true), `autoFormat` (false) |
+| `quality` | `sonar` (true), `sonarProjectKey` (appName), `sonarSources` (`.`), `sonarExclusions`, `failOnQualityGate` (true), `trivy` (true), `trivyFailOn` (HIGH, CRITICAL), `trivyIgnoreUnfixed` (true), `secretScan` (true), `dependencyCheck` (false), `dependencyCheckCvss` (7), `minCoverage`, `sbom` (true), `signImage` (false) |
+| `publish` | `nexusRepo` — Nexus repository for build artifacts; publishing is skipped when unset |
+| `approval` | `allowSelfApproval` (false) |
+| `notify` | `slackChannel`, `on` (`change` — or `always` / `failure`), `githubChecks` (true) |
+| `infra` | `workingDir` (`.`), `varFiles`, `backendConfig`, `policyDir`, `region` (`us-east-1`), `assumeRole`, `awsCredentialsId` (`aws-credentials`), `template`, `templates`, `artifactBucket`, `capabilities` |
+| `environments[]` | `name`, `namespace` (name), `manifestPath`, `branchPattern` (`main`), `requiresApproval`, `approvers`, `approvalTimeoutMinutes` (60), `workspace`, `backendConfig`, `varFiles`, `stackName`, `parameters`, `region`, `assumeRole`, `awsCredentialsId` |
+| `extra` | free-form — never read or checked by the pipeline; use it for your own tooling |
+
+Allowed values live in one place each: `configSupportedTools` (buildTool),
+`configImageBuilders`, `configDeployStrategies`.
+
+**Typos are reported.** A key the library does not recognise is logged at
+Init, with a hint:
+
+```
+[WARN]  unknown config key 'quality.minCoverge' — did you mean 'minCoverage'? (in .ci/config.yaml)
+```
+
+Unknown keys warn; invalid values (an unsupported `buildTool`, a missing
+`imageRepo`, ...) fail the build with every problem listed at once.
+
+**Init prints what the build will do** — deploy strategy, image builder, lint
+mode, enabled gates, coverage floor, and the environments this branch reaches.
+
+### Migrating from `extra.*`
+
+These keys used to be read out of `extra`. They still work, with a
+deprecation warning, until you move them:
+
+| Old | New |
+|---|---|
+| `extra.nexusRepo` | `publish.nexusRepo` |
+| `extra.sonarSources` | `quality.sonarSources` |
+| `extra.sonarExclusions` | `quality.sonarExclusions` |
+| `extra.dependencyCheckCvss` | `quality.dependencyCheckCvss` |
+| `extra.allowSelfApproval` | `approval.allowSelfApproval` |
+
+If both are set, the new key wins. The mapping lives in
+[`configDeprecatedKeys`](vars/configDeprecatedKeys.groovy).
 
 ## Design rules
 
@@ -147,6 +211,17 @@ Metadata: `appToolImage`, `appTestReport`, `appCoverageFile`, `appArtifacts`,
 `AppMetadataTest` walks `configSupportedTools`, so a missing metadata case
 fails the build rather than silently producing a stage that does nothing.
 
+## Adding a step or a config key
+
+- **A step:** add `vars/<name>.groovy` with a usage comment, plus
+  `docs/<section>/<name>.md` and an entry in `mkdocs.yml`'s nav.
+  `DocsCoverageTest` fails the build if any of the three is missing.
+- **A config key:** add it to `configDefaults` (or `configEnvDefaults`), even
+  if its default is `null`. That map is the schema: keys not listed there are
+  reported as unknown.
+- **Renaming a key:** add the old → new mapping to `configDeprecatedKeys`, so
+  existing repos keep working and get told where the key moved.
+
 ## Local development
 
 ### Running the tests
@@ -212,7 +287,8 @@ make local-restart    # local-down + local-up
 
 Set `GITHUB_TOKEN`, `SONAR_TOKEN`, and `SLACK_WEBHOOK` in your environment
 before `make local-up` if you want those integrations to work against the
-local stack.
+local stack. Every credential in the table below is wired from an environment
+variable in `local/casc/jenkins.yaml`.
 
 Jenkins :8080, SonarQube :9000 (admin/admin), Nexus :8081. Jenkins builds
 from `local/plugins.txt` — pinned, no UI installs.
@@ -238,8 +314,10 @@ deliberate, temporary trade-off, not the long-term plan.
 | `sonar-token` | string | scan and quality gate |
 | `slack-webhook` | string | notifications |
 | `argocd-token` | string | sync wait |
-| `ghcr-credentials` | username/password | Kaniko push |
-| `nexus-credentials` | username/password | artifact publish |
+| `ghcr-credentials` | username/password | registry push (override with `REGISTRY_CREDENTIALS_ID`) |
+| `nexus-credentials` | username/password | artifact publish (`publish.nexusRepo`) |
+| `aws-credentials` | username/password (access key id / secret) | Terraform and CloudFormation; override per repo or environment with `awsCredentialsId` |
+| `cosign-oidc-token` | string | keyless image signing (`quality.signImage`) |
 
 ## Environment
 

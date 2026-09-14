@@ -1,0 +1,3 @@
+@Library('platform-pipeline@main') _
+
+standardPipeline()

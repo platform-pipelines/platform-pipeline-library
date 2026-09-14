@@ -1,9 +1,8 @@
 # java-service example (Gradle)
 
 A full end-to-end example config for a containerized Java service built with
-**Gradle**. The root `examples/config.yaml` is Maven-flavored (`payments-api`);
-this one exists to show the library treats Java-via-Gradle identically —
-same stages, same dispatcher, different four steps underneath
+**Gradle**. For Maven, set `buildTool: maven` — the library treats both
+identically: same stages, same dispatcher, different four steps underneath
 (`gradleLint`/`gradleBuild`/`gradleTest`/`gradlePackage` instead of the
 `maven*` equivalents).
 
@@ -33,5 +32,7 @@ same stages, same dispatcher, different four steps underneath
   a timeout.
 - **notify** — Slack notification only `on: change`, plus GitHub status
   checks.
-- **extra** — Nexus is still the JVM artifact target even though the build
-  tool is Gradle, not Maven.
+- **publish.nexusRepo** — Nexus is still the JVM artifact target even though
+  the build tool is Gradle, not Maven.
+- **approval.allowSelfApproval** — left `false`, so whoever triggered a build
+  cannot approve its prod deploy.

@@ -19,7 +19,9 @@ fail there, not three stages into somebody's pipeline.
 |---|---|
 | Java (Temurin JDK) | 21 |
 | Maven | 3.9.16 |
-| Gradle | 9.8.0 |
+| Gradle | 9.7.1 |
+| Terraform | 1.16.2 |
+| buildah | distro (for `imageBuilder: buildah`) |
 | Node | 24 (Active LTS) |
 | Go | 1.27.0 |
 | Python | 3.12 + ruff, mypy, pytest, build |

@@ -9,7 +9,9 @@
 //         envCfg (Map) - target environment config; envCfg.backendConfig/workspace override cfg's (default [:])
 // Returns: nothing; runs terraform init and selects/creates the workspace if given
 def call(Map cfg, Map envCfg = [:]) {
-    def dir = cfg.infra.workingDir
+    // Not named `dir`: a local variable with that name shadows the dir() step
+    // and `dir(dir) { }` then fails at runtime with MissingMethodException.
+    def workDir = cfg.infra.workingDir
     def backend = envCfg.backendConfig ?: cfg.infra.backendConfig
 
     def flags = '-input=false -no-color'
@@ -17,7 +19,7 @@ def call(Map cfg, Map envCfg = [:]) {
         flags += " -backend-config=${backend}"
     }
 
-    dir(dir) {
+    dir(workDir) {
         sh "terraform init ${flags} -reconfigure"
 
         if (envCfg.workspace) {

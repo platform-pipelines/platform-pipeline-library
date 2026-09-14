@@ -1,0 +1,41 @@
+# .ci/config.yaml — CloudFormation infrastructure repo.
+#
+# containerize, deployStrategy, sbom and signImage are derived from
+# `buildTool: cloudformation`, so they are not repeated here.
+
+appName: billing-stack
+buildTool: cloudformation
+
+infra:
+  workingDir: templates
+  template: templates/root.yaml
+  artifactBucket: acme-cfn-artifacts   # enables `aws cloudformation package`
+  region: us-east-1                     # required for cloudformation
+  capabilities: [CAPABILITY_IAM, CAPABILITY_NAMED_IAM]
+
+environments:
+  - name: dev
+    stackName: billing-dev
+    parameters:                  # free-form: passed to the stack as-is
+      Environment: dev
+      InstanceType: t3.small
+    branchPattern: "*"
+
+  - name: prod
+    stackName: billing-prod
+    parameters:
+      Environment: prod
+      InstanceType: m6i.large
+    assumeRole: arn:aws:iam::444455556666:role/JenkinsDeploy
+    branchPattern: main
+    requiresApproval: true       # the gate sits between change set and execute
+    approvers: [platform-leads, finance-eng]
+
+quality:
+  sonar: false
+  trivy: true
+  secretScan: true
+
+notify:
+  slackChannel: "#billing-infra"
+  on: always
