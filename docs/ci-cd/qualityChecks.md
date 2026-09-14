@@ -6,33 +6,74 @@ check name, for [`parallel()`](https://www.jenkins.io/doc/pipeline/steps/workflo
 `failFast` is deliberately off: seeing every problem in one run beats fixing
 them one build at a time.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+parallel qualityChecks(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config; reads `cfg.quality.*` to decide which gates apply. |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config. |
+
+### Config keys read
+
+| Key | Default | Adds branch | Runs |
+|---|---|---|---|
+| `quality.sonar` | `true` | `sonarqube` | [scanSonar](scanSonar.md) |
+| `quality.trivy` | `true` | `trivy-fs` (apps) or `iac-scan` (infra) | [scanTrivy](scanTrivy.md) `type: 'fs'` / [scanIac](scanIac.md) |
+| `quality.secretScan` | `true` | `secrets` | [scanSecrets](scanSecrets.md) |
+| `quality.dependencyCheck` | `false` | `dependency-check` | [scanDependencies](scanDependencies.md) |
 
 ## Returns
 
-A `Map` of check name → `Closure`, suitable for `parallel()`, plus
-`failFast: false`.
+A `Map` of branch name → `Closure`, plus `failFast: false`. With every flag
+off it contains only `failFast`.
 
-## Usage
+## Examples
+
+With the defaults on an application repo:
 
 ```groovy
-parallel(qualityChecks(cfg))
+qualityChecks(cfg).keySet()
+// → ['sonarqube', 'trivy-fs', 'secrets', 'failFast']
 ```
 
-Dispatches to [scanSonar](scanSonar.md), [scanTrivy](scanTrivy.md) (or
-[scanIac](scanIac.md) for infra repos), [scanSecrets](scanSecrets.md), and
-[scanDependencies](scanDependencies.md) depending on which `cfg.quality`
-flags are enabled.
+With OWASP Dependency-Check turned on and Sonar off:
+
+```yaml
+quality:
+  sonar: false
+  dependencyCheck: true
+  dependencyCheckCvss: 8
+```
+
+```groovy
+qualityChecks(cfg).keySet()
+// → ['trivy-fs', 'secrets', 'dependency-check', 'failFast']
+```
+
+Infra repo (`buildTool: terraform`):
+
+```groovy
+qualityChecks(cfg).keySet()
+// → ['sonarqube', 'iac-scan', 'secrets', 'failFast']
+```
+
+Adding your own gate alongside the standard ones:
+
+```groovy
+def checks = qualityChecks(cfg)
+checks['licenses'] = { sh './scripts/check-licenses.sh' }
+parallel checks
+```
+
+## How it fits
+
+Called from [standardPipeline](standardPipeline.md)'s `Quality & Security`
+stage.
 
 ## Source
 

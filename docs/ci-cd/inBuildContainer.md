@@ -1,35 +1,59 @@
 # inBuildContainer
 
-Runs a build body in the right place for this agent: directly, on a toolbox
+Runs a build body in the right place for this agent: directly on a toolbox
 agent, or inside a per-language container otherwise.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg, Closure body)
+inBuildContainer(Map cfg) {
+    // build steps
+}
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config; determines the per-language image/cache dir. |
-| `body` | `Closure` | Build steps to run. |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config; `buildTool` and `runtimeVersion` pick the fallback image. |
+| `body` | `Closure` | yes | — | Build steps to run. |
 
 ## Returns
 
-Nothing — runs `body()` in place (toolbox agent) or inside the right
-container via [inContainer](inContainer.md).
+Nothing (the value of `body` is not returned).
 
-## Usage
+| Agent | Where `body` runs |
+|---|---|
+| `CI_TOOLBOX=true` ([usingToolbox](usingToolbox.md)) | directly on the agent |
+| any other agent | inside [`appToolImage(cfg)`](appToolImage.md), with the [`appCacheDir(cfg)`](appCacheDir.md) volume, via [inContainer](inContainer.md) |
 
-```groovy
-inBuildContainer(cfg) { sh 'go build ./...' }
+## Examples
+
+```yaml
+buildTool: python
+runtimeVersion: "3.12"
 ```
 
-Checks [usingToolbox](usingToolbox.md) first; otherwise resolves the image
-and cache dir via [appToolImage](appToolImage.md) and
-[appCacheDir](appCacheDir.md).
+```groovy
+inBuildContainer(cfg) {
+    sh 'pip install -r requirements.txt && pytest -q'
+}
+```
+
+On a plain docker agent this is equivalent to:
+
+```groovy
+inContainer('python:3.12-slim', '.pip-cache') {
+    sh 'pip install -r requirements.txt && pytest -q'
+}
+```
+
+On a toolbox agent it just runs the `sh` step.
+
+## How it fits
+
+Wraps every build-type stage in [standardPipeline](standardPipeline.md)
+(Lint, Build, Test, Package).
 
 ## Source
 

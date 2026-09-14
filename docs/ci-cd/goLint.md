@@ -8,30 +8,76 @@ a formatting slip fails in seconds instead of after a multi-minute lint run.
     `--out-format` flag. `toolbox/verify.sh` asserts this flag exists so an
     incompatible golangci-lint upgrade fails at image build, not mid-pipeline.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+goLint(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config; reads `cfg.lint.autoFormat` and `cfg.lint.failOnError`. |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config. |
+
+### Config keys read
+
+| Key | Default | Sample value | Effect |
+|---|---|---|---|
+| `lint.autoFormat` | `false` | `true` | Runs `gofmt -w .` before checking. |
+| `lint.failOnError` | `true` | `false` | `false` = gofmt/golangci-lint problems are reported, not fatal. |
 
 ## Returns
 
-Nothing — errors if `gofmt`/golangci-lint report problems and `failOnError`
-is true.
+Nothing. Writes `golangci-report.xml` (Checkstyle). Fails the build:
 
-## Usage
+| Check | Fails when | Message |
+|---|---|---|
+| `gofmt -l .` | any file listed and `failOnError` | `Run: gofmt -w .` |
+| `go vet ./...` | always on failure | `go vet` output |
+| `golangci-lint run` | issues found and `failOnError` | `golangci-lint reported problems` |
+
+## Examples
+
+```yaml
+buildTool: go
+lint:
+  failOnError: true
+  autoFormat: false
+```
 
 ```groovy
 goLint(cfg)
 ```
 
-Called by [lintApp](lintApp.md) when `cfg.buildTool == 'go'`.
+Runs:
+
+```bash
+gofmt -l .
+go vet ./...
+golangci-lint run --timeout 5m --output.checkstyle.path golangci-report.xml
+```
+
+Sample failure:
+
+```
+[ERROR] Not gofmt-formatted:
+internal/router/table.go
+ERROR: Run: gofmt -w .
+```
+
+Configure linters with a `.golangci.yml` in the repo root:
+
+```yaml
+version: "2"
+linters:
+  enable: [errcheck, govet, staticcheck, revive]
+```
+
+## How it fits
+
+Called by [lintApp](lintApp.md) when `cfg.buildTool == 'go'`. The report is
+archived by [archiveLintReports](archiveLintReports.md).
 
 ## Source
 

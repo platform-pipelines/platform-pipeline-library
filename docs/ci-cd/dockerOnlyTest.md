@@ -2,27 +2,38 @@
 
 No-op test step for `docker-only` repos — there are no unit tests to run.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+dockerOnlyTest(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config (unused; kept for dispatcher parity). |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config; unused, kept so every `*Test` step has the same signature. |
 
 ## Returns
 
-Nothing — logs `docker-only: no unit tests`.
+Nothing. Logs one line.
 
-## Usage
+## Examples
 
 ```groovy
 dockerOnlyTest(cfg)
 ```
+
+Output:
+
+```
+[INFO]  docker-only: no unit tests
+```
+
+The built image is still scanned by [scanTrivy](scanTrivy.md) in the
+`Scan Image` stage.
+
+## How it fits
 
 Called by [testApp](testApp.md) when `cfg.buildTool == 'docker-only'`.
 

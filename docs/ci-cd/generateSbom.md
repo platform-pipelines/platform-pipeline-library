@@ -5,33 +5,75 @@ Trivy generates it, so no extra tool is needed. An SBOM is what lets you
 answer "are we affected by this CVE" in minutes across every deployed
 service, instead of rebuilding each one to find out.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+generateSbom(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config; `cfg.quality.sbom` and `cfg.imageRepo` are read. |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config. |
+
+Reads `env.IMAGE_TAG`; the image must already be pushed by
+[buildImage](buildImage.md).
+
+### Config keys read
+
+| Key | Default | Sample value | Effect |
+|---|---|---|---|
+| `quality.sbom` | `true` (forced `false` for infra repos) | `false` | `false` skips the step. |
+| `imageRepo` | — | `ghcr.io/acme/orders-api` | Image to describe. |
 
 ## Returns
 
-Nothing — a no-op unless `cfg.quality.sbom` is true. Otherwise archives
-`sbom.cdx.json` and logs a component summary.
+Nothing. Writes, archives and fingerprints `sbom.cdx.json`, and logs a
+component summary.
 
-## Usage
+## Examples
+
+```yaml
+imageRepo: ghcr.io/acme/orders-api
+quality:
+  sbom: true
+```
 
 ```groovy
+buildImage(cfg)
 generateSbom(cfg)
 ```
 
-Runs Trivy via [inToolContainer](inToolContainer.md), and summarizes the
-result with the bundled `sbom_summary.py` script via
-[useScript](../other/useScript.md). Feeds [signImage](signImage.md)'s
-optional SBOM attestation.
+Runs:
+
+```bash
+trivy image --format cyclonedx --output sbom.cdx.json --no-progress ghcr.io/acme/orders-api:1.4.0
+```
+
+Output:
+
+```
+====================================================================
+  SBOM
+====================================================================
+[INFO]  SBOM: 214 components (pypi=180, deb=34)
+[AUDIT] sbom.generated [image:ghcr.io/acme/orders-api:1.4.0, components:214 components (pypi=180, deb=34)]
+```
+
+Finding a vulnerable package later, from the archived file:
+
+```bash
+jq -r '.components[] | select(.name=="urllib3") | .version' sbom.cdx.json
+```
+
+## How it fits
+
+Runs Trivy via [inToolContainer](inToolContainer.md) and summarises with the
+bundled `sbom_summary.py` (see [useScript](../other/useScript.md)). Called
+from [standardPipeline](standardPipeline.md)'s `Package` stage between
+[buildImage](buildImage.md) and [signImage](signImage.md), which attaches the
+SBOM as an attestation.
 
 ## Source
 

@@ -4,21 +4,35 @@ Shared Maven CLI flags used by every `maven*` step. Batch mode and no
 transfer progress keep logs readable; a workspace-local repo makes the
 dependency cache mountable between builds.
 
-## Signature
+## Syntax
 
 ```groovy
-def call()
+mavenOpts()
 ```
+
+## Parameters
+
+None.
 
 ## Returns
 
-The shared Maven CLI flags as a `String`: `-B -ntp -Dmaven.repo.local=.m2`.
+The `String` `-B -ntp -Dmaven.repo.local=.m2`.
 
-## Usage
+| Flag | Why |
+|---|---|
+| `-B` | batch mode — no interactive prompts, no colour codes |
+| `-ntp` | no download-progress lines flooding the log |
+| `-Dmaven.repo.local=.m2` | dependencies cached in the workspace (see [appCacheDir](appCacheDir.md)) |
+
+## Examples
 
 ```groovy
+mavenOpts()                                           // → '-B -ntp -Dmaven.repo.local=.m2'
 sh "mvn ${mavenOpts()} clean compile"
+sh "mvn ${mavenOpts()} dependency:tree -Dincludes=org.slf4j"
 ```
+
+## How it fits
 
 Used by [mavenBuild](mavenBuild.md), [mavenLint](mavenLint.md),
 [mavenPackage](mavenPackage.md), and [mavenTest](mavenTest.md).

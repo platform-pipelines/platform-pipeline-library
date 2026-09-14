@@ -2,35 +2,65 @@
 
 Routes to the right lint step for this repo's `buildTool`.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+lintApp(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config; reads `cfg.lint.enabled` and `cfg.buildTool`. |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config. |
+
+### Config keys read
+
+| Key | Default | Sample value | Effect |
+|---|---|---|---|
+| `lint.enabled` | `true` | `false` | `false` skips linting entirely (`Lint disabled in config`). |
+| `buildTool` | — | `npm` | Picks the lint step. |
 
 ## Returns
 
-Nothing — dispatches to the matching `*Lint` step, or throws if
-`cfg.buildTool` has no lint step.
+Nothing. Fails the build for an unknown tool:
+`No lint step for buildTool 'rust'`.
 
-## Usage
+| `buildTool` | Step | What it runs |
+|---|---|---|
+| `go` | [goLint](goLint.md) | `gofmt`, `go vet`, `golangci-lint` |
+| `python` | [pythonLint](pythonLint.md) | `ruff check`, `ruff format --check`, `mypy` |
+| `maven` | [mavenLint](mavenLint.md) | Checkstyle, SpotBugs |
+| `gradle` | [gradleLint](gradleLint.md) | Checkstyle, SpotBugs |
+| `npm` | [nodeLint](nodeLint.md) | ESLint, Prettier, `tsc --noEmit` |
+| `terraform` | [terraformLint](../cloud/terraformLint.md) | `fmt -check`, `validate`, tflint |
+| `cloudformation` | [cfnLint](../cloud/cfnLint.md) | `cfn-lint` |
+| `docker-only` | [dockerOnlyLint](dockerOnlyLint.md) | hadolint |
 
-```groovy
-lintApp(cfg)
+## Examples
+
+```yaml
+buildTool: npm
+lint:
+  enabled: true
+  failOnError: false     # report-only while the repo adopts the rules
 ```
 
-Dispatches to one of [goLint](goLint.md), [pythonLint](pythonLint.md),
-[mavenLint](mavenLint.md), [gradleLint](gradleLint.md),
-[nodeLint](nodeLint.md), [terraformLint](../cloud/terraformLint.md) (in
-[Cloud](../cloud/index.md)), [cfnLint](../cloud/cfnLint.md), or
-[dockerOnlyLint](dockerOnlyLint.md), by `cfg.buildTool`. A no-op when
-`cfg.lint.enabled` is `false`.
+```groovy
+lintApp(cfg)             // → nodeLint(cfg)
+```
+
+Turning lint off:
+
+```yaml
+lint:
+  enabled: false
+```
+
+## How it fits
+
+Called from the `Lint` stage of [standardPipeline](standardPipeline.md), with
+reports archived by [archiveLintReports](archiveLintReports.md).
 
 ## Source
 

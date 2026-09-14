@@ -4,29 +4,38 @@ Infra repos produce no build artifact — the plan is the artifact, and it's
 created and archived during deploy (see [terraformPlan](terraformPlan.md))
 where it's bound to a specific environment.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+terraformPackage(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config; unused, kept for `call()` signature consistency across `buildTool`s. |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config; unused, kept so every `*Package` step has the same signature. |
 
 ## Returns
 
-Nothing — logs that packaging is a no-op for Terraform.
+Nothing. Only logs a line.
 
-## Usage
+## Examples
 
 ```groovy
 terraformPackage(cfg)
 ```
 
-Dispatched from `packageApp` when `cfg.buildTool == 'terraform'`.
+Output:
+
+```
+[INFO]  Terraform: the plan is the artifact, produced per environment at deploy time
+```
+
+## How it fits
+
+Dispatched from [packageApp](../ci-cd/packageApp.md) when
+`cfg.buildTool == 'terraform'`.
 
 ## Source
 

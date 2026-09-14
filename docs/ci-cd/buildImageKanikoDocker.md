@@ -9,31 +9,61 @@ builder.
     unprivileged. Move to [buildImageKanikoK8s](buildImageKanikoK8s.md) if
     that matters for your fleet.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+buildImageKanikoDocker(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config; passed to [kanikoArgs](kanikoArgs.md). |
+
+### Config keys read (via kanikoArgs)
+
+| Key | Default | Sample value |
 |---|---|---|
-| `cfg` | `Map` | Pipeline config; passed through to [kanikoArgs](kanikoArgs.md). |
+| `imageRepo` | — | `ghcr.io/acme/checkout-api` |
+| `dockerfile` | `Dockerfile` | `Dockerfile` |
+| `appName` | — | `checkout-api` |
 
 ## Returns
 
-Nothing — runs Kaniko in a one-shot Docker container to build and push the
-image.
+Nothing. Builds and pushes the image; Kaniko writes `image-digest.txt`.
 
-## Usage
+## Examples
+
+```yaml
+# .ci/config.yaml — from examples/node-service
+imageRepo: ghcr.io/acme/checkout-api
+imageBuilder: kaniko-docker     # the default; can be omitted
+```
 
 ```groovy
 buildImageKanikoDocker(cfg)
 ```
 
-Called by [buildImage](buildImage.md) when `cfg.imageBuilder ==
-'kaniko-docker'` (the default).
+Runs, inside `gcr.io/kaniko-project/executor:v1.23.2-debug` with the
+workspace mounted at `/workspace`:
+
+```bash
+/kaniko/executor --context=dir:///workspace \
+  --dockerfile=Dockerfile \
+  --destination=ghcr.io/acme/checkout-api:1.4.0 \
+  --destination=ghcr.io/acme/checkout-api:ab12cd3 \
+  --destination=ghcr.io/acme/checkout-api:latest \
+  --label org.opencontainers.image.title='checkout-api' ... \
+  --build-arg APP_VERSION=1.4.0 \
+  --cache=true --cache-repo=ghcr.io/acme/checkout-api/cache \
+  --snapshot-mode=redo --digest-file=image-digest.txt
+```
+
+## How it fits
+
+Called by [buildImage](buildImage.md) when `cfg.imageBuilder == 'kaniko-docker'`
+(the default), after [kanikoDockerConfig](kanikoDockerConfig.md).
 
 ## Source
 

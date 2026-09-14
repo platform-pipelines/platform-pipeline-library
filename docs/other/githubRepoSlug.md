@@ -3,26 +3,47 @@
 `owner/repo` derived from the checkout rather than configured a second time
 in `config.yaml`, where it would eventually drift.
 
-## Signature
+## Syntax
 
 ```groovy
-def call()
+githubRepoSlug()
 ```
+
+## Parameters
+
+None. Reads `env.GIT_URL`, falling back to `git config --get remote.origin.url`.
 
 ## Returns
 
-`'owner/repo'` derived from `env.GIT_URL` or the local git remote. Throws if
-it can't be derived.
+`'owner/repo'`. Works for HTTPS and SSH remotes, with or without `.git`.
+Fails the build if the remote is not a `github.com` URL:
+`Cannot derive repo slug from remote: <url>`.
 
-## Usage
+## Examples
+
+| Remote URL | Result |
+|---|---|
+| `https://github.com/acme/orders-api.git` | `acme/orders-api` |
+| `https://github.com/acme/orders-api` | `acme/orders-api` |
+| `git@github.com:acme/orders-api.git` | `acme/orders-api` |
+| `https://gitlab.com/acme/orders-api.git` | fails the build |
 
 ```groovy
-def slug = githubRepoSlug()
+def slug = githubRepoSlug()                                // → 'acme/orders-api'
+def link = "https://github.com/${githubRepoSlug()}/commit/${env.GIT_COMMIT}"
 ```
 
-Used by any step that needs the current repo's slug rather than a
-caller-supplied one — [`githubSetStatus`](githubSetStatus.md),
-[`githubUpsertComment`](githubUpsertComment.md), [`githubFindComment`](githubFindComment.md).
+!!! note "GitHub Enterprise"
+    The pattern matches `github.com` in the remote URL. On an Enterprise host
+    whose name doesn't contain `github.com`, this step fails — override
+    `GIT_URL` or wrap the call accordingly.
+
+## How it fits
+
+Used by steps that act on the current repo rather than a caller-supplied one:
+[`githubSetStatus`](githubSetStatus.md), [`githubComment`](githubComment.md),
+[`githubUpsertComment`](githubUpsertComment.md), [`githubFindComment`](githubFindComment.md),
+and [imageLabels](../ci-cd/imageLabels.md).
 
 ## Source
 

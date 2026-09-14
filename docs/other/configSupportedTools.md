@@ -3,24 +3,54 @@
 Single source of truth for legal `buildTool` values. Adding a language or an
 IaC type means adding it here and registering its lint/build/test steps.
 
-## Signature
+## Syntax
 
 ```groovy
-def call()
+configSupportedTools()
 ```
+
+## Parameters
+
+None.
 
 ## Returns
 
-`List` of every `buildTool` value [`configValidate`](configValidate.md)
-accepts: application languages (`maven`, `gradle`, `npm`, `python`, `go`,
-`docker-only`) plus infrastructure-as-code types (`terraform`,
-`cloudformation`).
+`List<String>` of every `buildTool` value [`configValidate`](configValidate.md)
+accepts:
 
-## Usage
+| `buildTool` | Kind | Steps used |
+|---|---|---|
+| `maven` | application | `mavenLint` / `mavenBuild` / `mavenTest` / `mavenPackage` |
+| `gradle` | application | `gradleLint` / `gradleBuild` / `gradleTest` / `gradlePackage` |
+| `npm` | application | `nodeLint` / `nodeBuild` / `nodeTest` / `nodePackage` |
+| `python` | application | `pythonLint` / `pythonBuild` / `pythonTest` / `pythonPackage` |
+| `go` | application | `goLint` / `goBuild` / `goTest` / `goPackage` |
+| `docker-only` | application | `dockerOnlyLint` (+ no-op build/test/package) |
+| `terraform` | infrastructure | `terraformLint` / `terraformBuild` / `terraformTest` / `terraformPackage` |
+| `cloudformation` | infrastructure | `cfnLint` / `cfnBuild` / `cfnTest` / `cfnPackage` |
+
+## Examples
 
 ```groovy
-def tools = configSupportedTools()
+configSupportedTools()
+// → ['maven', 'gradle', 'npm', 'python', 'go', 'docker-only', 'terraform', 'cloudformation']
+
+'npm' in configSupportedTools()      // → true
+'node' in configSupportedTools()     // → false — Node repos use buildTool: npm
 ```
+
+```yaml
+# .ci/config.yaml
+buildTool: npm
+```
+
+An unsupported value fails validation with:
+
+```
+buildTool 'node' unsupported (use: maven, gradle, npm, python, go, docker-only, terraform, cloudformation)
+```
+
+## How it fits
 
 See [`configInfraTools`](../cloud/configInfraTools.md) for the subset of
 these that are infrastructure rather than an application.

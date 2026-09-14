@@ -2,31 +2,57 @@
 
 JUnit XML glob, or `null` when the toolchain produces none.
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+appTestReport(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config; only `cfg.buildTool` is read. |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config; only `cfg.buildTool` is read. |
 
 ## Returns
 
-The JUnit XML glob for `cfg.buildTool`, or `null` if none applies.
-Lint reports are never returned here — they are archived separately by
-[archiveLintReports](archiveLintReports.md). For `cloudformation` this is
-`checkov-report.xml` from [cfnTest](../cloud/cfnTest.md); `terraform` and
-`docker-only` produce no JUnit report.
+A JUnit XML glob `String` for `cfg.buildTool`, or `null`:
 
-## Usage
+| `buildTool` | JUnit glob | Written by |
+|---|---|---|
+| `go` | `test-results.xml` | [goTest](goTest.md) |
+| `python` | `test-results.xml` | [pythonTest](pythonTest.md) |
+| `maven` | `target/surefire-reports/*.xml` | [mavenTest](mavenTest.md) |
+| `gradle` | `build/test-results/test/*.xml` | [gradleTest](gradleTest.md) |
+| `npm` | `junit.xml` | your `npm test` script (e.g. `jest-junit`) |
+| `cloudformation` | `checkov-report.xml` | [cfnTest](../cloud/cfnTest.md) |
+| `terraform`, `docker-only` | `null` | — |
+
+Lint reports are never returned here — they are archived separately by
+[archiveLintReports](archiveLintReports.md).
+
+## Examples
 
 ```groovy
-def glob = appTestReport(cfg)
+appTestReport([buildTool: 'maven'])       // → 'target/surefire-reports/*.xml'
+appTestReport([buildTool: 'terraform'])   // → null
 ```
+
+```groovy
+post {
+    always {
+        script {
+            def reports = appTestReport(cfg)
+            if (reports) { junit allowEmptyResults: true, testResults: reports }
+        }
+    }
+}
+```
+
+## How it fits
+
+Used by [standardPipeline](standardPipeline.md)'s `Test` stage to publish
+test results.
 
 ## Source
 

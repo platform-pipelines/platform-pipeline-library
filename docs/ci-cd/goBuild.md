@@ -1,28 +1,50 @@
 # goBuild
 
-Builds a static Go binary, with the version stamped into `main.version`.
+Compile check for a Go module: downloads modules and builds every package.
+The stripped, version-stamped release binary is produced later by
+[goPackage](goPackage.md).
 
-## Signature
+## Syntax
 
 ```groovy
-def call(Map cfg)
+goBuild(Map cfg)
 ```
 
 ## Parameters
 
-| Name | Type | Description |
-|---|---|---|
-| `cfg` | `Map` | Pipeline config (unused; kept for dispatcher parity with the other `*Build` steps). |
+| Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `cfg` | `Map` | yes | — | Pipeline config; unused, kept so every `*Build` step has the same signature. |
 
 ## Returns
 
-Nothing — downloads modules and builds `./...`.
+Nothing. Fails the build if a module can't be downloaded or any package fails
+to compile.
 
-## Usage
+## Examples
+
+```yaml
+# .ci/config.yaml — from examples/go-service
+appName: edge-router
+buildTool: go
+runtimeVersion: "1.27"
+```
 
 ```groovy
 goBuild(cfg)
 ```
+
+Runs:
+
+```bash
+go mod download
+go build ./...
+```
+
+Off the toolbox, [inBuildContainer](inBuildContainer.md) runs it in
+`golang:1.27` (from `runtimeVersion`).
+
+## How it fits
 
 Called by [buildApp](buildApp.md) when `cfg.buildTool == 'go'`.
 

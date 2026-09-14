@@ -2,21 +2,48 @@
 
 Single source of truth for legal `deployStrategy` values.
 
-## Signature
+## Syntax
 
 ```groovy
-def call()
+configDeployStrategies()
 ```
+
+## Parameters
+
+None.
 
 ## Returns
 
-`List` — `['gitops', 'terraform', 'cloudformation']`.
+`List<String>` — `['gitops', 'terraform', 'cloudformation']`.
 
-## Usage
+| Value | Deploys by | Delegate |
+|---|---|---|
+| `gitops` | committing a new image tag to the GitOps repo | [deployGitops](../cloud/deployGitops.md) |
+| `terraform` | plan → approve → apply the saved plan | [deployTerraform](../cloud/deployTerraform.md) |
+| `cloudformation` | change set → approve → execute | [deployCloudFormation](../cloud/deployCloudFormation.md) |
+
+## Examples
 
 ```groovy
-def strategies = configDeployStrategies()
+configDeployStrategies()                      // → ['gitops', 'terraform', 'cloudformation']
+'gitops' in configDeployStrategies()          // → true
+'helm' in configDeployStrategies()            // → false
 ```
+
+In `.ci/config.yaml` you rarely set it — it is derived from `buildTool`:
+
+```yaml
+buildTool: python           # deployStrategy defaults to gitops
+# buildTool: terraform      # deployStrategy defaults to terraform
+```
+
+An unsupported value fails validation with:
+
+```
+deployStrategy 'helm' unsupported (use: gitops, terraform, cloudformation)
+```
+
+## How it fits
 
 Read by [`configValidate`](configValidate.md) and by
 [deployToEnvironment](../cloud/deployToEnvironment.md)'s error message. Adding
