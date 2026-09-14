@@ -30,7 +30,7 @@ sonarWaitForGate(cfg)
 
 Called from [scanSonar](scanSonar.md) when `cfg.quality.failOnQualityGate` is
 `true`. The polling logic itself runs in
-`resources/com/company/scripts/sonar_gate.py` via [useScript](../other/useScript.md).
+`resources/com/platformpipelines/scripts/sonar_gate.py` via [useScript](../other/useScript.md).
 
 ## Source
 

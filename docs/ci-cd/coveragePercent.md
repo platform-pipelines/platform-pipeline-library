@@ -24,7 +24,7 @@ Line coverage percentage as a `BigDecimal`, or `-1` if no report exists.
 def pct = coveragePercent(cfg)
 ```
 
-The actual parsing runs in `resources/com/company/scripts/coverage_percent.py`
+The actual parsing runs in `resources/com/platformpipelines/scripts/coverage_percent.py`
 via [useScript](../other/useScript.md), not in Groovy — see the root README's
 design rules on why parsing logic lives in Python.
 

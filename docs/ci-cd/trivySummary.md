@@ -25,7 +25,7 @@ def summary = trivySummary('trivy-fs.json')
 ```
 
 Called from [scanTrivy](scanTrivy.md) after each scan. The parsing itself
-runs in `resources/com/company/scripts/trivy_summary.py` via
+runs in `resources/com/platformpipelines/scripts/trivy_summary.py` via
 [useScript](../other/useScript.md).
 
 ## Source

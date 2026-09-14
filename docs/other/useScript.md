@@ -14,7 +14,7 @@ def call(String name)
 
 | Name | Type | Description |
 |---|---|---|
-| `name` | `String` | Filename under `resources/com/company/scripts/`. |
+| `name` | `String` | Filename under `resources/com/platformpipelines/scripts/`. |
 
 ## Returns
 

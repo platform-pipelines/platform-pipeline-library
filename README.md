@@ -3,6 +3,8 @@
 Jenkins shared library for GitHub → lint → build → test → scan → GHCR →
 GitOps → Argo CD.
 
+**Docs:** https://platform-pipelines.github.io/platform-pipeline-library/
+
 A consuming repo's Jenkinsfile is two lines:
 
 ```groovy
@@ -28,7 +30,7 @@ you have to open a file to discover.
 that map. A config can be printed, diffed, and validated with no Jenkins.
 
 **Parsing lives in Python, not Groovy strings.** Anything needing real logic —
-coverage maths, JSON walking — is a file in `resources/com/company/scripts/`
+coverage maths, JSON walking — is a file in `resources/com/platformpipelines/scripts/`
 that runs and tests standalone. Groovy stays at the level of "run this, check
 the exit code".
 
@@ -158,7 +160,7 @@ would have run.
 The Python resource scripts are testable on their own:
 
 ```bash
-python3 resources/com/company/scripts/coverage_percent.py coverage.xml
+python3 resources/com/platformpipelines/scripts/coverage_percent.py coverage.xml
 ```
 
 `coverage_percent.py` handles cobertura, JaCoCo, Go coverprofile, and lcov —
