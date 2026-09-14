@@ -2,15 +2,15 @@
 //
 // Usage:
 //   sh "sonar-scanner ${sonarProperties(cfg)}"
-// Params: cfg (Map) - pipeline config; reads cfg.quality.sonarProjectKey, cfg.appName, cfg.extra.sonar*
+// Params: cfg (Map) - pipeline config; reads cfg.quality.sonarProjectKey/sonarSources/sonarExclusions, cfg.appName
 // Returns: space-separated "-Dkey=value" flags, including PR or branch analysis params
 def call(Map cfg) {
     def props = [
         'sonar.projectKey'    : cfg.quality.sonarProjectKey,
         'sonar.projectName'   : cfg.appName,
         'sonar.projectVersion': env.APP_VERSION,
-        'sonar.sources'       : cfg.extra.sonarSources ?: '.',
-        'sonar.exclusions'    : cfg.extra.sonarExclusions ?: '**/node_modules/**,**/target/**,**/build/**,**/dist/**',
+        'sonar.sources'       : cfg.quality.sonarSources ?: '.',
+        'sonar.exclusions'    : cfg.quality.sonarExclusions,
         'sonar.scm.revision'  : env.GIT_COMMIT,
     ]
 

@@ -1,10 +1,10 @@
 # go-service example
 
 A full end-to-end example of this library's capabilities applied to a Go
-application repo — everything `examples/config-go.yaml` leaves out for
-brevity is turned on here: full quality gate, image signing, SBOM, and a
+application repo: full quality gate, image signing, SBOM, and a
 three-environment gitops promotion path with an approval gate in front of
-prod.
+prod. A minimal repo needs only `appName`, `buildTool` and `imageRepo` —
+everything else here is a default made explicit or an opt-in.
 
 ## Using this in a real repo
 
@@ -29,8 +29,8 @@ prod.
   scanning, dependency checking, a coverage floor, SBOM generation, and
   cosign image signing all turned on.
 - **notify** — Slack on every state change, plus GitHub status checks.
-- **extra** — a free-form field the pipeline never reads; use it for your
-  own team's tooling.
+- **extra** — a free-form field the pipeline never reads or validates; use it
+  for your own team's tooling.
 
 See the root [README.md](../../README.md) for the full stage list, the
 credentials table, and how the CloudFormation/Terraform infra shape differs

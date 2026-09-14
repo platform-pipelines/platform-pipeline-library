@@ -3,7 +3,7 @@
 //
 // This is the riskiest string handling in the library: a regex that silently
 // fails to match means the pipeline reports success while the old image stays
-// deployed. Covered by UpdateManifestTest.
+// deployed. Covered by ManifestBumpImageTest.
 //
 // Usage:
 //   def updated = manifestBumpImage(yamlText, 'ghcr.io/acme/api:1.4.0')

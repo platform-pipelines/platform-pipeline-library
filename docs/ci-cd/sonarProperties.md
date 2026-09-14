@@ -12,7 +12,7 @@ def call(Map cfg)
 
 | Name | Type | Description |
 |---|---|---|
-| `cfg` | `Map` | Pipeline config; reads `cfg.quality.sonarProjectKey`, `cfg.appName`, `cfg.extra.sonar*`. |
+| `cfg` | `Map` | Pipeline config; reads `cfg.appName` and `cfg.quality.sonarProjectKey` / `sonarSources` (default `.`) / `sonarExclusions`. |
 
 ## Returns
 

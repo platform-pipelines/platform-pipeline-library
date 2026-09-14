@@ -16,7 +16,7 @@ def call(Map cfg, Map envCfg)
 
 | Name | Type | Description |
 |---|---|---|
-| `cfg` | `Map` | Pipeline config; `cfg.extra.allowSelfApproval` opts out of the self-approval block. |
+| `cfg` | `Map` | Pipeline config; `cfg.approval.allowSelfApproval` opts out of the self-approval block. |
 | `envCfg` | `Map` | Target environment config; `envCfg.name` and `envCfg.approvers` are used. |
 
 ## Returns

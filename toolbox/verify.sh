@@ -52,6 +52,7 @@ check gitleaks  gitleaks version
 check sonar     sonar-scanner --version
 check argocd    argocd version --client
 check cosign    cosign version
+check buildah   buildah --version
 check yq        yq --version
 check jq        jq --version
 check git       git --version

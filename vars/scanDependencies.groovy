@@ -3,12 +3,12 @@
 //
 // Usage:
 //   scanDependencies(cfg)
-// Params: cfg (Map) - pipeline config; reads cfg.appName and cfg.extra.dependencyCheckCvss (default 7)
+// Params: cfg (Map) - pipeline config; reads cfg.appName and cfg.quality.dependencyCheckCvss (default 7)
 // Returns: nothing; archives the report and errors out if a CVSS-scored CVE meets the threshold
 def call(Map cfg) {
     logBanner 'Dependency-Check'
 
-    def threshold = cfg.extra.dependencyCheckCvss ?: 7
+    def threshold = cfg.quality.dependencyCheckCvss ?: 7
 
     docker.image('owasp/dependency-check:latest').inside("--entrypoint='' -v dc-nvd-cache:/usr/share/dependency-check/data") {
         def status = sh(

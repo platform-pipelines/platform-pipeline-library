@@ -11,8 +11,10 @@ def call(Map cfg) {
         case 'maven':  return 'target/surefire-reports/*.xml'
         case 'gradle': return 'build/test-results/test/*.xml'
         case 'npm':    return 'junit.xml'
-        case 'terraform':      return 'tflint-report.xml'
-        case 'cloudformation': return 'cfn-lint-report.xml'
+        // Lint reports are archived by archiveLintReports, not published as
+        // test results. terraform test writes no JUnit; cfnTest's checkov does.
+        case 'terraform':      return null
+        case 'cloudformation': return 'checkov-report.xml'
         default:       return null
     }
 }

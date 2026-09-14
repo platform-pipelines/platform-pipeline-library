@@ -11,7 +11,9 @@ on:
   pull_request:
     paths:
       - "docs/**"
+      - "vars/**"
       - "mkdocs.yml"
+      - ".github/workflows/docs.yml"
 
 permissions:
   contents: write

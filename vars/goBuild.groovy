@@ -1,4 +1,4 @@
-// Static binary, version stamped into main.version.
+// Compile check. The stripped, version-stamped binary is produced by goPackage.
 //
 // Usage:
 //   goBuild(cfg)

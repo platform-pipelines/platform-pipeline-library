@@ -17,6 +17,10 @@ def call(Map cfg)
 ## Returns
 
 The JUnit XML glob for `cfg.buildTool`, or `null` if none applies.
+Lint reports are never returned here — they are archived separately by
+[archiveLintReports](archiveLintReports.md). For `cloudformation` this is
+`checkov-report.xml` from [cfnTest](../cloud/cfnTest.md); `terraform` and
+`docker-only` produce no JUnit report.
 
 ## Usage
 

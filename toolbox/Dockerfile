@@ -126,10 +126,13 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # --- base OS packages -------------------------------------------------------
 # git and curl are needed by the pipeline itself; python3 backs the library's
 # resource scripts; jq is for ad-hoc debugging in a shell on the agent.
+# buildah + fuse-overlayfs + uidmap back `imageBuilder: buildah`
+# (buildImageBuildah); the host still needs subuid/subgid ranges for uid 1000.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git curl ca-certificates gnupg jq bash tar gzip unzip xz-utils \
         python3 python3-pip python3-venv \
         openssh-client rsync make \
+        buildah fuse-overlayfs uidmap \
     && rm -rf /var/lib/apt/lists/*
 
 # --- Node ------------------------------------------------------------------

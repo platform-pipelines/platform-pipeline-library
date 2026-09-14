@@ -1,10 +1,9 @@
 # .ci/config.yaml — full production Node.js API example.
 #
-# Unlike examples/config-node.yaml (a front-end repo still adopting
-# Prettier, lint report-only, single environment), this is what a mature
-# service repo's config looks like once every quality gate is actually
-# enforced: build breaks on lint, on coverage, on a critical CVE, on a
-# leaked secret — and every image that reaches prod is signed.
+# What a mature service repo's config looks like once every quality gate is
+# actually enforced: build breaks on lint, on coverage, on a critical CVE, on
+# a leaked secret — and every image that reaches prod is signed. A repo still
+# adopting Prettier would start with `lint.failOnError: false` (report-only).
 
 appName: checkout-api
 buildTool: npm
@@ -65,6 +64,8 @@ notify:
   on: change              # always | failure | change
   githubChecks: true
 
-extra:
+publish:
   nexusRepo: npm-releases
+
+approval:
   allowSelfApproval: false

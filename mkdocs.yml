@@ -149,13 +149,18 @@ nav:
   - Other:
     - Overview: other/index.md
     - Configuration:
+      - configClosestKey: other/configClosestKey.md
       - configDefaults: other/configDefaults.md
+      - configDeployStrategies: other/configDeployStrategies.md
+      - configDeprecatedKeys: other/configDeprecatedKeys.md
       - configEnvDefaults: other/configEnvDefaults.md
       - configEnvironmentsFor: other/configEnvironmentsFor.md
       - configGlobToRegex: other/configGlobToRegex.md
+      - configImageBuilders: other/configImageBuilders.md
       - configLoad: other/configLoad.md
       - configMerge: other/configMerge.md
       - configSupportedTools: other/configSupportedTools.md
+      - configUnknownKeys: other/configUnknownKeys.md
       - configValidate: other/configValidate.md
     - GitHub integration:
       - githubApiRequest: other/githubApiRequest.md
