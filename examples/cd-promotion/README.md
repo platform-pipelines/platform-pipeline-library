@@ -42,8 +42,8 @@ environment. Every run after that is *Build with Parameters*.
 
 | Stage | What runs |
 |---|---|
-| Resolve | checkout, [configLoad](../../docs/other/configLoad.md), [cdResolveImage](../../docs/ci-cd/cdResolveImage.md) (reads the source environment's manifest or ECS service), [imageDigest](../../docs/ci-cd/imageDigest.md) (fails if the tag is not in the registry) |
-| Deploy | [deployToEnvironment](../../docs/cloud/deployToEnvironment.md): [approvalGate](../../docs/ci-cd/approvalGate.md) when required, then the GitOps manifest bump and Argo CD sync (or the ECS rollout) |
+| Resolve | checkout, [configLoad](../../docs/reference/config/configLoad.md), [cdResolveImage](../../docs/reference/deploy/cdResolveImage.md) (reads the source environment's manifest or ECS service), [imageDigest](../../docs/reference/images/imageDigest.md) (fails if the tag is not in the registry) |
+| Deploy | [deployToEnvironment](../../docs/reference/deploy/deployToEnvironment.md): [approvalGate](../../docs/reference/deploy/approvalGate.md) when required, then the GitOps manifest bump and Argo CD sync (or the ECS rollout) |
 
 The build name reads `#12 prod ← 1.4.0`, and the audit log records the digest
 that was deployed, who approved it, and whether it was a promotion or an
