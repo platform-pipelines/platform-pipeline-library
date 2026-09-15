@@ -15,6 +15,8 @@ def call() {
         buildTool      : null,
         runtimeVersion : null,
         imageRepo      : null,
+        // 'github' derives imageRepo as ghcr.io/<owner>/<repo> from the checkout
+        imageRegistry  : null,
         containerize   : true,
         dockerfile     : 'Dockerfile',
         // see configImageBuilders
@@ -60,7 +62,9 @@ def call() {
         ],
         publish        : [
             // Nexus repository for build artifacts; publishing is skipped when unset
-            nexusRepo: null,
+            nexusRepo     : null,
+            // true pushes build artifacts to GitHub Packages (GHCR) under the app's own repo
+            githubPackages: false,
         ],
         approval       : [
             // true lets the person who triggered a build approve its deploy

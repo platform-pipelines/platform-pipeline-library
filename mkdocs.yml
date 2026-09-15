@@ -118,6 +118,8 @@ nav:
       - postPlanSummary: ci-cd/postPlanSummary.md
       - postScanSummary: ci-cd/postScanSummary.md
       - publishArtifact: ci-cd/publishArtifact.md
+      - publishArtifactGithub: ci-cd/publishArtifactGithub.md
+      - publishArtifactNexus: ci-cd/publishArtifactNexus.md
       - appArtifacts: ci-cd/appArtifacts.md
       - appCacheDir: ci-cd/appCacheDir.md
       - appToolImage: ci-cd/appToolImage.md
@@ -181,6 +183,7 @@ nav:
       - githubFetchFile: other/githubFetchFile.md
       - githubFileSha: other/githubFileSha.md
       - githubFindComment: other/githubFindComment.md
+      - githubPackagesRepo: other/githubPackagesRepo.md
       - githubRepoSlug: other/githubRepoSlug.md
       - githubSetStatus: other/githubSetStatus.md
       - githubUpsertComment: other/githubUpsertComment.md

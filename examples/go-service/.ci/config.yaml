@@ -4,14 +4,17 @@
 # quality gate, supply-chain signing, and a three-environment gitops promotion
 # path with an approval gate in front of prod. Copy what you need — most repos
 # will use a subset of this. The only required keys are appName, buildTool and
-# (when containerize is true) imageRepo; everything else has a default.
+# (when containerize is true) imageRepo or imageRegistry; everything else has
+# a default.
 
 appName: edge-router
 buildTool: go              # maven | gradle | npm | python | go | docker-only
 runtimeVersion: "1.27"
 
 # --- container image ---
-imageRepo: ghcr.io/acme/edge-router
+# Push to GitHub Packages in the repo this code lives in: acme/edge-router
+# builds ghcr.io/acme/edge-router. Set imageRepo instead for any other registry.
+imageRegistry: github
 containerize: true          # default, spelled out here for clarity
 dockerfile: Dockerfile
 # kaniko-docker: works with the default plugin set and needs a docker socket
@@ -62,6 +65,10 @@ quality:
   signImage: true              # cosign keyless — requires containerize: true
   #   only meaningful with an admission policy (Kyverno, Sigstore
   #   policy-controller) rejecting unsigned images in the cluster
+
+publish:
+  # dist/* (the compiled binaries) → ghcr.io/acme/edge-router/edge-router-artifacts:<tag>
+  githubPackages: true
 
 notify:
   slackChannel: "#edge-router-ci"

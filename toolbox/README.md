@@ -21,10 +21,13 @@ fail there, not three stages into somebody's pipeline.
 | Maven | 3.9.16 |
 | Gradle | 9.7.1 |
 | Terraform | 1.16.2 |
+| tflint / conftest | 0.64.0 / 0.69.0 |
+| checkov / cfn-lint | 3.3.15 / 1.55.1 |
+| AWS CLI | v2 (latest installer) |
 | buildah | distro (for `imageBuilder: buildah`) |
 | Node | 24 (Active LTS) |
 | Go | 1.27.0 |
-| Python | 3.12 + ruff, mypy, pytest, build |
+| Python | 3.12 + ruff 0.16.4, mypy, pytest, build |
 | golangci-lint | 2.13.1 |
 | Trivy | 0.74.0 |
 | Gitleaks | 8.30.1 |
@@ -32,6 +35,8 @@ fail there, not three stages into somebody's pipeline.
 | shellcheck | 0.11.0 |
 | SonarScanner CLI | 6.2.1.4610 |
 | Argo CD CLI | 3.5.1 |
+| cosign | 2.6.5 |
+| ORAS | 1.3.4 (for `publish.githubPackages`) |
 | yq / jq | 4.53.6 / distro |
 
 ## Using it

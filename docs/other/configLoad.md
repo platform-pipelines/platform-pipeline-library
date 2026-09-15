@@ -93,7 +93,8 @@ Invalid pipeline config (.ci/config.yaml):
 5. Applies [`configDeprecatedKeys`](configDeprecatedKeys.md): an old `extra.*` key is copied to its new home with a deprecation warning, unless the new key is also set (the new key wins).
 6. Merges [`configEnvDefaults`](configEnvDefaults.md) into each `environments:` entry, defaulting `namespace` to the environment's `name`, and defaults `quality.sonarProjectKey` to `appName`.
 7. Derives `deployStrategy` (`gitops` for apps, the `buildTool` for infra) and forces `containerize`/`sbom`/`signImage` off for infrastructure repos (`buildTool` in [`configInfraTools`](../cloud/configInfraTools.md)).
-8. Runs [`configValidate`](configValidate.md) and raises a single error listing every problem found, rather than failing on the first.
+8. With `imageRegistry: github` and no `imageRepo`, sets `imageRepo` to [`githubPackagesRepo`](githubPackagesRepo.md) — `ghcr.io/<owner>/<repo>` of the checkout.
+9. Runs [`configValidate`](configValidate.md) and raises a single error listing every problem found, rather than failing on the first.
 
 Called by [initPipeline](../ci-cd/initPipeline.md) at the start of every run.
 

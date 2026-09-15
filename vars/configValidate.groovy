@@ -17,7 +17,17 @@ def call(Map cfg) {
         errors << "buildTool '${cfg.buildTool}' unsupported (use: ${supported.join(', ')})"
     }
     if (cfg.containerize && !cfg.imageRepo) {
-        errors << 'imageRepo is required when containerize is true'
+        errors << 'imageRepo is required when containerize is true (or set imageRegistry: github)'
+    }
+    if (cfg.imageRegistry && cfg.imageRegistry != 'github') {
+        errors << "imageRegistry '${cfg.imageRegistry}' unsupported (use: github)"
+    }
+    if (cfg.imageRegistry == 'github' && cfg.imageRepo && !cfg.imageRepo.startsWith('ghcr.io/')) {
+        errors << "imageRegistry: github pushes to ghcr.io, but imageRepo is ${cfg.imageRepo} — remove one of them"
+    }
+    def githubPackages = cfg.publish?.githubPackages
+    if (githubPackages != null && !(githubPackages instanceof Boolean)) {
+        errors << 'publish.githubPackages must be true or false'
     }
 
     def builders = configImageBuilders()

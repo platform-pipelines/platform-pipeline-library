@@ -122,7 +122,7 @@ for approval). On `feature/login`: `… → Deploy: dev` only.
 | agents labelled `linux` | every stage |
 | `github-token` credential | commit statuses, PR comments, GitOps commits |
 | `sonar-token` + `SONAR_HOST_URL` | `quality.sonar` |
-| `ghcr-credentials` (or `REGISTRY_CREDENTIALS_ID`) | image push |
+| `ghcr-credentials` (or `REGISTRY_CREDENTIALS_ID`) | image push; `publish.githubPackages` (classic PAT with `write:packages`) |
 | `argocd-token` + `ARGOCD_SERVER` | gitops deploys |
 | `slack-webhook` | `notify.slackChannel` |
 | `nexus-credentials` + `NEXUS_URL` | `publish.nexusRepo` |

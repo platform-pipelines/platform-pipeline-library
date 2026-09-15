@@ -19,7 +19,7 @@ tests and coverage floor, so copying the directory gives a buildable repo:
 
 | Example | Entry points | Shape |
 |---|---|---|
-| [`examples/go-service`](examples/go-service) | `standardPipeline`, `cdPipeline` | Go app, kaniko-docker, three gitops environments, CD promotion to prod |
+| [`examples/go-service`](examples/go-service) | `standardPipeline`, `cdPipeline` | Go app, kaniko-docker, image and binaries in GitHub Packages, three gitops environments, CD promotion to prod |
 | [`examples/java-service`](examples/java-service) | `standardPipeline` | Gradle app (Checkstyle, SpotBugs, JaCoCo), kaniko-k8s, Nexus publish |
 | [`examples/node-service`](examples/node-service) | `standardPipeline` | npm app, ESLint + Prettier with autofix, node:test coverage |
 | [`examples/python-service`](examples/python-service) | `standardPipeline` | Flask app in a venv, ruff + mypy + pytest, buildah |
@@ -57,17 +57,18 @@ cfn-lint, checkov and python3. Agents that *are* the toolbox set
 
 ## Config reference
 
-Only `appName`, `buildTool`, and `imageRepo` (when `containerize: true`) are
-required. Everything else defaults from
+Only `appName`, `buildTool`, and `imageRepo` (when `containerize: true`, and
+not derived with `imageRegistry: github`) are required. Everything else
+defaults from
 [`configDefaults`](vars/configDefaults.groovy); environment entries default
 from [`configEnvDefaults`](vars/configEnvDefaults.groovy).
 
 | Section | Keys |
 |---|---|
-| top level | `appName`, `buildTool`, `runtimeVersion`, `imageRepo`, `containerize` (true), `dockerfile` (`Dockerfile`), `imageBuilder` (`kaniko-docker`), `gitopsRepo`, `gitopsBranch` (`main`), `deployStrategy` (derived) |
+| top level | `appName`, `buildTool`, `runtimeVersion`, `imageRepo`, `imageRegistry` (`github` derives `imageRepo`), `containerize` (true), `dockerfile` (`Dockerfile`), `imageBuilder` (`kaniko-docker`), `gitopsRepo`, `gitopsBranch` (`main`), `deployStrategy` (derived) |
 | `lint` | `enabled` (true), `failOnError` (true), `autoFormat` (false) |
 | `quality` | `sonar` (true), `sonarProjectKey` (appName), `sonarSources` (`.`), `sonarExclusions`, `failOnQualityGate` (true), `trivy` (true), `trivyFailOn` (HIGH, CRITICAL), `trivyIgnoreUnfixed` (true), `secretScan` (true), `dependencyCheck` (false), `dependencyCheckCvss` (7), `minCoverage`, `sbom` (true), `signImage` (false) |
-| `publish` | `nexusRepo` — Nexus repository for build artifacts; publishing is skipped when unset |
+| `publish` | `nexusRepo` — Nexus repository for build artifacts; `githubPackages` (false) — push build artifacts to GitHub Packages under the app's repo. Nothing is published when neither is set |
 | `approval` | `allowSelfApproval` (false) |
 | `notify` | `slackChannel`, `on` (`change` — or `always` / `failure`), `githubChecks` (true) |
 | `infra` | `workingDir` (`.`), `varFiles`, `backendConfig`, `policyDir`, `region` (`us-east-1`), `assumeRole`, `awsCredentialsId` (`aws-credentials`), `template`, `templates`, `artifactBucket`, `capabilities` |
@@ -150,6 +151,33 @@ Init → Lint → Build → Test → Quality & Security → Package → Scan Ima
   attached as an attestation. Only meaningful alongside an admission policy
   (Kyverno, Sigstore policy-controller) that rejects unsigned images.
 - **Audit trail** — `.ci-audit.jsonl`, archived every run.
+
+## GitHub Packages
+
+Images and build artifacts can live in GitHub Packages, in the same repository
+as the application, so the code, its image and its binaries sit on one repo
+page and share its access control:
+
+```yaml
+imageRegistry: github     # imageRepo = ghcr.io/<owner>/<repo>, from the checkout
+publish:
+  githubPackages: true    # artifacts → ghcr.io/<owner>/<repo>/<appName>-artifacts:<tag>
+```
+
+| What | Where | How |
+|---|---|---|
+| Container image | `ghcr.io/<owner>/<repo>:<tag>` | the configured `imageBuilder`; an explicit `ghcr.io/…` `imageRepo` still wins |
+| Build output (`appArtifacts`: jars, wheels, Go binaries, npm tarballs) | `ghcr.io/<owner>/<repo>/<appName>-artifacts:<tag>` | one OCI artifact pushed with ORAS; `oras pull <ref>` fetches it |
+
+The owner/repo comes from the git remote, lowercased, so it cannot drift from
+where the code actually lives. Both carry the `org.opencontainers.image.source`
+label/annotation, which is how GitHub links a package pushed from outside
+Actions to its repository. New packages are private; change visibility in the
+package settings. The two keys are independent: an ECR image can still publish
+artifacts to GitHub, and Nexus and GitHub Packages can both be on.
+
+`ghcr-credentials` must hold a GitHub user and a **classic** PAT (or GitHub
+App token) with `write:packages` — fine-grained PATs cannot push packages.
 
 ## Infrastructure as code
 
@@ -368,7 +396,7 @@ deliberate, temporary trade-off, not the long-term plan.
 | `sonar-token` | string | scan and quality gate |
 | `slack-webhook` | string | notifications |
 | `argocd-token` | string | sync wait |
-| `ghcr-credentials` | username/password | registry push (override with `REGISTRY_CREDENTIALS_ID`) |
+| `ghcr-credentials` | username/password (classic PAT with `write:packages`) | registry push and `publish.githubPackages` (override with `REGISTRY_CREDENTIALS_ID`) |
 | `nexus-credentials` | username/password | artifact publish (`publish.nexusRepo`) |
 | `aws-credentials` | username/password (access key id / secret) | Terraform and CloudFormation; override per repo or environment with `awsCredentialsId` |
 | `cosign-oidc-token` | string | keyless image signing (`quality.signImage`) |

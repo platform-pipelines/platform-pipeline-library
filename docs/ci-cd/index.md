@@ -43,9 +43,10 @@ lint:
 - [kanikoArgs](kanikoArgs.md), [kanikoDockerConfig](kanikoDockerConfig.md) — Kaniko build support.
 - [inBuildContainer](inBuildContainer.md), [inContainer](inContainer.md), [inToolContainer](inToolContainer.md), [usingToolbox](usingToolbox.md) — where a step actually runs.
 - [signImage](signImage.md), [generateSbom](generateSbom.md) — supply-chain signing and SBOMs.
+- [publishArtifact](publishArtifact.md) → [publishArtifactNexus](publishArtifactNexus.md), [publishArtifactGithub](publishArtifactGithub.md) — build output to Nexus and/or GitHub Packages.
 
 ```yaml
-imageRepo: ghcr.io/acme/orders-api
+imageRepo: ghcr.io/acme/orders-api   # or imageRegistry: github → ghcr.io/<owner>/<repo> of this checkout
 dockerfile: Dockerfile
 imageBuilder: kaniko-docker     # kaniko-docker | kaniko-k8s | buildah
 quality:

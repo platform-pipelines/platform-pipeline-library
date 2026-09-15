@@ -33,7 +33,10 @@ grouped by what it does rather than alphabetically:
     ```
 
     Only `appName`, `buildTool` and (for container builds) `imageRepo` are
-    required; everything else has a default. For complete configs see the
+    required; everything else has a default. To keep the image and build
+    output in GitHub Packages under the repo the code lives in, replace
+    `imageRepo` with `imageRegistry: github` and add
+    `publish: { githubPackages: true }`. For complete configs see the
     end-to-end examples for
     [Go](https://github.com/platform-pipelines/platform-pipeline-library/tree/main/examples/go-service),
     [Java](https://github.com/platform-pipelines/platform-pipeline-library/tree/main/examples/java-service),

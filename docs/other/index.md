@@ -24,7 +24,7 @@ def envs = configEnvironmentsFor(cfg, env.BRANCH_NAME)   // e.g. [[name: 'dev', 
 ## GitHub integration
 
 - [githubApiRequest](githubApiRequest.md) — the one curl-based REST call every other GitHub write step builds on.
-- [githubApiUrl](githubApiUrl.md), [githubCredentialsId](githubCredentialsId.md), [githubRepoSlug](githubRepoSlug.md) — small config lookups.
+- [githubApiUrl](githubApiUrl.md), [githubCredentialsId](githubCredentialsId.md), [githubRepoSlug](githubRepoSlug.md), [githubPackagesRepo](githubPackagesRepo.md) — small config lookups.
 - [githubFetchFile](githubFetchFile.md), [githubCommitFile](githubCommitFile.md), [githubFileSha](githubFileSha.md) — read/write a single file in any repo.
 - [githubSetStatus](githubSetStatus.md) — commit status checks.
 - [githubComment](githubComment.md), [githubUpsertComment](githubUpsertComment.md), [githubFindComment](githubFindComment.md) — PR comments; `githubUpsertComment` edits its own previous comment instead of piling up duplicates.

@@ -74,6 +74,12 @@ def call(Map overrides = [:]) {
         cfg.deployStrategy = cfg.deployStrategy ?: 'gitops'
     }
 
+    // imageRegistry: github keeps the image in GitHub Packages under the repo
+    // the code lives in, without restating owner/repo in the config.
+    if (cfg.containerize && cfg.imageRegistry == 'github' && !cfg.imageRepo) {
+        cfg.imageRepo = githubPackagesRepo()
+    }
+
     def problems = configValidate(cfg)
     if (problems) {
         error "Invalid pipeline config (${path}):\n  - " + problems.join('\n  - ')

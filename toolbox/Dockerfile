@@ -38,6 +38,7 @@ ARG SONAR_SCANNER_VERSION=6.2.1.4610
 ARG COSIGN_VERSION=2.6.5
 ARG TFLINT_VERSION=0.64.0
 ARG CONFTEST_VERSION=0.69.0
+ARG ORAS_VERSION=1.3.4
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         curl ca-certificates tar xz-utils unzip \
@@ -87,12 +88,17 @@ RUN set -eux; \
       "https://github.com/open-policy-agent/conftest/releases/download/v${CONFTEST_VERSION}/conftest_${CONFTEST_VERSION}_Linux_x86_64.tar.gz"; \
     tar -xzf conftest.tgz conftest; rm conftest.tgz; \
     \
+    # ORAS (build artifacts to GitHub Packages, publish.githubPackages)
+    curl -fsSL -o oras.tgz \
+      "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/oras_${ORAS_VERSION}_linux_amd64.tar.gz"; \
+    tar -xzf oras.tgz oras; rm oras.tgz; \
+    \
     # shellcheck
     curl -fsSL -o sc.tar.xz \
       "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz"; \
     tar -xJf sc.tar.xz --strip-components=1 "shellcheck-v${SHELLCHECK_VERSION}/shellcheck"; \
     \
-    chmod +x trivy gitleaks golangci-lint hadolint argocd yq shellcheck cosign tflint conftest; \
+    chmod +x trivy gitleaks golangci-lint hadolint argocd yq shellcheck cosign tflint conftest oras; \
     rm -f ./*.tgz ./*.tar.xz
 
 # SonarScanner CLI ships as a zip with a bundled JRE we discard, since the
@@ -222,6 +228,7 @@ COPY --from=fetch /out/shellcheck     /usr/local/bin/shellcheck
 COPY --from=fetch /out/cosign         /usr/local/bin/cosign
 COPY --from=fetch /out/tflint         /usr/local/bin/tflint
 COPY --from=fetch /out/conftest       /usr/local/bin/conftest
+COPY --from=fetch /out/oras           /usr/local/bin/oras
 COPY --from=fetch /out/sonar-scanner  /opt/sonar-scanner
 
 ENV PATH="/usr/local/go/bin:${MAVEN_HOME}/bin:${GRADLE_HOME}/bin:/opt/sonar-scanner/bin:${GOPATH}/bin:${PATH}"

@@ -3,23 +3,30 @@
 A full end-to-end example of this library's capabilities applied to a Go
 application repo: full quality gate, image signing, SBOM, and a
 three-environment gitops promotion path with an approval gate in front of
-prod. A minimal repo needs only `appName`, `buildTool` and `imageRepo` —
-everything else here is a default made explicit or an opt-in.
+prod. A minimal repo needs only `appName`, `buildTool` and `imageRepo` (or
+`imageRegistry: github`) — everything else here is a default made explicit or
+an opt-in.
 
 ## Using this in a real repo
 
 1. Copy `Jenkinsfile` to the root of your repo.
 2. Keep `.ci/config.yaml` (already in place) in your repo, then edit the
-   values (`appName`, `imageRepo`, `gitopsRepo`, environment names/paths,
-   Slack channel, approvers) to match your service.
+   values (`appName`, `gitopsRepo`, environment names/paths, Slack channel,
+   approvers) to match your service. The image path is derived from your repo.
 3. Make sure the credentials this library expects
-   (`github-token`, `sonar-token`, `slack-webhook`, `ghcr-credentials`) are
-   configured on the controller — see the root README's Credentials table.
+   (`github-token`, `sonar-token`, `slack-webhook`, `ghcr-credentials` with a
+   classic PAT that has `write:packages`) are configured on the controller —
+   see the root README's Credentials table.
 
 ## What each section demonstrates
 
-- **Container image** — `containerize: true` with `kaniko-docker`; swap to
-  `kaniko-k8s` or `buildah` per the trade-off table in the root README.
+- **Container image** — `imageRegistry: github` pushes to
+  `ghcr.io/<owner>/<repo>`, the GitHub repo the code lives in, with
+  `kaniko-docker`; swap to `kaniko-k8s` or `buildah` per the trade-off table
+  in the root README.
+- **publish** — `githubPackages: true` pushes the compiled binaries in
+  `dist/` to `ghcr.io/<owner>/<repo>/edge-router-artifacts:<tag>`, on the same
+  repo's Packages tab as the image.
 - **lint** — `failOnError: true`, so `gofmt`/`go vet`/`golangci-lint`
   failures block the build rather than just reporting.
 - **environments** — `dev` (every branch), `staging` (main), `prod` (main,

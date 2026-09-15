@@ -79,6 +79,7 @@ abstract class BaseTest extends BasePipelineTest {
                     registerAllowedMethod(name, [String], invoke)
                     registerAllowedMethod(name, [Map], invoke)
                     registerAllowedMethod(name, [Map, Map], invoke)
+                    registerAllowedMethod(name, [Map, List], invoke)
                     registerAllowedMethod(name, [Map, String], invoke)
                     registerAllowedMethod(name, [String, Map], invoke)
                     registerAllowedMethod(name, [Map, Map, String], invoke)

@@ -28,7 +28,10 @@ is non-empty.
 |---|---|
 | `appName` present | `appName is required` |
 | `buildTool` present and in [`configSupportedTools`](configSupportedTools.md) | `buildTool is required` / `buildTool 'x' unsupported (use: …)` |
-| `containerize: true` needs `imageRepo` | `imageRepo is required when containerize is true` |
+| `containerize: true` needs `imageRepo` (or `imageRegistry: github`) | `imageRepo is required when containerize is true (or set imageRegistry: github)` |
+| `imageRegistry` is `github` when set | `imageRegistry 'x' unsupported (use: github)` |
+| `imageRegistry: github` with an explicit `imageRepo` needs a `ghcr.io/` path | `imageRegistry: github pushes to ghcr.io, but imageRepo is … — remove one of them` |
+| `publish.githubPackages` is a boolean | `publish.githubPackages must be true or false` |
 | `imageBuilder` in [`configImageBuilders`](configImageBuilders.md) (when containerized) | `imageBuilder 'x' unsupported (use: …)` |
 | `quality.signImage` needs `containerize: true` | `quality.signImage requires containerize: true` |
 | `deployStrategy` in [`configDeployStrategies`](configDeployStrategies.md) | `deployStrategy 'x' unsupported (use: …)` |

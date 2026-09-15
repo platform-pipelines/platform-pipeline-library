@@ -33,7 +33,8 @@ of `.ci/config.yaml` takes the value shown here.
 appName: null               # required
 buildTool: null             # required — see configSupportedTools
 runtimeVersion: null        # picks the fallback tool image tag, e.g. "3.12"
-imageRepo: null             # required when containerize: true
+imageRepo: null             # required when containerize: true, unless imageRegistry: github
+imageRegistry: null         # github → imageRepo = ghcr.io/<owner>/<repo> of this checkout
 containerize: true          # forced to false for terraform / cloudformation
 dockerfile: Dockerfile
 imageBuilder: kaniko-docker # kaniko-docker | kaniko-k8s | buildah
@@ -78,7 +79,8 @@ quality:
   signImage: false
 
 publish:
-  nexusRepo: null           # publishing skipped when unset
+  nexusRepo: null           # Nexus upload skipped when unset
+  githubPackages: false     # true → GitHub Packages (GHCR) under this repo
 
 approval:
   allowSelfApproval: false
