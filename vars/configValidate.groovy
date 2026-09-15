@@ -46,6 +46,13 @@ def call(Map cfg) {
     if ((cfg.deployStrategy == 'cloudformation' || cfg.buildTool == 'cloudformation') && !cfg.infra.region) {
         errors << 'infra.region is required for cloudformation'
     }
+    def ecs = cfg.deployStrategy == 'ecs'
+    if (ecs && !cfg.containerize) {
+        errors << 'deployStrategy: ecs deploys a container image, so containerize must be true'
+    }
+    if (ecs && !cfg.infra.region) {
+        errors << 'infra.region is required for deployStrategy: ecs'
+    }
     if (!(cfg.notify.on in ['always', 'failure', 'change'])) {
         errors << 'notify.on must be always, failure or change'
     }
@@ -68,8 +75,27 @@ def call(Map cfg) {
         if (e.requiresApproval && !e.approvers) {
             errors << "environments[${i}] (${e.name}) requires approval but lists no approvers"
         }
+        if (ecs && !e.ecsCluster) {
+            errors << "environments[${i}].ecsCluster is required for deployStrategy: ecs"
+        }
+        if (ecs && !e.ecsService) {
+            errors << "environments[${i}].ecsService is required for deployStrategy: ecs"
+        }
+        if (e.ecsContainer && !(e.ecsContainer ==~ /^[A-Za-z0-9_-]+$/)) {
+            errors << "environments[${i}].ecsContainer '${e.ecsContainer}' must be a plain container name"
+        }
         if (e.name && !seen.add(e.name)) {
             errors << "environment '${e.name}' is declared more than once"
+        }
+    }
+
+    def names = cfg.environments*.name
+    cfg.environments.eachWithIndex { e, i ->
+        if (!e.promoteFrom) { return }
+        if (e.promoteFrom == e.name) {
+            errors << "environments[${i}] (${e.name}) cannot promote from itself"
+        } else if (!(e.promoteFrom in names)) {
+            errors << "environments[${i}] (${e.name}) promoteFrom '${e.promoteFrom}' is not a declared environment"
         }
     }
 

@@ -28,6 +28,15 @@ jenkins:
     local:
       allowsSignup: false
 
+  # Build steps run inside this image on every agent that is not itself the
+  # toolbox (see vars/appToolImage.groovy). Stock language images lack the
+  # linters and scanners the steps call; build it with `make toolbox-build`.
+  globalNodeProperties:
+    - envVars:
+        env:
+          - key: CI_TOOLBOX_IMAGE
+            value: "${CI_TOOLBOX_IMAGE:-ci-toolbox:local}"
+
   nodes:
     - permanent:
         name: linux-agent-1

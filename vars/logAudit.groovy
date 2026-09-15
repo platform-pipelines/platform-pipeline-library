@@ -9,7 +9,9 @@
 //         details (Map) - extra fields merged into the JSON record
 def call(String action, Map details = [:]) {
     def record = [
-        timestamp: new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC')),
+        // java.time, not Date.format(): that is a Groovy extension method that
+        // is missing outside Jenkins' bundled Groovy (and from the test runtime).
+        timestamp: java.time.Instant.now().truncatedTo(java.time.temporal.ChronoUnit.SECONDS).toString(),
         action   : action,
         job      : env.JOB_NAME,
         build    : env.BUILD_NUMBER,

@@ -1,0 +1,66 @@
+# .ci/config.yaml — Go service on AWS: image to ECR, deploy to ECS Fargate.
+#
+# The cluster, service, load balancer and ECR repository come from
+# examples/terraform-aws-platform. This repo only ever changes which image
+# the service runs.
+
+appName: payments-api
+buildTool: go
+runtimeVersion: "1.27"
+
+# ECR in the shared dev/staging account. kanikoDockerConfig sees the ECR host
+# and fetches a login token with the AWS credentials below — no registry
+# password is stored anywhere.
+imageRepo: 111122223333.dkr.ecr.eu-west-1.amazonaws.com/payments-api
+imageBuilder: kaniko-docker
+
+deployStrategy: ecs
+
+infra:
+  region: eu-west-1
+  awsCredentialsId: aws-credentials
+  # Role for the build itself (ECR push). Each environment assumes its own
+  # deploy role below.
+  assumeRole: arn:aws:iam::111122223333:role/JenkinsEcrPush
+
+lint:
+  failOnError: true
+
+environments:
+  - name: dev
+    ecsCluster: platform-dev
+    ecsService: payments-api
+    assumeRole: arn:aws:iam::111122223333:role/JenkinsDeploy
+    branchPattern: main
+
+  - name: staging
+    ecsCluster: platform-staging
+    ecsService: payments-api
+    assumeRole: arn:aws:iam::111122223333:role/JenkinsDeploy
+    branchPattern: main
+    promoteFrom: dev
+
+  # Prod lives in its own account and is reached only through the CD job
+  # (branchPattern matches no branch). Its ECS tasks pull from the dev
+  # account's ECR through the repository policy terraform-aws-platform sets.
+  - name: prod
+    ecsCluster: platform-prod
+    ecsService: payments-api
+    assumeRole: arn:aws:iam::444455556666:role/JenkinsDeploy
+    branchPattern: none
+    promoteFrom: staging
+    requiresApproval: true
+    approvers: [platform-leads, payments-oncall]
+    approvalTimeoutMinutes: 120
+
+quality:
+  sonar: false
+  trivy: true
+  trivyFailOn: [HIGH, CRITICAL]
+  secretScan: true
+  minCoverage: 75
+  sbom: true
+
+notify:
+  slackChannel: "#payments-deploys"
+  on: change

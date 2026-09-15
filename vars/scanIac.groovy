@@ -13,14 +13,16 @@ def call(Map cfg) {
     def dir = cfg.infra.workingDir
     def severities = cfg.quality.trivyFailOn.join(',')
 
+    // No --no-progress: `trivy config` has no progress bar and rejects the
+    // flag ("unknown flag"), which failed every IaC scan. fs/image still accept it.
     inToolContainer('aquasec/trivy:latest') {
-        sh "trivy config --format json  --output trivy-iac.json ${dir} --no-progress || true"
-        sh "trivy config --format table --output trivy-iac.txt  ${dir} --no-progress || true"
+        sh "trivy config --format json  --output trivy-iac.json ${dir} || true"
+        sh "trivy config --format table --output trivy-iac.txt  ${dir} || true"
 
         archiveArtifacts artifacts: 'trivy-iac.*', allowEmptyArchive: true
 
         def status = sh(
-            script: "trivy config --severity ${severities} --exit-code 1 --no-progress --quiet ${dir}",
+            script: "trivy config --severity ${severities} --exit-code 1 --quiet ${dir}",
             returnStatus: true
         )
 

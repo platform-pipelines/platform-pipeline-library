@@ -1,14 +1,23 @@
 // Container the build runs in.
 //
 // When the agent is the toolbox image (CI_TOOLBOX=true) every toolchain is
-// already on PATH, so steps run in place and this is never consulted. These
-// per-language images are the fallback for agents that are not the toolbox.
+// already on PATH, so steps run in place and this is never consulted.
+//
+// Otherwise, when the controller sets CI_TOOLBOX_IMAGE (see local/casc), the
+// build runs inside that image. That is the recommended setup: the stock
+// per-language images below have the compiler but not the linters and scanners
+// the steps call (golangci-lint, ruff, tflint, conftest, cfn-lint, checkov,
+// python3 for the plan summaries), so they only get a repo partway through.
 //
 // Usage:
 //   def image = appToolImage(cfg)
 // Params: cfg (Map) - pipeline config; reads cfg.buildTool and cfg.runtimeVersion
-// Returns: container image tag for cfg.buildTool (errors if buildTool is unsupported)
+// Returns: container image for cfg.buildTool (errors if buildTool is unsupported)
 def call(Map cfg) {
+    if (env.CI_TOOLBOX_IMAGE) {
+        return env.CI_TOOLBOX_IMAGE
+    }
+
     def v = cfg.runtimeVersion
     switch (cfg.buildTool) {
         case 'go':          return "golang:${v ?: '1.27'}"

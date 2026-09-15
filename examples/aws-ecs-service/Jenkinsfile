@@ -1,0 +1,4 @@
+// CI: lint → build → test → scan → push to ECR → deploy to ECS (dev, staging).
+@Library('platform-pipeline@main') _
+
+standardPipeline()

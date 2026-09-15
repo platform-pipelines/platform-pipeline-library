@@ -18,9 +18,12 @@ def call(Map cfg, Map envCfg, String planFile) {
             error "Plan file ${planFile} is gone. Apply must consume the approved plan, not a fresh one."
         }
 
-        sh "terraform apply -input=false -no-color -auto-approve ${planFile}"
-
-        sh 'terraform output -json > tf-outputs.json || true'
+        // The same credential scope the plan was made in. The session from
+        // plan time may have expired while the approval was pending.
+        withAwsCredentials(cfg, envCfg) {
+            sh "terraform apply -input=false -no-color -auto-approve ${planFile}"
+            sh 'terraform output -json > tf-outputs.json || true'
+        }
         archiveArtifacts artifacts: 'tf-outputs.json', allowEmptyArchive: true
     }
 

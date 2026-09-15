@@ -1,0 +1,6 @@
+// Nightly drift detection: plans every environment against real state and
+// reports differences. Never applies. Create a Pipeline job (branch main)
+// pointing at this file; the cron trigger registers on the first run.
+@Library('platform-pipeline@main') _
+
+terraformDriftPipeline(schedule: 'H 6 * * 1-5')

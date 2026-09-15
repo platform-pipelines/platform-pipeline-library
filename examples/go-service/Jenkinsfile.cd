@@ -1,0 +1,5 @@
+// Deploy-only job: promote or roll back an image standardPipeline already built.
+// Create a plain Pipeline job (not multibranch) pointing at this file.
+@Library('platform-pipeline@main') _
+
+cdPipeline()

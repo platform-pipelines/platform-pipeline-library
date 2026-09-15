@@ -1,7 +1,13 @@
 # inContainer
 
-Runs a body inside a container image, with a named volume at `/cache` so
-dependency downloads survive between builds.
+Runs a body inside a container image as the agent's user, with the two fixes
+stock images need under `docker.inside`:
+
+- `--entrypoint=''`, so images whose entrypoint is the tool itself
+  (`hashicorp/terraform`, `amazon/aws-cli`, `aquasec/trivy`) do not exit at once.
+- `HOME` (and `XDG_CACHE_HOME`, `GRADLE_USER_HOME`, `npm_config_cache`) pointed
+  at `<workspace>@tmp/home`, because the agent uid has no writable home in the
+  image and go, npm, pip, gradle and trivy fail creating their caches.
 
 ## Syntax
 
@@ -16,44 +22,36 @@ inContainer(String image, String cacheDir) {
 | Name | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `image` | `String` | yes | — | Container image to run in. |
-| `cacheDir` | `String` | yes (may be `null`) | — | Non-empty → mount a cache volume; `null`/`''` → no cache. |
+| `cacheDir` | `String` | yes (may be `null`) | — | Informational label for the tool's cache; tools choose their own paths under `HOME`. |
 | `body` | `Closure` | yes | — | Steps to run inside the container. |
 
 ## Returns
 
-Nothing. When `cacheDir` is set, the container gets:
-
-| Item | Value |
-|---|---|
-| Volume | `ci-cache-<image with non-alphanumerics replaced by ->` mounted at `/cache` |
-| Env var | `CACHE_DIR=/cache` |
-
-The volume name depends only on the image, not on `cacheDir`, so every build
-using the same image shares one cache.
+Whatever the body returns.
 
 ## Examples
 
 ```groovy
 inContainer('golang:1.27', '.gocache') {
-    sh 'GOMODCACHE=$CACHE_DIR/mod go build ./...'
+    sh 'go build ./...'
 }
-// docker run ... -v ci-cache-golang-1-27:/cache -e CACHE_DIR=/cache golang:1.27
+// docker run --entrypoint='' ... golang:1.27, HOME=<workspace>@tmp/home
 ```
 
 ```groovy
-inContainer('alpine:3.19', null) {
-    sh 'apk add --no-cache jq && jq --version'
+def digest = inContainer('gcr.io/go-containerregistry/crane:debug', null) {
+    sh(script: 'crane digest ghcr.io/acme/api:1.4.0', returnStdout: true).trim()
 }
-// no cache volume
 ```
 
-Point the tool's cache at `$CACHE_DIR` to actually use the volume, e.g.
-`pip install --cache-dir $CACHE_DIR/pip`, `npm ci --cache $CACHE_DIR/npm`.
+Caches live in the workspace's `@tmp` directory, so they last for the build,
+not across builds.
 
 ## How it fits
 
-Called by [inBuildContainer](inBuildContainer.md) when not running on a
-toolbox agent. Requires the Docker Pipeline plugin and a docker socket.
+Called by [inBuildContainer](inBuildContainer.md) and
+[inToolContainer](inToolContainer.md) when not running on a toolbox agent.
+Requires the Docker Pipeline plugin and a docker socket.
 
 ## Source
 

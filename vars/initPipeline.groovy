@@ -7,7 +7,13 @@
 def call(Map overrides) {
     logBanner 'Initialise'
 
-    checkout scm
+    // With skipDefaultCheckout, Jenkins does not export GIT_COMMIT; it is only
+    // in the map checkout returns. Without it every commit status and audit
+    // record silently skipped the commit.
+    def scmVars = checkout scm
+    if (scmVars?.GIT_COMMIT) {
+        env.GIT_COMMIT = scmVars.GIT_COMMIT
+    }
 
     def cfg = configLoad(overrides)
 

@@ -9,7 +9,7 @@ identically: same stages, same dispatcher, different four steps underneath
 ## Adapting this to a real repo
 
 1. Copy `Jenkinsfile` to the repo root.
-2. Copy `config.yaml` to `.ci/config.yaml`.
+2. Keep `.ci/config.yaml` (already in place).
 3. Replace `appName`, `imageRepo`, `gitopsRepo`, and every `manifestPath` /
    `namespace` with real values.
 4. Update `quality.sonarProjectKey`, Slack channel, and approver list.
