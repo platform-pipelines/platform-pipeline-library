@@ -1,10 +1,12 @@
 # Local stack for developing the library. Everything the pipeline talks to,
 # on one machine, so you can run a real build before touching shared infra.
 #
-#   make toolbox-build && make local-up          (add NEXUS=1 for Nexus)
+#   make toolbox-build && make local-up
 #   Jenkins   http://localhost:8080  (admin/admin, or $JENKINS_ADMIN_PASSWORD)
 #   SonarQube http://localhost:9000  (admin/admin)
-#   Nexus     http://localhost:8081  (NEXUS=1 only)
+#
+# Artifacts and images go to GitHub (releases and GHCR), so there is no local
+# artifact store.
 
 services:
   jenkins:
@@ -24,7 +26,6 @@ services:
       # ALLOW_LOCAL_CHECKOUT lets the git plugin clone the mounted library.
       JAVA_OPTS: -Djenkins.install.runSetupWizard=false -Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true
       SONAR_HOST_URL: http://sonarqube:9000
-      NEXUS_URL: http://nexus:8081
       # Read by casc/jenkins.yaml. Values come from local/.env (see
       # .env.example) or the shell; unset ones become empty credentials.
       JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD:-admin}
@@ -37,8 +38,6 @@ services:
       ARGOCD_TOKEN: ${ARGOCD_TOKEN:-}
       GHCR_USER: ${GHCR_USER:-}
       GHCR_TOKEN: ${GHCR_TOKEN:-}
-      NEXUS_USER: ${NEXUS_USER:-}
-      NEXUS_PASS: ${NEXUS_PASS:-}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
       COSIGN_OIDC_TOKEN: ${COSIGN_OIDC_TOKEN:-}
@@ -73,22 +72,8 @@ services:
       - sonar_data:/opt/sonarqube/data
       - sonar_ext:/opt/sonarqube/extensions
 
-  # Opt-in (make local-up NEXUS=1): only publish.nexusRepo needs it, and it is
-  # the service that gets OOM-killed when Docker Desktop's memory is tight.
-  nexus:
-    profiles: [nexus]
-    image: sonatype/nexus3:latest
-    ports: ["8081:8081"]
-    environment:
-      # Nexus defaults to ~2.7g heap plus as much direct memory, which gets it
-      # OOM-killed on a default 8 GB Docker Desktop next to Jenkins and Sonar.
-      INSTALL4J_ADD_VM_PARAMS: -Xms1g -Xmx1g -XX:MaxDirectMemorySize=1g -Djava.util.prefs.userRoot=/nexus-data/javaprefs
-    volumes:
-      - nexus_data:/nexus-data
-
 volumes:
   jenkins_home:
   agent_work:
   sonar_data:
   sonar_ext:
-  nexus_data:

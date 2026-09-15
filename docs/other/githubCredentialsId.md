@@ -43,7 +43,10 @@ withEnv(['GITHUB_CREDENTIALS_ID=github-app-orders']) {
 
 Used by every step that authenticates to GitHub:
 [`githubApiRequest`](githubApiRequest.md), [`githubFetchFile`](githubFetchFile.md),
-[`githubFileSha`](githubFileSha.md) and [`githubFindComment`](githubFindComment.md).
+[`githubFileSha`](githubFileSha.md), [`githubFindComment`](githubFindComment.md),
+[`githubRelease`](githubRelease.md) and
+[`githubUploadReleaseAsset`](githubUploadReleaseAsset.md). Release publishing
+needs `contents: write`.
 
 ## Source
 

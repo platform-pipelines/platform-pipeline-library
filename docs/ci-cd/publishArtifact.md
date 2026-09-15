@@ -1,7 +1,8 @@
 # publishArtifact
 
-Uploads build output to Nexus over REST, so the same command works from a
-laptop as from an agent.
+Attaches build output to a GitHub release of the repo being built, tagged
+`v<version>`. Artifacts live next to the source, and images next to them in
+GHCR, with no separate artifact store to run or credential.
 
 ## Syntax
 
@@ -15,30 +16,34 @@ publishArtifact(Map cfg)
 |---|---|---|---|---|
 | `cfg` | `Map` | yes | — | Pipeline config. |
 
-Reads `env.NEXUS_URL` and `env.APP_VERSION`.
+Reads `env.APP_VERSION`, `env.BRANCH_NAME` and the repo from the checkout
+(via [githubRepoSlug](../other/githubRepoSlug.md)).
 
 ### Config keys read
 
 | Key | Default | Sample value | Effect |
 |---|---|---|---|
-| `publish.nexusRepo` | `null` | `pypi-internal` | Nexus repository name. Unset → nothing is published. |
-| `appName` | — | `orders-api` | First path segment of the upload. |
+| `publish.githubRelease` | `false` | `true` | Upload artifacts as release assets. Off → nothing is published. |
+| `publish.branchPattern` | `main` | `release/*` | Only builds of matching branches publish (`*` is the only wildcard), so feature branches do not create a release per build. |
 | `buildTool` | — | `python` | Which files to upload, via [appArtifacts](appArtifacts.md). |
-
-The old `extra.nexusRepo` still works, with a deprecation warning.
 
 ### Controller requirements
 
 | Item | Kind | Sample value |
 |---|---|---|
-| `NEXUS_URL` | environment variable | `https://nexus.acme.internal` |
-| `nexus-credentials` | username/password credential | a Nexus user with write access to the repo |
+| `github-token` (or `GITHUB_CREDENTIALS_ID`) | string credential | a token with `contents: write` on the repo |
+| `GITHUB_API_URL` | environment variable, optional | `https://github.acme.internal/api/v3` for Enterprise |
 
 ## Returns
 
-Nothing. Uploads every file matching the artifact glob. Skips (with a debug
-or warning line) when `publish.nexusRepo` is unset, the tool has no artifact
-glob, or no files match. Fails the build if an upload fails.
+Nothing. Finds or creates the release with
+[githubRelease](../other/githubRelease.md) and uploads every file matching
+the artifact glob with
+[githubUploadReleaseAsset](../other/githubUploadReleaseAsset.md). A version with a pre-release suffix (`1.4.0-rc.42`)
+creates a pre-release. An asset that already exists under the same name is
+replaced, so rebuilding a version works. Skips (with a debug or warning line)
+when `publish.githubRelease` is off, the branch does not match, the tool has
+no artifact glob, or no files match. Fails the build if an upload fails.
 
 ## Examples
 
@@ -47,7 +52,7 @@ glob, or no files match. Fails the build if an upload fails.
 appName: orders-api
 buildTool: python
 publish:
-  nexusRepo: pypi-internal
+  githubRelease: true
 ```
 
 ```groovy
@@ -55,28 +60,29 @@ packageApp(cfg)          // writes dist/orders_api-1.4.0-py3-none-any.whl, dist/
 publishArtifact(cfg)
 ```
 
-Uploads (one `curl --upload-file` per file):
+Result on `main`:
 
 ```
-https://nexus.acme.internal/repository/pypi-internal/orders-api/1.4.0/orders_api-1.4.0-py3-none-any.whl
-https://nexus.acme.internal/repository/pypi-internal/orders-api/1.4.0/orders_api-1.4.0.tar.gz
+https://github.com/acme/orders-api/releases/tag/v1.4.0
+  orders_api-1.4.0-py3-none-any.whl
+  orders_api-1.4.0.tar.gz
 ```
 
 Log and audit output:
 
 ```
 ====================================================================
-  Publish to Nexus (pypi-internal)
+  Publish to GitHub release v1.4.0 (acme/orders-api)
 ====================================================================
 [INFO]  Published orders_api-1.4.0-py3-none-any.whl
 [INFO]  Published orders_api-1.4.0.tar.gz
-[AUDIT] artifact.publish [repository:pypi-internal, version:1.4.0, count:2]
+[AUDIT] artifact.publish [release:v1.4.0, url:https://github.com/acme/orders-api/releases/tag/v1.4.0, count:2]
 ```
 
-!!! note "Raw upload path"
-    Files are PUT to `<repo>/<appName>/<version>/<file>`. That suits a Nexus
-    *raw* (hosted) repository; format-specific repositories (maven2, pypi,
-    npm) expect their own layouts.
+!!! note "Release assets, not package registries"
+    Files are uploaded as plain release assets. To install a wheel, jar or
+    tarball as a dependency, download it from the release. Container images
+    are pushed separately to GHCR by [buildImage](buildImage.md).
 
 ## How it fits
 

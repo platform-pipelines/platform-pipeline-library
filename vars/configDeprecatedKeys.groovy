@@ -9,7 +9,6 @@
 // Returns: Map of deprecated dotted key path -> replacement dotted key path
 def call() {
     [
-        'extra.nexusRepo'          : 'publish.nexusRepo',
         'extra.sonarSources'       : 'quality.sonarSources',
         'extra.sonarExclusions'    : 'quality.sonarExclusions',
         'extra.dependencyCheckCvss': 'quality.dependencyCheckCvss',

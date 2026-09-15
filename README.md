@@ -1,7 +1,8 @@
 # platform-pipeline
 
-Jenkins shared library for GitHub → lint → build → test → scan → GHCR →
-GitOps → Argo CD.
+Jenkins shared library for GitHub → lint → build → test → scan → GHCR +
+GitHub releases → GitOps → Argo CD. Images go to GHCR and build artifacts to
+GitHub releases (`publish.githubRelease`), so there is no artifact store to run.
 
 **Docs:** https://platform-pipelines.github.io/platform-pipeline-library/
 
@@ -20,7 +21,7 @@ tests and coverage floor, so copying the directory gives a buildable repo:
 | Example | Entry points | Shape |
 |---|---|---|
 | [`examples/go-service`](examples/go-service) | `standardPipeline`, `cdPipeline` | Go app, kaniko-docker, three gitops environments, CD promotion to prod |
-| [`examples/java-service`](examples/java-service) | `standardPipeline` | Gradle app (Checkstyle, SpotBugs, JaCoCo), kaniko-k8s, Nexus publish |
+| [`examples/java-service`](examples/java-service) | `standardPipeline` | Gradle app (Checkstyle, SpotBugs, JaCoCo), kaniko-k8s, GitHub release publish |
 | [`examples/node-service`](examples/node-service) | `standardPipeline` | npm app, ESLint + Prettier with autofix, node:test coverage |
 | [`examples/python-service`](examples/python-service) | `standardPipeline` | Flask app in a venv, ruff + mypy + pytest, buildah |
 | [`examples/cd-promotion`](examples/cd-promotion) | `cdPipeline` | **CD**: promote dev → staging → prod or roll back, no rebuild |
@@ -67,7 +68,7 @@ from [`configEnvDefaults`](vars/configEnvDefaults.groovy).
 | top level | `appName`, `buildTool`, `runtimeVersion`, `imageRepo`, `containerize` (true), `dockerfile` (`Dockerfile`), `imageBuilder` (`kaniko-docker`), `gitopsRepo`, `gitopsBranch` (`main`), `deployStrategy` (derived) |
 | `lint` | `enabled` (true), `failOnError` (true), `autoFormat` (false) |
 | `quality` | `sonar` (true), `sonarProjectKey` (appName), `sonarSources` (`.`), `sonarExclusions`, `failOnQualityGate` (true), `trivy` (true), `trivyFailOn` (HIGH, CRITICAL), `trivyIgnoreUnfixed` (true), `secretScan` (true), `dependencyCheck` (false), `dependencyCheckCvss` (7), `minCoverage`, `sbom` (true), `signImage` (false) |
-| `publish` | `nexusRepo` — Nexus repository for build artifacts; publishing is skipped when unset |
+| `publish` | `githubRelease` (false) — attach build artifacts to the `v<version>` GitHub release; `branchPattern` (`main`) |
 | `approval` | `allowSelfApproval` (false) |
 | `notify` | `slackChannel`, `on` (`change` — or `always` / `failure`), `githubChecks` (true) |
 | `infra` | `workingDir` (`.`), `varFiles`, `backendConfig`, `policyDir`, `region` (`us-east-1`), `assumeRole`, `awsCredentialsId` (`aws-credentials`), `template`, `templates`, `artifactBucket`, `capabilities` |
@@ -97,7 +98,6 @@ deprecation warning, until you move them:
 
 | Old | New |
 |---|---|
-| `extra.nexusRepo` | `publish.nexusRepo` |
 | `extra.sonarSources` | `quality.sonarSources` |
 | `extra.sonarExclusions` | `quality.sonarExclusions` |
 | `extra.dependencyCheckCvss` | `quality.dependencyCheckCvss` |
@@ -308,7 +308,6 @@ version in `toolbox/Dockerfile`.
 ```bash
 make toolbox-build    # once: the image build steps run in (CI_TOOLBOX_IMAGE)
 make local-up         # build and start Jenkins + agent + SonarQube in the background
-make local-up NEXUS=1 # ... plus Nexus, for publish.nexusRepo
 make local-logs       # follow logs for all services
 make local-down       # stop the stack, keep data volumes
 make local-clean      # stop the stack and delete data volumes
@@ -316,7 +315,7 @@ make local-restart    # local-down + local-up
 ```
 
 Jenkins :8080 (`admin` / `$JENKINS_ADMIN_PASSWORD`, default `admin`),
-SonarQube :9000 (admin/admin), Nexus :8081. Jenkins builds from
+SonarQube :9000 (admin/admin). Jenkins builds from
 `local/plugins.txt` — pinned, no UI installs. The `agent` service is the
 `linux-agent-1` node every stage runs on; it reaches Docker through the host
 socket and runs build steps inside `ci-toolbox:local`.
@@ -343,8 +342,8 @@ creates the Jenkins credentials at startup — the token becomes both
 the file. Editing `.env` or `jenkins.yaml` only needs `make local-up`, not
 `local-clean`.
 
-Nexus is opt-in because it is the first thing Docker Desktop OOM-kills: the
-stack wants roughly 4 GB free in the Docker VM with Nexus, 3 GB without.
+Artifacts and images need no local service: they go to GitHub releases and
+GHCR using the `github-token` and `ghcr-credentials` credentials.
 
 ## Versioning this library
 
@@ -363,18 +362,17 @@ deliberate, temporary trade-off, not the long-term plan.
 
 | ID | Kind | Used by |
 |---|---|---|
-| `github-token` | string | statuses, PR comments, GitOps commits |
+| `github-token` | string | statuses, PR comments, GitOps commits, release artifacts (`publish.githubRelease`; needs `contents: write`) |
 | `github-scm` | username/password (same token) | git checkout, multibranch / GitHub Branch Source jobs (local stack) |
 | `sonar-token` | string | scan and quality gate |
 | `slack-webhook` | string | notifications |
 | `argocd-token` | string | sync wait |
 | `ghcr-credentials` | username/password | registry push (override with `REGISTRY_CREDENTIALS_ID`) |
-| `nexus-credentials` | username/password | artifact publish (`publish.nexusRepo`) |
 | `aws-credentials` | username/password (access key id / secret) | Terraform and CloudFormation; override per repo or environment with `awsCredentialsId` |
 | `cosign-oidc-token` | string | keyless image signing (`quality.signImage`) |
 
 ## Environment
 
-Set on the controller via JCasC: `SONAR_HOST_URL`, `NEXUS_URL`,
+Set on the controller via JCasC: `SONAR_HOST_URL`,
 `ARGOCD_SERVER`. Optional: `PIPELINE_DEBUG=true`, `GITHUB_CREDENTIALS_ID`,
 `REGISTRY_CREDENTIALS_ID`, `GITHUB_API_URL` for Enterprise.

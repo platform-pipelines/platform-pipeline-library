@@ -1,8 +1,9 @@
 # platform-pipeline
 
 Reference documentation for the `platform-pipeline` Jenkins shared library —
-GitHub → lint → build → test → scan → GHCR → GitOps → Argo CD, driven by one
-`.ci/config.yaml` per consuming repo.
+GitHub → lint → build → test → scan → GHCR + GitHub releases → GitOps → Argo CD,
+driven by one `.ci/config.yaml` per consuming repo. Images and build artifacts
+both live on GitHub, so there is no separate artifact store.
 
 ```groovy
 @Library('platform-pipeline@main') _

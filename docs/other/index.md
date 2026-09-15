@@ -12,7 +12,7 @@ is built on top of.
 - [configMerge](configMerge.md) — recursive map merge (right side wins).
 - [configValidate](configValidate.md) — collects every config problem in one pass instead of failing on the first.
 - [configUnknownKeys](configUnknownKeys.md), [configClosestKey](configClosestKey.md) — warn about typos in config, with a "did you mean" hint.
-- [configDeprecatedKeys](configDeprecatedKeys.md) — keys that moved (e.g. `extra.nexusRepo` → `publish.nexusRepo`) and still work with a warning.
+- [configDeprecatedKeys](configDeprecatedKeys.md) — keys that moved (e.g. `extra.sonarSources` → `quality.sonarSources`) and still work with a warning.
 - [configSupportedTools](configSupportedTools.md), [configImageBuilders](configImageBuilders.md), [configDeployStrategies](configDeployStrategies.md) — the allowlists for `buildTool`, `imageBuilder` and `deployStrategy`; see [configInfraTools](../cloud/configInfraTools.md) (in Cloud) for the infra-vs-app subset.
 - [configEnvironmentsFor](configEnvironmentsFor.md), [configGlobToRegex](configGlobToRegex.md) — which declared environments a given branch reaches.
 
@@ -27,12 +27,15 @@ def envs = configEnvironmentsFor(cfg, env.BRANCH_NAME)   // e.g. [[name: 'dev', 
 - [githubApiUrl](githubApiUrl.md), [githubCredentialsId](githubCredentialsId.md), [githubRepoSlug](githubRepoSlug.md) — small config lookups.
 - [githubFetchFile](githubFetchFile.md), [githubCommitFile](githubCommitFile.md), [githubFileSha](githubFileSha.md) — read/write a single file in any repo.
 - [githubSetStatus](githubSetStatus.md) — commit status checks.
+- [githubRelease](githubRelease.md), [githubUploadReleaseAsset](githubUploadReleaseAsset.md) — find or create the release for a tag and attach files to it (replacing same-named assets); [publishArtifact](../ci-cd/publishArtifact.md) uses both.
 - [githubComment](githubComment.md), [githubUpsertComment](githubUpsertComment.md), [githubFindComment](githubFindComment.md) — PR comments; `githubUpsertComment` edits its own previous comment instead of piling up duplicates.
 
 ```groovy
 githubSetStatus('ci/contract-tests', 'success', 'All contracts pass')
 githubUpsertComment('<!-- my-team:perf -->', '### p95 latency: 212 ms')
 def text = githubFetchFile(repo: 'acme/gitops-manifests', path: 'apps/orders-api/prod/kustomization.yaml')
+def release = githubRelease(repo: 'acme/orders-api', tag: 'v1.4.0')
+githubUploadReleaseAsset(release: release, path: 'dist/orders_api-1.4.0.tar.gz')
 ```
 
 | Setting | Default | Override with |

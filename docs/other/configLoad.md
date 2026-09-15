@@ -73,7 +73,7 @@ cfg.quality.sbom      // → false
 ```
 [INFO]  Loaded pipeline config from .ci/config.yaml
 [WARN]  unknown config key 'quality.minCoverge' — did you mean 'minCoverage'? (in .ci/config.yaml)
-[WARN]  extra.nexusRepo is deprecated — move it to publish.nexusRepo
+[WARN]  extra.sonarSources is deprecated — move it to quality.sonarSources
 ```
 
 **Invalid config — the build fails with every problem at once:**

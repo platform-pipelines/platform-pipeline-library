@@ -63,7 +63,8 @@ notify:
   githubChecks: true
 
 publish:
-  nexusRepo: maven-releases   # Gradle still publishes JVM artifacts to Nexus
+  githubRelease: true         # the Gradle jar is attached to the v<version> GitHub release
+  branchPattern: "main"
 
 approval:
   allowSelfApproval: false    # the default, spelled out: nobody approves their own deploy

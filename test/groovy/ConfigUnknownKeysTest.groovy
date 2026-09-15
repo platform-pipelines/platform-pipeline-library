@@ -50,7 +50,7 @@ class ConfigUnknownKeysTest extends BaseTest {
 
     @Test
     void 'deprecated keys are handled by the deprecation path, not reported as unknown'() {
-        assertThat(warnings([extra: [nexusRepo: 'maven-releases']])).isEmpty()
+        assertThat(warnings([extra: [sonarSources: 'src']])).isEmpty()
     }
 
     @Test
