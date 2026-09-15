@@ -15,6 +15,7 @@ jenkins:
             permissions: [Overall/Administer]
             entries:
               - group: platform-leads
+              - user: admin
           - name: developer
             permissions:
               - Overall/Read
@@ -27,6 +28,9 @@ jenkins:
   securityRealm:
     local:
       allowsSignup: false
+      users:
+        - id: admin
+          password: "${JENKINS_ADMIN_PASSWORD:-admin}"
 
   # Build steps run inside this image on every agent that is not itself the
   # toolbox (see vars/appToolImage.groovy). Stock language images lack the
@@ -45,6 +49,7 @@ jenkins:
         remoteFS: /home/jenkins/agent
         launcher:
           inbound:
+            webSocket: true      # the agent service connects over :8080
             workDirSettings:
               disabled: false
 
@@ -84,12 +89,15 @@ unclassified:
         defaultVersion: main
         implicit: false
         allowVersionOverride: true
+        # Defaults to this checkout, mounted by docker-compose.yml, so local
+        # commits are testable without pushing. Pick the branch in the
+        # Jenkinsfile: @Library('platform-pipeline@my-branch') _
+        # Set LIBRARY_REMOTE to a URL to load from a remote instead.
         retriever:
           modernSCM:
             scm:
               git:
-                remote: https://github.com/platform-pipelines/platform-pipeline-library.git
-                credentialsId: github-token
+                remote: "${LIBRARY_REMOTE:-/workspace/platform-pipeline-library}"
 
 credentials:
   system:

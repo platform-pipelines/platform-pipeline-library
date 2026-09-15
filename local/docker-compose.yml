@@ -1,10 +1,10 @@
 # Local stack for developing the library. Everything the pipeline talks to,
 # on one machine, so you can run a real build before touching shared infra.
 #
-#   docker compose up -d
-#   Jenkins   http://localhost:8080
+#   make toolbox-build && make local-up          (add NEXUS=1 for Nexus)
+#   Jenkins   http://localhost:8080  (admin/admin, or $JENKINS_ADMIN_PASSWORD)
 #   SonarQube http://localhost:9000  (admin/admin)
-#   Nexus     http://localhost:8081
+#   Nexus     http://localhost:8081  (NEXUS=1 only)
 
 services:
   jenkins:
@@ -12,16 +12,58 @@ services:
     ports: ["8080:8080", "50000:50000"]
     volumes:
       - jenkins_home:/var/jenkins_home
+      # Bind-mounted so casc edits apply on restart; the image's copy would be
+      # masked by the jenkins_home volume after the first start.
+      - ./casc:/var/jenkins_home/casc:ro
+      # This checkout, served as the platform-pipeline library (see casc
+      # globalLibraries). Jenkins reads commits, not uncommitted edits.
+      - ..:/workspace/platform-pipeline-library:ro
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       CASC_JENKINS_CONFIG: /var/jenkins_home/casc/jenkins.yaml
-      JAVA_OPTS: -Djenkins.install.runSetupWizard=false
+      # ALLOW_LOCAL_CHECKOUT lets the git plugin clone the mounted library.
+      JAVA_OPTS: -Djenkins.install.runSetupWizard=false -Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true
       SONAR_HOST_URL: http://sonarqube:9000
       NEXUS_URL: http://nexus:8081
+      # Read by casc/jenkins.yaml. Unset ones become empty credentials.
+      JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD:-admin}
+      LIBRARY_REMOTE: ${LIBRARY_REMOTE:-/workspace/platform-pipeline-library}
+      CI_TOOLBOX_IMAGE: ${CI_TOOLBOX_IMAGE:-ci-toolbox:local}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      SONAR_TOKEN: ${SONAR_TOKEN:-}
+      SLACK_WEBHOOK: ${SLACK_WEBHOOK:-}
+      ARGOCD_TOKEN: ${ARGOCD_TOKEN:-}
+      GHCR_USER: ${GHCR_USER:-}
+      GHCR_TOKEN: ${GHCR_TOKEN:-}
+      NEXUS_USER: ${NEXUS_USER:-}
+      NEXUS_PASS: ${NEXUS_PASS:-}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      COSIGN_OIDC_TOKEN: ${COSIGN_OIDC_TOKEN:-}
     depends_on: [sonarqube]
 
+  # The `linux-agent-1` node. The controller has no executors, so without this
+  # every build waits forever for an agent.
+  agent:
+    build: agent
+    user: root
+    volumes:
+      # Workspaces must live on a volume: docker.inside shares them with the
+      # tool containers via --volumes-from.
+      - agent_work:/home/jenkins/agent
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      JENKINS_URL: http://jenkins:8080
+      JENKINS_AGENT_NAME: linux-agent-1
+      JENKINS_WEB_SOCKET: "true"
+      JENKINS_AGENT_WORKDIR: /home/jenkins/agent
+      JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD:-admin}
+    depends_on: [jenkins]
+
   sonarqube:
-    image: sonarqube:10-community
+    # Community Build (free). Pinned; bump deliberately. The embedded H2 DB
+    # can't be migrated across versions, so a bump needs its volumes reset.
+    image: sonarqube:26.9.0.129388-community
     ports: ["9000:9000"]
     environment:
       SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
@@ -29,14 +71,22 @@ services:
       - sonar_data:/opt/sonarqube/data
       - sonar_ext:/opt/sonarqube/extensions
 
+  # Opt-in (make local-up NEXUS=1): only publish.nexusRepo needs it, and it is
+  # the service that gets OOM-killed when Docker Desktop's memory is tight.
   nexus:
+    profiles: [nexus]
     image: sonatype/nexus3:latest
     ports: ["8081:8081"]
+    environment:
+      # Nexus defaults to ~2.7g heap plus as much direct memory, which gets it
+      # OOM-killed on a default 8 GB Docker Desktop next to Jenkins and Sonar.
+      INSTALL4J_ADD_VM_PARAMS: -Xms1g -Xmx1g -XX:MaxDirectMemorySize=1g -Djava.util.prefs.userRoot=/nexus-data/javaprefs
     volumes:
       - nexus_data:/nexus-data
 
 volumes:
   jenkins_home:
+  agent_work:
   sonar_data:
   sonar_ext:
   nexus_data:
