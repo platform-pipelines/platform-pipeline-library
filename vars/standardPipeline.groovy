@@ -121,10 +121,19 @@ def call(Map overrides = [:]) {
                         }
 
                         if (cfg.containerize) {
-                            buildImage(cfg)
-                            generateSbom(cfg)
-                            signImage(cfg)
+                            // SBOM and signing read the image back from the
+                            // registry, so they share the push credentials.
+                            withRegistryAuth(cfg) {
+                                buildImage(cfg)
+                                generateSbom(cfg)
+                                signImage(cfg)
+                            }
                         }
+
+                        // Deploy runs on a fresh workspace. cfnChangeSet needs
+                        // the packaged template (with its S3 artifact URLs),
+                        // not the source template.
+                        stash name: 'package', includes: 'packaged-template.yaml', allowEmpty: true
                     }
                 }
             }
@@ -137,7 +146,9 @@ def call(Map overrides = [:]) {
                 agent { label 'linux' }
                 steps {
                     script {
-                        scanTrivy(cfg: cfg, target: "${cfg.imageRepo}:${env.IMAGE_TAG}", type: 'image')
+                        withRegistryAuth(cfg) {
+                            scanTrivy(cfg: cfg, target: "${cfg.imageRepo}:${env.IMAGE_TAG}", type: 'image')
+                        }
 
                         postScanSummary(cfg, [
                             'Image scan': 'passed',
@@ -160,7 +171,18 @@ def call(Map overrides = [:]) {
                         configEnvironmentsFor(cfg, env.BRANCH_NAME).each { envCfg ->
                             stage("Deploy: ${envCfg.name}") {
                                 node('linux') {
-                                    deployToEnvironment(cfg, envCfg)
+                                    unstash 'source'
+                                    unstash 'package'
+                                    // Infra deploys run terraform, conftest and the
+                                    // AWS CLI, so they need the build container. Image
+                                    // deploys bring their own tool containers.
+                                    if (isInfraRepo(cfg)) {
+                                        inBuildContainer(cfg) {
+                                            deployToEnvironment(cfg, envCfg)
+                                        }
+                                    } else {
+                                        deployToEnvironment(cfg, envCfg)
+                                    }
                                 }
                             }
                         }
@@ -169,36 +191,59 @@ def call(Map overrides = [:]) {
             }
         }
 
+        // Every post block that calls a step touching files or the shell needs
+        // a node: with `agent none` there is no workspace here, and
+        // githubSetStatus / notifySlack would fail with "missing FilePath".
         post {
             always {
                 node('linux') {
                     archiveArtifacts artifacts: '.ci-audit.jsonl', allowEmptyArchive: true
-                    // Agents are long-lived, so a left-behind node_modules or
-                    // .m2 eventually fills the disk and fails unrelated jobs.
-                    cleanWs(notFailBuild: true)
                 }
             }
             success {
-                script {
-                    githubSetStatus('ci/jenkins', 'success', "Passed in ${currentBuild.durationString}")
-                    notifySlack(cfg, 'SUCCESS')
+                node('linux') {
+                    script {
+                        if (cfg?.notify?.githubChecks != false) {
+                            githubSetStatus('ci/jenkins', 'success', "Passed in ${currentBuild.durationString}")
+                        }
+                        notifySlack(cfg, 'SUCCESS')
+                    }
                 }
             }
             unstable {
-                script {
-                    githubSetStatus('ci/jenkins', 'failure', 'Unstable — test failures')
-                    notifySlack(cfg, 'UNSTABLE')
+                node('linux') {
+                    script {
+                        if (cfg?.notify?.githubChecks != false) {
+                            githubSetStatus('ci/jenkins', 'failure', 'Unstable — test failures')
+                        }
+                        notifySlack(cfg, 'UNSTABLE')
+                    }
                 }
             }
             failure {
-                script {
-                    githubSetStatus('ci/jenkins', 'failure', 'Pipeline failed')
-                    notifySlack(cfg, 'FAILURE')
+                node('linux') {
+                    script {
+                        if (cfg?.notify?.githubChecks != false) {
+                            githubSetStatus('ci/jenkins', 'failure', 'Pipeline failed')
+                        }
+                        notifySlack(cfg, 'FAILURE')
+                    }
                 }
             }
             aborted {
-                script {
-                    githubSetStatus('ci/jenkins', 'error', 'Aborted')
+                node('linux') {
+                    script {
+                        if (cfg?.notify?.githubChecks != false) {
+                            githubSetStatus('ci/jenkins', 'error', 'Aborted')
+                        }
+                    }
+                }
+            }
+            cleanup {
+                node('linux') {
+                    // Agents are long-lived, so a left-behind node_modules or
+                    // .venv eventually fills the disk and fails unrelated jobs.
+                    cleanWs(notFailBuild: true)
                 }
             }
         }

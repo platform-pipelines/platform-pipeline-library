@@ -2,20 +2,24 @@ import org.junit.Test
 import static org.assertj.core.api.Assertions.assertThat
 
 /**
- * Examples are what people copy. Every examples/<name>/config.yaml must load
- * cleanly — no validation errors, no unknown or deprecated keys — so an
+ * Examples are what people copy. Every examples/<name>/.ci/config.yaml must
+ * load cleanly — no validation errors, no unknown or deprecated keys — so an
  * example can never quietly drift away from what the library accepts.
+ *
+ * Each example is laid out as a repo root (.ci/config.yaml, Jenkinsfile,
+ * source), so copying the directory gives a repo the pipeline can build.
  */
 class ExamplesConfigTest extends BaseTest {
 
+    private List<File> exampleDirs() {
+        new File('examples').listFiles().findAll { it.isDirectory() }.sort { it.name }
+    }
+
     @Test
     void 'every example config loads without errors or warnings'() {
-        List<File> configs = new File('examples').listFiles()
-            .findAll { it.isDirectory() }
-            .collect { new File(it, 'config.yaml') }
-            .findAll { it.exists() }
-            .sort { it.path }
+        List<File> configs = exampleDirs().collect { new File(it, '.ci/config.yaml') }
 
+        configs.each { assertThat(it).as('example config').exists() }
         assertThat(configs).as('example configs').isNotEmpty()
 
         configs.each { File file ->
@@ -34,8 +38,22 @@ class ExamplesConfigTest extends BaseTest {
     }
 
     @Test
+    void 'every extra Jenkinsfile calls a library entrypoint'() {
+        def entrypoints = ['standardPipeline', 'cdPipeline', 'terraformDriftPipeline']
+        exampleDirs().each { dir ->
+            dir.listFiles().findAll { it.name.startsWith('Jenkinsfile') }.each { file ->
+                assertThat(file.text).as("${file}").contains("@Library('platform-pipeline@")
+                assertThat(entrypoints.any { file.text.contains("${it}(") }).as("${file} calls ${entrypoints}").isTrue()
+                entrypoints.findAll { file.text.contains("${it}(") }.each {
+                    assertThat(new File("vars/${it}.groovy")).exists()
+                }
+            }
+        }
+    }
+
+    @Test
     void 'every example has a Jenkinsfile and a README'() {
-        new File('examples').listFiles().findAll { it.isDirectory() }.each { dir ->
+        exampleDirs().each { dir ->
             assertThat(new File(dir, 'Jenkinsfile')).as("${dir}/Jenkinsfile").exists()
             assertThat(new File(dir, 'README.md')).as("${dir}/README.md").exists()
         }

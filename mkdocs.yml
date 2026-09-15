@@ -64,6 +64,7 @@ nav:
       - pythonLint: ci-cd/pythonLint.md
       - pythonPackage: ci-cd/pythonPackage.md
       - pythonTest: ci-cd/pythonTest.md
+      - pythonVenv: ci-cd/pythonVenv.md
       - dockerOnlyBuild: ci-cd/dockerOnlyBuild.md
       - dockerOnlyLint: ci-cd/dockerOnlyLint.md
       - dockerOnlyPackage: ci-cd/dockerOnlyPackage.md
@@ -77,6 +78,8 @@ nav:
       - imageLabels: ci-cd/imageLabels.md
       - kanikoArgs: ci-cd/kanikoArgs.md
       - kanikoDockerConfig: ci-cd/kanikoDockerConfig.md
+      - withRegistryAuth: ci-cd/withRegistryAuth.md
+      - imageDigest: ci-cd/imageDigest.md
       - inBuildContainer: ci-cd/inBuildContainer.md
       - inContainer: ci-cd/inContainer.md
       - inToolContainer: ci-cd/inToolContainer.md
@@ -103,6 +106,9 @@ nav:
       - archiveLintReports: ci-cd/archiveLintReports.md
     - Pipeline orchestration:
       - standardPipeline: ci-cd/standardPipeline.md
+      - cdPipeline: ci-cd/cdPipeline.md
+      - cdResolveImage: ci-cd/cdResolveImage.md
+      - manifestCurrentImage: ci-cd/manifestCurrentImage.md
       - initPipeline: ci-cd/initPipeline.md
       - buildApp: ci-cd/buildApp.md
       - packageApp: ci-cd/packageApp.md
@@ -122,6 +128,9 @@ nav:
     - AWS:
       - assumeAwsRole: cloud/assumeAwsRole.md
       - withAwsCredentials: cloud/withAwsCredentials.md
+    - ECS:
+      - deployEcs: cloud/deployEcs.md
+      - ecsTaskDefinitionForImage: cloud/ecsTaskDefinitionForImage.md
     - CloudFormation:
       - cfnBuild: cloud/cfnBuild.md
       - cfnChangeSet: cloud/cfnChangeSet.md
@@ -140,6 +149,7 @@ nav:
       - terraformPlan: cloud/terraformPlan.md
       - terraformTest: cloud/terraformTest.md
       - deployTerraform: cloud/deployTerraform.md
+      - terraformDriftPipeline: cloud/terraformDriftPipeline.md
     - GitOps & deploy routing:
       - deployGitops: cloud/deployGitops.md
       - deployToEnvironment: cloud/deployToEnvironment.md

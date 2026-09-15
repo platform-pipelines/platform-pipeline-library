@@ -1,0 +1,35 @@
+# .ci/config.yaml — the same file standardPipeline reads. cdPipeline needs no
+# extra section: it uses imageRepo, the deploy strategy and environments, and
+# `promoteFrom` to know where each environment takes its image from.
+
+appName: inventory-api
+buildTool: go
+imageRepo: ghcr.io/acme/inventory-api
+
+gitopsRepo: acme/gitops-manifests
+gitopsBranch: main
+
+environments:
+  # CI (standardPipeline) deploys every main build to dev automatically.
+  - name: dev
+    manifestPath: apps/inventory-api/dev/kustomization.yaml
+    branchPattern: main
+
+  # CD only from here on: the CI build never reaches staging or prod, because
+  # their branchPattern matches no branch. A human runs the CD job.
+  - name: staging
+    manifestPath: apps/inventory-api/staging/kustomization.yaml
+    branchPattern: none
+    promoteFrom: dev
+
+  - name: prod
+    manifestPath: apps/inventory-api/prod/kustomization.yaml
+    branchPattern: none
+    promoteFrom: staging
+    requiresApproval: true
+    approvers: [platform-leads, inventory-oncall]
+    approvalTimeoutMinutes: 120
+
+notify:
+  slackChannel: "#inventory-deploys"
+  on: always

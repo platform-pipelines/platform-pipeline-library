@@ -1,0 +1,7 @@
+# Installed into .venv by pythonVenv in every stage: lint, test and package
+# tools live here so the stock python image needs nothing extra.
+-r requirements.txt
+pytest>=8,<9
+pytest-cov>=6,<7
+ruff>=0.12,<1
+mypy>=1.16,<2

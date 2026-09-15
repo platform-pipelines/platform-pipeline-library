@@ -1,0 +1,8 @@
+.ci/
+Jenkinsfile*
+README.md
+coverage/
+node_modules/
+package-lock.json
+junit.xml
+*.tgz

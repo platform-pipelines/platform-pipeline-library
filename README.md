@@ -13,19 +13,47 @@ standardPipeline()
 ```
 
 Everything else is declared in `.ci/config.yaml`. Start from the example
-closest to your repo:
+closest to your repo. Each one is a complete repo root — `.ci/config.yaml`,
+Jenkinsfile(s), source, tests, Dockerfile or IaC — that passes its own lint,
+tests and coverage floor, so copying the directory gives a buildable repo:
 
-| Example | Shape |
-|---|---|
-| [`examples/go-service`](examples/go-service) | Go app, kaniko-docker, three gitops environments |
-| [`examples/java-service`](examples/java-service) | Gradle app, kaniko-k8s, Nexus publish |
-| [`examples/node-service`](examples/node-service) | npm app, strict lint with autofix |
-| [`examples/python-service`](examples/python-service) | Python app, buildah on toolbox agents |
-| [`examples/terraform-stack`](examples/terraform-stack) | Terraform: plan → approve → apply |
-| [`examples/cloudformation-stack`](examples/cloudformation-stack) | CloudFormation: change set → approve → execute |
+| Example | Entry points | Shape |
+|---|---|---|
+| [`examples/go-service`](examples/go-service) | `standardPipeline`, `cdPipeline` | Go app, kaniko-docker, three gitops environments, CD promotion to prod |
+| [`examples/java-service`](examples/java-service) | `standardPipeline` | Gradle app (Checkstyle, SpotBugs, JaCoCo), kaniko-k8s, Nexus publish |
+| [`examples/node-service`](examples/node-service) | `standardPipeline` | npm app, ESLint + Prettier with autofix, node:test coverage |
+| [`examples/python-service`](examples/python-service) | `standardPipeline` | Flask app in a venv, ruff + mypy + pytest, buildah |
+| [`examples/cd-promotion`](examples/cd-promotion) | `cdPipeline` | **CD**: promote dev → staging → prod or roll back, no rebuild |
+| [`examples/aws-ecs-service`](examples/aws-ecs-service) | `standardPipeline`, `cdPipeline` | **AWS end to end**: ECR push via STS, ECS Fargate rollout with rollback, cross-account prod |
+| [`examples/terraform-aws-platform`](examples/terraform-aws-platform) | `standardPipeline`, `terraformDriftPipeline` | **Terraform end to end**: state bootstrap, VPC/ALB/ECS/ECR, mocked tests, conftest per plan, approvals, nightly drift |
+| [`examples/terraform-stack`](examples/terraform-stack) | `standardPipeline` | Terraform VPC: plan → approve → apply |
+| [`examples/cloudformation-stack`](examples/cloudformation-stack) | `standardPipeline` | CloudFormation: change set → approve → execute |
 
-Every example is loaded by `ExamplesConfigTest`, so they cannot drift from
-what the library accepts.
+Every example config is loaded by `ExamplesConfigTest`, and every Jenkinsfile
+is checked to call a real entry point, so they cannot drift from what the
+library accepts.
+
+## Pipelines
+
+| Entry point | Job type | What it does |
+|---|---|---|
+| `standardPipeline()` | Multibranch | CI and deploy: lint → build → test → scan → package/image → deploy per environment |
+| `cdPipeline()` | Pipeline (`ENVIRONMENT`, `IMAGE_TAG`, `DRY_RUN`) | CD only: promote the tag the `promoteFrom` environment runs, or deploy/roll back a given tag; checks the tag exists first |
+| `terraformDriftPipeline(schedule: '…')` | Pipeline (cron) | Plans every Terraform environment against real state; UNSTABLE + Slack on drift; never applies |
+
+Deploy strategies (`deployStrategy`): `gitops` (default for apps — commit the
+tag, Argo CD syncs), `ecs` (register a task definition revision, update the
+service, wait, roll back on failure), `terraform` and `cloudformation`
+(derived from `buildTool`).
+
+## Agents
+
+Set `CI_TOOLBOX_IMAGE` on the controller (the local stack does, see
+`local/casc/jenkins.yaml`) to the published [toolbox](toolbox/) image. Build
+steps then run inside it on any docker agent; without it they fall back to
+stock language images, which lack golangci-lint, ruff, tflint, conftest,
+cfn-lint, checkov and python3. Agents that *are* the toolbox set
+`CI_TOOLBOX=true` and run steps in place.
 
 ## Config reference
 
@@ -43,7 +71,7 @@ from [`configEnvDefaults`](vars/configEnvDefaults.groovy).
 | `approval` | `allowSelfApproval` (false) |
 | `notify` | `slackChannel`, `on` (`change` — or `always` / `failure`), `githubChecks` (true) |
 | `infra` | `workingDir` (`.`), `varFiles`, `backendConfig`, `policyDir`, `region` (`us-east-1`), `assumeRole`, `awsCredentialsId` (`aws-credentials`), `template`, `templates`, `artifactBucket`, `capabilities` |
-| `environments[]` | `name`, `namespace` (name), `manifestPath`, `branchPattern` (`main`), `requiresApproval`, `approvers`, `approvalTimeoutMinutes` (60), `workspace`, `backendConfig`, `varFiles`, `stackName`, `parameters`, `region`, `assumeRole`, `awsCredentialsId` |
+| `environments[]` | `name`, `namespace` (name), `manifestPath`, `branchPattern` (`main`), `requiresApproval`, `approvers`, `approvalTimeoutMinutes` (60), `promoteFrom`, `ecsCluster`, `ecsService`, `ecsContainer` (appName), `workspace`, `backendConfig`, `varFiles`, `stackName`, `parameters`, `region`, `assumeRole`, `awsCredentialsId` |
 | `extra` | free-form — never read or checked by the pipeline; use it for your own tooling |
 
 Allowed values live in one place each: `configSupportedTools` (buildTool),

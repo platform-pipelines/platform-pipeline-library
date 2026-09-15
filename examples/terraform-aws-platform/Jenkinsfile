@@ -1,0 +1,4 @@
+// Plan → policy check → approve → apply, per environment (dev, staging, prod).
+@Library('platform-pipeline@main') _
+
+standardPipeline()

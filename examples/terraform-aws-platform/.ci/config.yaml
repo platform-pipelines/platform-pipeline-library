@@ -1,0 +1,53 @@
+# .ci/config.yaml — Terraform on AWS, three environments across two accounts.
+#
+# dev and staging share account 111122223333; prod is 444455556666. Each
+# environment has its own state file, var file and deploy role.
+
+appName: platform-ecs
+buildTool: terraform
+runtimeVersion: "1.16"
+
+infra:
+  workingDir: terraform
+  varFiles: [common.tfvars]
+  policyDir: policies            # conftest runs against each environment's plan, before approval
+  region: eu-west-1
+  awsCredentialsId: aws-credentials
+
+environments:
+  - name: dev
+    backendConfig: backends/dev.hcl
+    varFiles: [common.tfvars, env/dev.tfvars]
+    assumeRole: arn:aws:iam::111122223333:role/JenkinsDeploy
+    branchPattern: main
+
+  - name: staging
+    backendConfig: backends/staging.hcl
+    varFiles: [common.tfvars, env/staging.tfvars]
+    assumeRole: arn:aws:iam::111122223333:role/JenkinsDeploy
+    branchPattern: main
+    requiresApproval: true
+    approvers: [platform-leads, platform-oncall]
+    approvalTimeoutMinutes: 120
+
+  - name: prod
+    backendConfig: backends/prod.hcl
+    varFiles: [common.tfvars, env/prod.tfvars]
+    assumeRole: arn:aws:iam::444455556666:role/JenkinsDeploy
+    branchPattern: main
+    requiresApproval: true
+    approvers: [platform-leads]
+    approvalTimeoutMinutes: 240
+
+lint:
+  failOnError: true
+
+quality:
+  sonar: false
+  trivy: true                    # trivy config over terraform/
+  trivyFailOn: [HIGH, CRITICAL]
+  secretScan: true
+
+notify:
+  slackChannel: "#platform-infra"
+  on: always

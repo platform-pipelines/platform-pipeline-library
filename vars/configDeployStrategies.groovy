@@ -5,5 +5,5 @@
 //   def strategies = configDeployStrategies()
 // Returns: List of every deployStrategy value configValidate() accepts
 def call() {
-    ['gitops', 'terraform', 'cloudformation']
+    ['gitops', 'ecs', 'terraform', 'cloudformation']
 }

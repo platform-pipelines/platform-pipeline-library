@@ -2,9 +2,10 @@
 //
 // Usage:
 //   pythonPackage(cfg)
-// Params: cfg (Map) - pipeline config (unused directly; kept for dispatch signature parity)
+// Params: cfg (Map) - pipeline config (passed through to pythonVenv)
 def call(Map cfg) {
     logBanner 'Package: Python'
-    sh 'pip install --no-cache-dir build'
-    sh 'python -m build'
+    def bin = pythonVenv(cfg)
+    sh "${bin}/python -m pip install --disable-pip-version-check --no-cache-dir --quiet build"
+    sh "${bin}/python -m build"
 }

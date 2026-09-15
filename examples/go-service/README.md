@@ -9,7 +9,7 @@ everything else here is a default made explicit or an opt-in.
 ## Using this in a real repo
 
 1. Copy `Jenkinsfile` to the root of your repo.
-2. Copy `config.yaml` to `.ci/config.yaml` in your repo, then edit the
+2. Keep `.ci/config.yaml` (already in place) in your repo, then edit the
    values (`appName`, `imageRepo`, `gitopsRepo`, environment names/paths,
    Slack channel, approvers) to match your service.
 3. Make sure the credentials this library expects

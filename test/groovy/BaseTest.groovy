@@ -80,10 +80,14 @@ abstract class BaseTest extends BasePipelineTest {
                     registerAllowedMethod(name, [Map], invoke)
                     registerAllowedMethod(name, [Map, Map], invoke)
                     registerAllowedMethod(name, [Map, String], invoke)
+                    registerAllowedMethod(name, [String, Map], invoke)
+                    registerAllowedMethod(name, [Map, Map, String], invoke)
+                    registerAllowedMethod(name, [Map, String, String], invoke)
                     registerAllowedMethod(name, [String, String], invoke)
                     registerAllowedMethod(name, [String, List], invoke)
                     registerAllowedMethod(name, [String, String, String], invoke)
                     registerAllowedMethod(name, [String, Closure], invoke)
+                    registerAllowedMethod(name, [String, String, Closure], invoke)
                     registerAllowedMethod(name, [Map, Closure], invoke)
                     registerAllowedMethod(name, [Map, Map, Closure], invoke)
                 }
@@ -99,6 +103,9 @@ abstract class BaseTest extends BasePipelineTest {
             registerAllowedMethod('readFile', [String]) { String p -> existingFiles[p] ?: '' }
             registerAllowedMethod('writeFile', [Map]) { Map m -> existingFiles[m.file] = m.text }
             registerAllowedMethod('writeJSON', [Map]) { Map m -> existingFiles[m.file] = groovy.json.JsonOutput.toJson(m.json) }
+            registerAllowedMethod('readJSON', [Map]) { Map m ->
+                new groovy.json.JsonSlurper().parseText(existingFiles[m.file] ?: '{}')
+            }
             registerAllowedMethod('libraryResource', [String]) { String p -> "# stub: ${p}" }
 
             registerAllowedMethod('readYaml', [Map]) { Map m ->
@@ -132,6 +139,7 @@ abstract class BaseTest extends BasePipelineTest {
 
             registerAllowedMethod('archiveArtifacts', [Map]) { }
             registerAllowedMethod('junit', [Map]) { }
+            registerAllowedMethod('unstable', [String]) { }
             registerAllowedMethod('stash', [Map]) { }
             registerAllowedMethod('unstash', [String]) { }
             registerAllowedMethod('findFiles', [Map]) { [] }

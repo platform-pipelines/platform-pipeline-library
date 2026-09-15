@@ -12,6 +12,12 @@ def call() {
         approvers             : [],
         branchPattern         : 'main',
         approvalTimeoutMinutes: 60,
+        // cdPipeline: with no IMAGE_TAG given, deploy what this environment runs
+        promoteFrom           : null,
+        // deployStrategy: ecs
+        ecsCluster            : null,
+        ecsService            : null,
+        ecsContainer          : null,   // container to update; defaults to appName
         // infrastructure environments
         workspace             : null,   // terraform workspace
         backendConfig         : null,   // per-env backend file

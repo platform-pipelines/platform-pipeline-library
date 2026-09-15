@@ -1,0 +1,5 @@
+// CD: promote what staging runs to prod (ENVIRONMENT=prod), or deploy/roll back
+// a specific tag (IMAGE_TAG=...). Create a plain Pipeline job pointing here.
+@Library('platform-pipeline@main') _
+
+cdPipeline()

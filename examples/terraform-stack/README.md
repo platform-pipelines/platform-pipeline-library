@@ -8,7 +8,7 @@ plan that was approved.
 ## Using this in a real repo
 
 1. Copy `Jenkinsfile` to the root of your repo.
-2. Copy `config.yaml` to `.ci/config.yaml`, then set `appName`,
+2. Keep `.ci/config.yaml` (already in place), then set `appName`,
    `infra.workingDir`, the var files, backend configs, and role ARNs.
 3. Make sure the `aws-credentials` credential (and `github-token` for PR
    comments) exists on the controller — see the root README's Credentials

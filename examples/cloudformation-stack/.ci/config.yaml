@@ -16,16 +16,16 @@ infra:
 environments:
   - name: dev
     stackName: billing-dev
-    parameters:                  # free-form: passed to the stack as-is
+    parameters:                  # free-form: passed to templates/root.yaml as-is
       Environment: dev
-      InstanceType: t3.small
+      QueueVisibilityTimeout: 30
     branchPattern: "*"
 
   - name: prod
     stackName: billing-prod
     parameters:
       Environment: prod
-      InstanceType: m6i.large
+      QueueVisibilityTimeout: 120
     assumeRole: arn:aws:iam::444455556666:role/JenkinsDeploy
     branchPattern: main
     requiresApproval: true       # the gate sits between change set and execute

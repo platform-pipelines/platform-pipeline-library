@@ -43,6 +43,7 @@ environments:
     namespace: edge-router-prod
     manifestPath: apps/edge-router/prod/kustomization.yaml
     branchPattern: main
+    promoteFrom: staging               # cdPipeline (Jenkinsfile.cd) ships what staging runs
     requiresApproval: true
     approvers: [platform-leads, jane.doe]
     approvalTimeoutMinutes: 240

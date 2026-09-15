@@ -20,7 +20,7 @@ drop `imageRepo`, `gitopsRepo` and `environments`.
 ## Adapting this to a real repo
 
 1. Copy `Jenkinsfile` to the repo root.
-2. Copy `config.yaml` to `.ci/config.yaml`.
+2. Keep `.ci/config.yaml` (already in place).
 3. Change `appName`, `imageRepo`, `gitopsRepo`, the `namespace`/`manifestPath`
    values, and the Slack channel to match the real service.
 4. Confirm the GitOps repo already has the three `kustomization.yaml` paths

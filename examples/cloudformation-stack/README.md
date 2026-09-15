@@ -8,7 +8,7 @@ the change set that gets executed is the one the approver saw.
 ## Using this in a real repo
 
 1. Copy `Jenkinsfile` to the root of your repo.
-2. Copy `config.yaml` to `.ci/config.yaml`, then set `appName`, the template
+2. Keep `.ci/config.yaml` (already in place), then set `appName`, the template
    paths, `infra.artifactBucket` (or remove it if templates have no local
    artifacts), stack names, parameters and role ARNs.
 3. Make sure the `aws-credentials` credential (and `github-token` for PR

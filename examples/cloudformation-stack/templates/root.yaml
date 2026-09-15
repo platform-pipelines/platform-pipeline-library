@@ -1,0 +1,129 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  billing-stack — invoice export bucket and the queue that feeds it. Deployed
+  by platform-pipeline as change set -> approval -> execute.
+
+Parameters:
+  Environment:
+    Type: String
+    AllowedValues: [dev, staging, prod]
+  QueueVisibilityTimeout:
+    Type: Number
+    Default: 60
+    MinValue: 0
+    MaxValue: 43200
+    Description: Seconds a received message stays hidden from other consumers.
+
+Conditions:
+  IsProd: !Equals [!Ref Environment, prod]
+
+Resources:
+  DataKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: !Sub billing-${Environment} data key
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AccountAdmin
+            Effect: Allow
+            Principal:
+              AWS: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:root
+            Action: kms:*
+            Resource: "*"
+
+  AccessLogBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Metadata:
+      checkov:
+        skip:
+          - id: CKV_AWS_18
+            comment: This is the access-log bucket; logging it to itself would loop.
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerPreferred
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LifecycleConfiguration:
+        Rules:
+          - Id: expire-logs
+            Status: Enabled
+            ExpirationInDays: 365
+
+  InvoiceBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: !If [IsProd, Retain, Delete]
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !GetAtt DataKey.Arn
+            BucketKeyEnabled: true
+      VersioningConfiguration:
+        Status: Enabled
+      LoggingConfiguration:
+        DestinationBucketName: !Ref AccessLogBucket
+        LogFilePrefix: invoices/
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  InvoiceBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref InvoiceBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: "*"
+            Action: s3:*
+            Resource:
+              - !GetAtt InvoiceBucket.Arn
+              - !Sub ${InvoiceBucket.Arn}/*
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+
+  ExportDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !Ref DataKey
+      MessageRetentionPeriod: 1209600
+
+  ExportQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !Ref DataKey
+      VisibilityTimeout: !Ref QueueVisibilityTimeout
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt ExportDeadLetterQueue.Arn
+        maxReceiveCount: 5
+
+Outputs:
+  InvoiceBucketName:
+    Value: !Ref InvoiceBucket
+    Export:
+      Name: !Sub billing-${Environment}-invoice-bucket
+  ExportQueueUrl:
+    Value: !Ref ExportQueue
+    Export:
+      Name: !Sub billing-${Environment}-export-queue-url

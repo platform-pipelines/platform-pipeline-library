@@ -28,18 +28,22 @@ def call(Map cfg) {
 
     // COSIGN_EXPERIMENTAL is not set: keyless has been the default since
     // cosign 2.0 and the variable no longer does anything.
+    // cosign pushes the signature to the registry, so it needs DOCKER_CONFIG
+    // from withRegistryAuth. The -dev image variant is the one with a shell.
     withCredentials([string(credentialsId: 'cosign-oidc-token', variable: 'COSIGN_TOKEN')]) {
-        sh "cosign sign --yes --identity-token \$COSIGN_TOKEN ${ref}"
+        inToolContainer('cgr.dev/chainguard/cosign:latest-dev') {
+            sh "cosign sign --yes --identity-token \$COSIGN_TOKEN ${ref}"
 
-        if (cfg.quality.sbom && fileExists('sbom.cdx.json')) {
-            sh """
-                cosign attest --yes \\
-                  --identity-token \$COSIGN_TOKEN \\
-                  --predicate sbom.cdx.json \\
-                  --type cyclonedx \\
-                  ${ref}
-            """
-            logInfo 'SBOM attached as a signed attestation'
+            if (cfg.quality.sbom && fileExists('sbom.cdx.json')) {
+                sh """
+                    cosign attest --yes \\
+                      --identity-token \$COSIGN_TOKEN \\
+                      --predicate sbom.cdx.json \\
+                      --type cyclonedx \\
+                      ${ref}
+                """
+                logInfo 'SBOM attached as a signed attestation'
+            }
         }
     }
 

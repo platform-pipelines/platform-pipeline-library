@@ -7,7 +7,7 @@
 
 appName: checkout-api
 buildTool: npm
-runtimeVersion: "20"
+runtimeVersion: "24"      # node:24-alpine; package.json engines and the Dockerfile match
 
 imageRepo: ghcr.io/acme/checkout-api
 containerize: true
