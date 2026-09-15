@@ -1,7 +1,8 @@
 # platform-pipeline
 
-Jenkins shared library for GitHub → lint → build → test → scan → GHCR →
-GitOps → Argo CD.
+Jenkins shared library for GitHub → lint → build → test → scan → GHCR +
+GitHub releases → GitOps → Argo CD. Images go to GHCR and build artifacts to
+GitHub releases (`publish.githubRelease`), so there is no artifact store to run.
 
 **Docs:** https://platform-pipelines.github.io/platform-pipeline-library/
 

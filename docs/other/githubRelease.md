@@ -38,8 +38,9 @@ release.assets*.name  // → ['orders_api-1.4.0.tar.gz'] on a rebuild, [] the fi
 
 ## How it fits
 
-Called by [publishArtifact](../ci-cd/publishArtifact.md), which uploads the
-build output to the returned `upload_url`.
+Called by [publishArtifact](../ci-cd/publishArtifact.md), which passes the
+returned release to [githubUploadReleaseAsset](githubUploadReleaseAsset.md)
+once per artifact.
 
 ## Source
 

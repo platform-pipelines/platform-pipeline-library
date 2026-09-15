@@ -33,27 +33,9 @@ def call(Map cfg) {
     logBanner "Publish to GitHub release ${tag} (${slug})"
 
     def release = githubRelease(repo: slug, tag: tag, prerelease: version.contains('-'))
-    // upload_url is a URI template: .../releases/7/assets{?name,label}
-    def uploadUrl = release.upload_url.replaceAll(/\{.*\}$/, '')
-    def existing  = (release.assets ?: []).collectEntries { [(it.name): it.id] }
-
-    withCredentials([string(credentialsId: githubCredentialsId(), variable: 'GH_TOKEN')]) {
-        files.each { file ->
-            // Asset names are unique per release, so a rebuild deletes first.
-            def assetId = existing[file.name]
-            if (assetId) {
-                sh """curl -sS --fail -o /dev/null -X DELETE -H "Authorization: Bearer \$GH_TOKEN" ${shellQuote("${githubApiUrl()}/repos/${slug}/releases/assets/${assetId}")}"""
-                logInfo "Replacing ${file.name}"
-            }
-            sh """
-                curl -sS --fail -o /dev/null -X POST \\
-                  -H "Authorization: Bearer \$GH_TOKEN" \\
-                  -H "Content-Type: application/octet-stream" \\
-                  --data-binary @${shellQuote(file.path)} \\
-                  ${shellQuote("${uploadUrl}?name=${URLEncoder.encode(file.name, 'UTF-8')}")}
-            """
-            logInfo "Published ${file.name}"
-        }
+    files.each { file ->
+        githubUploadReleaseAsset(release: release, path: file.path, name: file.name)
+        logInfo "Published ${file.name}"
     }
 
     logAudit('artifact.publish', [release: tag, url: release.html_url, count: files.size()])

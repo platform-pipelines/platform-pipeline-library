@@ -68,6 +68,10 @@ notify:
   on: change              # always | failure | change
   githubChecks: true
 
+publish:
+  githubRelease: true         # dist/edge-router attached to the v<version> GitHub release
+  branchPattern: main         # feature branches build and deploy to dev, but do not publish
+
 extra:
   # Free-form bag the pipeline itself never reads — consuming teams use it
   # for their own tooling (e.g. a wrapper script that greps .ci/config.yaml).

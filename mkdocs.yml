@@ -184,6 +184,7 @@ nav:
       - githubRelease: other/githubRelease.md
       - githubRepoSlug: other/githubRepoSlug.md
       - githubSetStatus: other/githubSetStatus.md
+      - githubUploadReleaseAsset: other/githubUploadReleaseAsset.md
       - githubUpsertComment: other/githubUpsertComment.md
     - Notifications:
       - notifySlack: other/notifySlack.md

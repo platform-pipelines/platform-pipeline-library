@@ -65,11 +65,27 @@ class PublishArtifactTest extends BaseTest {
 
     @Test
     void 'a rebuild replaces an asset with the same name'() {
-        assets = [[id: 99, name: 'orders_api-1.4.0.tar.gz']]
+        assets = [[id: 99, name: 'orders_api-1.4.0.tar.gz', url: 'https://api.github.com/repos/acme/payments-api/releases/assets/99']]
         step('publishArtifact').call(cfg)
 
         assertThat(ranMatching(/-X DELETE .*releases\/assets\/99/)).isTrue()
         assertThat(upload()).contains('--data-binary')
+    }
+
+    @Test
+    void 'githubUploadReleaseAsset uploads under a custom name'() {
+        Map release = [upload_url: 'https://uploads.github.com/repos/acme/api/releases/7/assets{?name,label}', assets: []]
+        step('githubUploadReleaseAsset').call(release: release, path: 'dist/api', name: 'api linux amd64')
+
+        assertThat(upload())
+            .contains("@'dist/api'")
+            .contains('https://uploads.github.com/repos/acme/api/releases/7/assets?name=api+linux+amd64')
+    }
+
+    @Test
+    void 'githubUploadReleaseAsset refuses a release without an upload url'() {
+        assertThatThrownBy { step('githubUploadReleaseAsset').call(release: [:], path: 'dist/api') }
+            .hasMessageContaining('release has no upload_url')
     }
 
     @Test

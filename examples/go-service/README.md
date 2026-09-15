@@ -13,8 +13,9 @@ everything else here is a default made explicit or an opt-in.
    values (`appName`, `imageRepo`, `gitopsRepo`, environment names/paths,
    Slack channel, approvers) to match your service.
 3. Make sure the credentials this library expects
-   (`github-token`, `sonar-token`, `slack-webhook`, `ghcr-credentials`) are
-   configured on the controller — see the root README's Credentials table.
+   (`github-token` with `contents: write`, `sonar-token`, `slack-webhook`,
+   `ghcr-credentials`) are configured on the controller — see the root
+   README's Credentials table.
 
 ## What each section demonstrates
 
@@ -29,6 +30,9 @@ everything else here is a default made explicit or an opt-in.
   scanning, dependency checking, a coverage floor, SBOM generation, and
   cosign image signing all turned on.
 - **notify** — Slack on every state change, plus GitHub status checks.
+- **publish** — `githubRelease: true` attaches the static binary from
+  `dist/` to the `v<version>` GitHub release on `main`; the image goes to
+  GHCR. Both use GitHub credentials, so there is no artifact store to run.
 - **extra** — a free-form field the pipeline never reads or validates; use it
   for your own team's tooling.
 

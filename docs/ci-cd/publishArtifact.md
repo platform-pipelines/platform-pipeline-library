@@ -38,7 +38,8 @@ Reads `env.APP_VERSION`, `env.BRANCH_NAME` and the repo from the checkout
 
 Nothing. Finds or creates the release with
 [githubRelease](../other/githubRelease.md) and uploads every file matching
-the artifact glob. A version with a pre-release suffix (`1.4.0-rc.42`)
+the artifact glob with
+[githubUploadReleaseAsset](../other/githubUploadReleaseAsset.md). A version with a pre-release suffix (`1.4.0-rc.42`)
 creates a pre-release. An asset that already exists under the same name is
 replaced, so rebuilding a version works. Skips (with a debug or warning line)
 when `publish.githubRelease` is off, the branch does not match, the tool has

@@ -80,7 +80,8 @@ quality:
 - [buildApp](buildApp.md), [lintApp](lintApp.md), [packageApp](packageApp.md), [testApp](testApp.md) dispatch by `buildTool`.
 - [approvalGate](approvalGate.md) / [requestApproval](requestApproval.md) gate a deploy on a human.
 - [postPlanSummary](postPlanSummary.md), [postScanSummary](postScanSummary.md) post PR comments.
-- [publishArtifact](publishArtifact.md), [appArtifacts](appArtifacts.md), [appCacheDir](appCacheDir.md), [appToolImage](appToolImage.md) — build-tool metadata.
+- [publishArtifact](publishArtifact.md) — attaches build output to the `v<version>` GitHub release (via [githubRelease](../other/githubRelease.md) and [githubUploadReleaseAsset](../other/githubUploadReleaseAsset.md)).
+- [appArtifacts](appArtifacts.md), [appCacheDir](appCacheDir.md), [appToolImage](appToolImage.md) — build-tool metadata.
 - [manifestBumpImage](manifestBumpImage.md), [updateManifest](updateManifest.md) — GitOps manifest rewriting.
 
 ## Quick reference
