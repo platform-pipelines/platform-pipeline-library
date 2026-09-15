@@ -25,10 +25,12 @@ services:
       JAVA_OPTS: -Djenkins.install.runSetupWizard=false -Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true
       SONAR_HOST_URL: http://sonarqube:9000
       NEXUS_URL: http://nexus:8081
-      # Read by casc/jenkins.yaml. Unset ones become empty credentials.
+      # Read by casc/jenkins.yaml. Values come from local/.env (see
+      # .env.example) or the shell; unset ones become empty credentials.
       JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD:-admin}
       LIBRARY_REMOTE: ${LIBRARY_REMOTE:-/workspace/platform-pipeline-library}
       CI_TOOLBOX_IMAGE: ${CI_TOOLBOX_IMAGE:-ci-toolbox:local}
+      GITHUB_USER: ${GITHUB_USER:-}
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
       SONAR_TOKEN: ${SONAR_TOKEN:-}
       SLACK_WEBHOOK: ${SLACK_WEBHOOK:-}

@@ -43,7 +43,15 @@ lint:
 
 check: test lint
 
-local-up:
+# docker compose reads local/.env on its own; this only seeds it from the
+# template and warns when the GitHub token is still blank.
+local/.env:
+	cp local/.env.example local/.env
+	@echo "Created local/.env — add GITHUB_USER / GITHUB_TOKEN, then run make local-up again to load them."
+
+local-up: local/.env
+	@grep -q '^GITHUB_TOKEN=..*' local/.env || [ -n "$$GITHUB_TOKEN" ] \
+		|| echo "[WARN]  GITHUB_TOKEN is empty in local/.env — github-token / github-scm credentials will be blank"
 	$(COMPOSE) $(if $(NEXUS),--profile nexus) up -d --build
 	@echo "Jenkins   http://localhost:8080  (admin / \$${JENKINS_ADMIN_PASSWORD:-admin})"
 	@echo "SonarQube http://localhost:9000  (admin/admin)"

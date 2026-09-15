@@ -108,6 +108,14 @@ credentials:
               id: github-token
               secret: "${GITHUB_TOKEN}"
               description: GitHub App installation token
+          # Same token as github-token, in the username/password form that git
+          # checkout and GitHub Branch Source require.
+          - usernamePassword:
+              scope: GLOBAL
+              id: github-scm
+              username: "${GITHUB_USER}"
+              password: "${GITHUB_TOKEN}"
+              description: GitHub token for checkout and multibranch scanning
           - string:
               scope: GLOBAL
               id: sonar-token

@@ -333,11 +333,15 @@ standardPipeline()
 
 Set `LIBRARY_REMOTE` to a git URL to load from a remote instead.
 
-Set `GITHUB_TOKEN`, `SONAR_TOKEN`, `SLACK_WEBHOOK` (and any other credential
-in the table below) in your environment before `make local-up` if you want
-those integrations to work; compose passes them to
-`local/casc/jenkins.yaml`. After editing that file, `make local-up` applies
-it — no `local-clean` needed.
+**Secrets go in `local/.env`.** The first `make local-up` copies
+`local/.env.example` to `local/.env` (gitignored). Fill in `GITHUB_USER` and
+`GITHUB_TOKEN`, plus any other credential in the table below you need, and
+run `make local-up` again. Compose reads the file and `local/casc/jenkins.yaml`
+creates the Jenkins credentials at startup — the token becomes both
+`github-token` (secret text, for the API steps) and `github-scm`
+(username/password, for checkout and multibranch jobs). Shell exports override
+the file. Editing `.env` or `jenkins.yaml` only needs `make local-up`, not
+`local-clean`.
 
 Nexus is opt-in because it is the first thing Docker Desktop OOM-kills: the
 stack wants roughly 4 GB free in the Docker VM with Nexus, 3 GB without.
@@ -360,6 +364,7 @@ deliberate, temporary trade-off, not the long-term plan.
 | ID | Kind | Used by |
 |---|---|---|
 | `github-token` | string | statuses, PR comments, GitOps commits |
+| `github-scm` | username/password (same token) | git checkout, multibranch / GitHub Branch Source jobs (local stack) |
 | `sonar-token` | string | scan and quality gate |
 | `slack-webhook` | string | notifications |
 | `argocd-token` | string | sync wait |
