@@ -125,7 +125,7 @@ for approval). On `feature/login`: `… → Deploy: dev` only.
 | `ghcr-credentials` (or `REGISTRY_CREDENTIALS_ID`) | image push |
 | `argocd-token` + `ARGOCD_SERVER` | gitops deploys |
 | `slack-webhook` | `notify.slackChannel` |
-| `nexus-credentials` + `NEXUS_URL` | `publish.nexusRepo` |
+| `github-token` with `contents: write` | `publish.githubRelease` |
 | `aws-credentials` | Terraform / CloudFormation |
 | `cosign-oidc-token` | `quality.signImage` |
 

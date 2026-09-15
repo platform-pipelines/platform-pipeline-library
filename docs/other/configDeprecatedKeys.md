@@ -19,7 +19,6 @@ None.
 
 | Old key | New key |
 |---|---|
-| `extra.nexusRepo` | `publish.nexusRepo` |
 | `extra.sonarSources` | `quality.sonarSources` |
 | `extra.sonarExclusions` | `quality.sonarExclusions` |
 | `extra.dependencyCheckCvss` | `quality.dependencyCheckCvss` |
@@ -28,7 +27,7 @@ None.
 ## Examples
 
 ```groovy
-configDeprecatedKeys()['extra.nexusRepo']          // → 'publish.nexusRepo'
+configDeprecatedKeys()['extra.sonarSources']       // → 'quality.sonarSources'
 
 configDeprecatedKeys().each { oldPath, newPath ->
     echo "${oldPath} → ${newPath}"
@@ -40,25 +39,25 @@ A repo still using an old key:
 ```yaml
 # .ci/config.yaml (before)
 extra:
-  nexusRepo: pypi-internal
+  sonarSources: src
 ```
 
 keeps working — [`configLoad`](configLoad.md) copies the value across and logs:
 
 ```
-[WARN]  extra.nexusRepo is deprecated — move it to publish.nexusRepo
+[WARN]  extra.sonarSources is deprecated — move it to quality.sonarSources
 ```
 
 The migrated config:
 
 ```yaml
 # .ci/config.yaml (after)
-publish:
-  nexusRepo: pypi-internal
+quality:
+  sonarSources: src
 ```
 
 If both are set, the new key wins and the build logs
-`extra.nexusRepo is ignored because publish.nexusRepo is also set — remove extra.nexusRepo`.
+`extra.sonarSources is ignored because quality.sonarSources is also set — remove extra.sonarSources`.
 
 ## How it fits
 

@@ -14,7 +14,8 @@ drop `imageRepo`, `gitopsRepo` and `environments`.
   coverage floor, an SBOM, and cosign image signing.
 - **Multi-environment GitOps deploy** — dev (every branch), staging (`main`),
   and prod (`main`, gated behind approval with named approvers and a timeout).
-- **Artifact publishing** — `publish.nexusRepo` uploads the built wheel/sdist.
+- **Artifact publishing** — `publish.githubRelease` attaches the built wheel/sdist
+  to the `v<version>` GitHub release on `main`.
 - **Notifications** — Slack on every result change, plus GitHub check runs.
 
 ## Adapting this to a real repo

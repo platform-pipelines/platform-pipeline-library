@@ -181,6 +181,7 @@ nav:
       - githubFetchFile: other/githubFetchFile.md
       - githubFileSha: other/githubFileSha.md
       - githubFindComment: other/githubFindComment.md
+      - githubRelease: other/githubRelease.md
       - githubRepoSlug: other/githubRepoSlug.md
       - githubSetStatus: other/githubSetStatus.md
       - githubUpsertComment: other/githubUpsertComment.md

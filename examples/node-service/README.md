@@ -31,7 +31,8 @@ reaches prod is signed. A repo still adopting Prettier would start with
   scanning, dependency checking, a coverage floor, SBOM generation, and
   cosign image signing all turned on.
 - **notify** — Slack on every state change, plus GitHub status checks.
-- **publish** — `nexusRepo` uploads the `npm pack` tarball to Nexus.
+- **publish** — `githubRelease` attaches the `npm pack` tarball to the
+  `v<version>` GitHub release.
 - **approval** — `allowSelfApproval: false` blocks approving your own deploy.
 
 See the root [README.md](../../README.md) for the full stage list, the

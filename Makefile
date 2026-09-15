@@ -19,8 +19,8 @@ help:
 	@echo "  make lint              run CodeNarc over vars/ and test/"
 	@echo "  make check             test + lint (what CI runs)"
 	@echo ""
-	@echo "Local stack (Jenkins + SonarQube + Nexus, see local/docker-compose.yml):"
-	@echo "  make local-up          build and start the stack in the background (NEXUS=1 adds Nexus)"
+	@echo "Local stack (Jenkins + SonarQube, see local/docker-compose.yml):"
+	@echo "  make local-up          build and start the stack in the background"
 	@echo "  make local-logs        follow logs for all services"
 	@echo "  make local-down        stop the stack, keep data volumes"
 	@echo "  make local-clean       stop the stack and delete data volumes"
@@ -52,20 +52,19 @@ local/.env:
 local-up: local/.env
 	@grep -q '^GITHUB_TOKEN=..*' local/.env || [ -n "$$GITHUB_TOKEN" ] \
 		|| echo "[WARN]  GITHUB_TOKEN is empty in local/.env — github-token / github-scm credentials will be blank"
-	$(COMPOSE) $(if $(NEXUS),--profile nexus) up -d --build
+	$(COMPOSE) up -d --build
 	@echo "Jenkins   http://localhost:8080  (admin / \$${JENKINS_ADMIN_PASSWORD:-admin})"
 	@echo "SonarQube http://localhost:9000  (admin/admin)"
-	@$(if $(NEXUS),echo "Nexus     http://localhost:8081",echo "Nexus     not started (make local-up NEXUS=1)")
 
 local-logs:
-	$(COMPOSE) --profile nexus logs -f
+	$(COMPOSE) logs -f
 
-# --profile nexus so an opt-in Nexus is stopped too.
+# --remove-orphans also stops containers of services no longer in the compose file.
 local-down:
-	$(COMPOSE) --profile nexus down
+	$(COMPOSE) down --remove-orphans
 
 local-clean:
-	$(COMPOSE) --profile nexus down -v
+	$(COMPOSE) down -v --remove-orphans
 
 local-restart: local-down local-up
 

@@ -19,12 +19,12 @@ class ConfigDeprecatedKeysTest extends BaseTest {
 
     @Test
     void 'an old extra key still applies and logs where it moved'() {
-        configFile(BASE + 'extra:\n  nexusRepo: maven-releases\n  allowSelfApproval: true\n')
+        configFile(BASE + 'extra:\n  sonarSources: src\n  allowSelfApproval: true\n')
         def cfg = step('configLoad').call()
 
-        assertThat(cfg.publish.nexusRepo).isEqualTo('maven-releases')
+        assertThat(cfg.quality.sonarSources).isEqualTo('src')
         assertThat(cfg.approval.allowSelfApproval as boolean).isTrue()
-        assertThat(echoed).anyMatch { it.contains('extra.nexusRepo is deprecated — move it to publish.nexusRepo') }
+        assertThat(echoed).anyMatch { it.contains('extra.sonarSources is deprecated — move it to quality.sonarSources') }
     }
 
     @Test
@@ -41,7 +41,8 @@ class ConfigDeprecatedKeysTest extends BaseTest {
         configFile(BASE)
         def cfg = step('configLoad').call()
 
-        assertThat(cfg.publish.nexusRepo).isNull()
+        assertThat(cfg.publish.githubRelease as boolean).isFalse()
+        assertThat(cfg.publish.branchPattern).isEqualTo('main')
         assertThat(cfg.approval.allowSelfApproval as boolean).isFalse()
         assertThat(cfg.quality.dependencyCheckCvss).isEqualTo(7)
         assertThat(cfg.quality.sonarSources).isEqualTo('.')

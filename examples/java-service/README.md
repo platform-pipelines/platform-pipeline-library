@@ -32,7 +32,7 @@ identically: same stages, same dispatcher, different four steps underneath
   a timeout.
 - **notify** — Slack notification only `on: change`, plus GitHub status
   checks.
-- **publish.nexusRepo** — Nexus is still the JVM artifact target even though
-  the build tool is Gradle, not Maven.
+- **publish.githubRelease** — the jar from `build/libs` is attached to the
+  `v<version>` GitHub release; the image goes to GHCR.
 - **approval.allowSelfApproval** — left `false`, so whoever triggered a build
   cannot approve its prod deploy.

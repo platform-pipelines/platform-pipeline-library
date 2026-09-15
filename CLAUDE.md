@@ -21,7 +21,7 @@ make lint                                    # ./gradlew codenarcMain codenarcTe
 - Python resource scripts run on their own: `python3 resources/com/platformpipelines/scripts/coverage_percent.py coverage.xml`.
 - Docs: `make docs-serve` / `make docs-build` (mkdocs-material in `.venv-docs`, installed with uv). `site/` is build output.
 - Toolbox image: `make toolbox-verify` (amd64 only). Run it after changing any tool version in `toolbox/Dockerfile`.
-- Local Jenkins, SonarQube, and Nexus: `make local-up` / `make local-down` (uses `local/docker-compose.yml` and `local/casc/jenkins.yaml`).
+- Local Jenkins and SonarQube: `make local-up` / `make local-down` (uses `local/docker-compose.yml` and `local/casc/jenkins.yaml`).
 
 ## Architecture
 

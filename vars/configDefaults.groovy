@@ -59,8 +59,10 @@ def call() {
             signImage          : false,
         ],
         publish        : [
-            // Nexus repository for build artifacts; publishing is skipped when unset
-            nexusRepo: null,
+            // upload build artifacts as assets on a GitHub release (see publishArtifact)
+            githubRelease: false,
+            // only builds of matching branches publish; '*' is the only wildcard
+            branchPattern: 'main',
         ],
         approval       : [
             // true lets the person who triggered a build approve its deploy

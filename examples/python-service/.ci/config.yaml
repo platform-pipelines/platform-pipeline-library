@@ -58,7 +58,8 @@ quality:
   signImage: true               # cosign keyless — paired with the cluster's admission policy
 
 publish:
-  nexusRepo: pypi-internal
+  githubRelease: true         # wheel + sdist attached to the v<version> GitHub release
+  branchPattern: main
 
 approval:
   allowSelfApproval: false

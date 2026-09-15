@@ -78,7 +78,8 @@ quality:
   signImage: false
 
 publish:
-  nexusRepo: null           # publishing skipped when unset
+  githubRelease: false      # attach artifacts to the v<version> GitHub release when true
+  branchPattern: main       # only matching branches publish
 
 approval:
   allowSelfApproval: false

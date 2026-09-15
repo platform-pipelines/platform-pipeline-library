@@ -65,7 +65,7 @@ notify:
   githubChecks: true
 
 publish:
-  nexusRepo: npm-releases
+  githubRelease: true     # npm pack tarball attached to the v<version> GitHub release
 
 approval:
   allowSelfApproval: false
