@@ -19,6 +19,9 @@ out/
 
 .DS_Store
 
+# local stack secrets (template: local/.env.example)
+local/.env
+
 # mkdocs
 .venv-docs/
 site/
