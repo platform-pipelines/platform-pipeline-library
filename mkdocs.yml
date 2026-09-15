@@ -1,5 +1,5 @@
 site_name: platform-pipeline
-site_description: Reference documentation for the platform-pipeline Jenkins shared library
+site_description: Guides and step reference for the platform-pipeline Jenkins shared library
 repo_url: https://github.com/platform-pipelines/platform-pipeline-library
 repo_name: platform-pipelines/platform-pipeline-library
 docs_dir: docs
@@ -21,8 +21,10 @@ theme:
         name: Switch to light mode
   features:
     - navigation.instant
+    - navigation.tabs
+    - navigation.indexes
+    - navigation.footer
     - navigation.tracking
-    - navigation.sections
     - navigation.top
     - search.suggest
     - content.code.copy
@@ -36,174 +38,349 @@ markdown_extensions:
   - toc:
       permalink: true
 
+plugins:
+  - search
+  - redirects:
+      redirect_maps:
+        'ci-cd/appArtifacts.md': 'reference/pipelines/appArtifacts.md'
+        'ci-cd/appCacheDir.md': 'reference/pipelines/appCacheDir.md'
+        'ci-cd/appCoverageFile.md': 'reference/pipelines/appCoverageFile.md'
+        'ci-cd/appLintReport.md': 'reference/pipelines/appLintReport.md'
+        'ci-cd/appSonarProps.md': 'reference/pipelines/appSonarProps.md'
+        'ci-cd/appTestReport.md': 'reference/pipelines/appTestReport.md'
+        'ci-cd/appToolImage.md': 'reference/pipelines/appToolImage.md'
+        'ci-cd/approvalGate.md': 'reference/deploy/approvalGate.md'
+        'ci-cd/archiveLintReports.md': 'reference/quality/archiveLintReports.md'
+        'ci-cd/buildApp.md': 'reference/pipelines/buildApp.md'
+        'ci-cd/buildImage.md': 'reference/images/buildImage.md'
+        'ci-cd/buildImageBuildah.md': 'reference/images/buildImageBuildah.md'
+        'ci-cd/buildImageKanikoDocker.md': 'reference/images/buildImageKanikoDocker.md'
+        'ci-cd/buildImageKanikoK8s.md': 'reference/images/buildImageKanikoK8s.md'
+        'ci-cd/cdPipeline.md': 'reference/pipelines/cdPipeline.md'
+        'ci-cd/cdResolveImage.md': 'reference/deploy/cdResolveImage.md'
+        'ci-cd/checkCoverage.md': 'reference/quality/checkCoverage.md'
+        'ci-cd/coveragePercent.md': 'reference/quality/coveragePercent.md'
+        'ci-cd/dockerOnlyBuild.md': 'reference/languages/dockerOnlyBuild.md'
+        'ci-cd/dockerOnlyLint.md': 'reference/languages/dockerOnlyLint.md'
+        'ci-cd/dockerOnlyPackage.md': 'reference/languages/dockerOnlyPackage.md'
+        'ci-cd/dockerOnlyTest.md': 'reference/languages/dockerOnlyTest.md'
+        'ci-cd/generateSbom.md': 'reference/images/generateSbom.md'
+        'ci-cd/goBuild.md': 'reference/languages/goBuild.md'
+        'ci-cd/goLint.md': 'reference/languages/goLint.md'
+        'ci-cd/goPackage.md': 'reference/languages/goPackage.md'
+        'ci-cd/goTest.md': 'reference/languages/goTest.md'
+        'ci-cd/gradleBuild.md': 'reference/languages/gradleBuild.md'
+        'ci-cd/gradleLint.md': 'reference/languages/gradleLint.md'
+        'ci-cd/gradleOpts.md': 'reference/languages/gradleOpts.md'
+        'ci-cd/gradlePackage.md': 'reference/languages/gradlePackage.md'
+        'ci-cd/gradleTest.md': 'reference/languages/gradleTest.md'
+        'ci-cd/imageDigest.md': 'reference/images/imageDigest.md'
+        'ci-cd/imageExtraTags.md': 'reference/images/imageExtraTags.md'
+        'ci-cd/imageLabels.md': 'reference/images/imageLabels.md'
+        'ci-cd/inBuildContainer.md': 'reference/images/inBuildContainer.md'
+        'ci-cd/inContainer.md': 'reference/images/inContainer.md'
+        'ci-cd/inToolContainer.md': 'reference/images/inToolContainer.md'
+        'ci-cd/index.md': 'reference/index.md'
+        'ci-cd/initPipeline.md': 'reference/pipelines/initPipeline.md'
+        'ci-cd/kanikoArgs.md': 'reference/images/kanikoArgs.md'
+        'ci-cd/kanikoDockerConfig.md': 'reference/images/kanikoDockerConfig.md'
+        'ci-cd/lintApp.md': 'reference/pipelines/lintApp.md'
+        'ci-cd/manifestBumpImage.md': 'reference/deploy/manifestBumpImage.md'
+        'ci-cd/manifestCurrentImage.md': 'reference/deploy/manifestCurrentImage.md'
+        'ci-cd/mavenBuild.md': 'reference/languages/mavenBuild.md'
+        'ci-cd/mavenLint.md': 'reference/languages/mavenLint.md'
+        'ci-cd/mavenOpts.md': 'reference/languages/mavenOpts.md'
+        'ci-cd/mavenPackage.md': 'reference/languages/mavenPackage.md'
+        'ci-cd/mavenTest.md': 'reference/languages/mavenTest.md'
+        'ci-cd/nodeBuild.md': 'reference/languages/nodeBuild.md'
+        'ci-cd/nodeInstall.md': 'reference/languages/nodeInstall.md'
+        'ci-cd/nodeLint.md': 'reference/languages/nodeLint.md'
+        'ci-cd/nodePackage.md': 'reference/languages/nodePackage.md'
+        'ci-cd/nodeTest.md': 'reference/languages/nodeTest.md'
+        'ci-cd/packageApp.md': 'reference/pipelines/packageApp.md'
+        'ci-cd/postPlanSummary.md': 'reference/infrastructure/postPlanSummary.md'
+        'ci-cd/postScanSummary.md': 'reference/quality/postScanSummary.md'
+        'ci-cd/publishArtifact.md': 'reference/deploy/publishArtifact.md'
+        'ci-cd/pythonBuild.md': 'reference/languages/pythonBuild.md'
+        'ci-cd/pythonLint.md': 'reference/languages/pythonLint.md'
+        'ci-cd/pythonPackage.md': 'reference/languages/pythonPackage.md'
+        'ci-cd/pythonTest.md': 'reference/languages/pythonTest.md'
+        'ci-cd/pythonVenv.md': 'reference/languages/pythonVenv.md'
+        'ci-cd/qualityChecks.md': 'reference/quality/qualityChecks.md'
+        'ci-cd/requestApproval.md': 'reference/deploy/requestApproval.md'
+        'ci-cd/scanDependencies.md': 'reference/quality/scanDependencies.md'
+        'ci-cd/scanIac.md': 'reference/quality/scanIac.md'
+        'ci-cd/scanSecrets.md': 'reference/quality/scanSecrets.md'
+        'ci-cd/scanSonar.md': 'reference/quality/scanSonar.md'
+        'ci-cd/scanTrivy.md': 'reference/quality/scanTrivy.md'
+        'ci-cd/signImage.md': 'reference/images/signImage.md'
+        'ci-cd/sonarProperties.md': 'reference/quality/sonarProperties.md'
+        'ci-cd/sonarWaitForGate.md': 'reference/quality/sonarWaitForGate.md'
+        'ci-cd/standardPipeline.md': 'reference/pipelines/standardPipeline.md'
+        'ci-cd/testApp.md': 'reference/pipelines/testApp.md'
+        'ci-cd/trivySummary.md': 'reference/quality/trivySummary.md'
+        'ci-cd/updateManifest.md': 'reference/deploy/updateManifest.md'
+        'ci-cd/usingToolbox.md': 'reference/images/usingToolbox.md'
+        'ci-cd/withRegistryAuth.md': 'reference/images/withRegistryAuth.md'
+        'cloud/argoSync.md': 'reference/deploy/argoSync.md'
+        'cloud/assumeAwsRole.md': 'reference/infrastructure/assumeAwsRole.md'
+        'cloud/cfnBuild.md': 'reference/infrastructure/cfnBuild.md'
+        'cloud/cfnChangeSet.md': 'reference/infrastructure/cfnChangeSet.md'
+        'cloud/cfnDeploy.md': 'reference/infrastructure/cfnDeploy.md'
+        'cloud/cfnLint.md': 'reference/infrastructure/cfnLint.md'
+        'cloud/cfnPackage.md': 'reference/infrastructure/cfnPackage.md'
+        'cloud/cfnTemplates.md': 'reference/infrastructure/cfnTemplates.md'
+        'cloud/cfnTest.md': 'reference/infrastructure/cfnTest.md'
+        'cloud/configInfraTools.md': 'reference/infrastructure/configInfraTools.md'
+        'cloud/deployCloudFormation.md': 'reference/infrastructure/deployCloudFormation.md'
+        'cloud/deployEcs.md': 'reference/deploy/deployEcs.md'
+        'cloud/deployGitops.md': 'reference/deploy/deployGitops.md'
+        'cloud/deployTerraform.md': 'reference/infrastructure/deployTerraform.md'
+        'cloud/deployToEnvironment.md': 'reference/deploy/deployToEnvironment.md'
+        'cloud/ecsTaskDefinitionForImage.md': 'reference/deploy/ecsTaskDefinitionForImage.md'
+        'cloud/index.md': 'reference/index.md'
+        'cloud/isInfraRepo.md': 'reference/infrastructure/isInfraRepo.md'
+        'cloud/terraformApply.md': 'reference/infrastructure/terraformApply.md'
+        'cloud/terraformBuild.md': 'reference/infrastructure/terraformBuild.md'
+        'cloud/terraformDriftPipeline.md': 'reference/pipelines/terraformDriftPipeline.md'
+        'cloud/terraformInit.md': 'reference/infrastructure/terraformInit.md'
+        'cloud/terraformLint.md': 'reference/infrastructure/terraformLint.md'
+        'cloud/terraformPackage.md': 'reference/infrastructure/terraformPackage.md'
+        'cloud/terraformPlan.md': 'reference/infrastructure/terraformPlan.md'
+        'cloud/terraformTest.md': 'reference/infrastructure/terraformTest.md'
+        'cloud/withAwsCredentials.md': 'reference/infrastructure/withAwsCredentials.md'
+        'other/configClosestKey.md': 'reference/config/configClosestKey.md'
+        'other/configDefaults.md': 'reference/config/configDefaults.md'
+        'other/configDeployStrategies.md': 'reference/config/configDeployStrategies.md'
+        'other/configDeprecatedKeys.md': 'reference/config/configDeprecatedKeys.md'
+        'other/configEnvDefaults.md': 'reference/config/configEnvDefaults.md'
+        'other/configEnvironmentsFor.md': 'reference/config/configEnvironmentsFor.md'
+        'other/configGlobToRegex.md': 'reference/config/configGlobToRegex.md'
+        'other/configImageBuilders.md': 'reference/config/configImageBuilders.md'
+        'other/configLoad.md': 'reference/config/configLoad.md'
+        'other/configMerge.md': 'reference/config/configMerge.md'
+        'other/configSupportedTools.md': 'reference/config/configSupportedTools.md'
+        'other/configUnknownKeys.md': 'reference/config/configUnknownKeys.md'
+        'other/configValidate.md': 'reference/config/configValidate.md'
+        'other/githubApiRequest.md': 'reference/github-slack/githubApiRequest.md'
+        'other/githubApiUrl.md': 'reference/github-slack/githubApiUrl.md'
+        'other/githubComment.md': 'reference/github-slack/githubComment.md'
+        'other/githubCommitFile.md': 'reference/github-slack/githubCommitFile.md'
+        'other/githubCredentialsId.md': 'reference/github-slack/githubCredentialsId.md'
+        'other/githubFetchFile.md': 'reference/github-slack/githubFetchFile.md'
+        'other/githubFileSha.md': 'reference/github-slack/githubFileSha.md'
+        'other/githubFindComment.md': 'reference/github-slack/githubFindComment.md'
+        'other/githubRelease.md': 'reference/github-slack/githubRelease.md'
+        'other/githubRepoSlug.md': 'reference/github-slack/githubRepoSlug.md'
+        'other/githubSetStatus.md': 'reference/github-slack/githubSetStatus.md'
+        'other/githubUploadReleaseAsset.md': 'reference/github-slack/githubUploadReleaseAsset.md'
+        'other/githubUpsertComment.md': 'reference/github-slack/githubUpsertComment.md'
+        'other/index.md': 'reference/index.md'
+        'other/logActor.md': 'reference/utilities/logActor.md'
+        'other/logAudit.md': 'reference/utilities/logAudit.md'
+        'other/logBanner.md': 'reference/utilities/logBanner.md'
+        'other/logDebug.md': 'reference/utilities/logDebug.md'
+        'other/logError.md': 'reference/utilities/logError.md'
+        'other/logInfo.md': 'reference/utilities/logInfo.md'
+        'other/logWarn.md': 'reference/utilities/logWarn.md'
+        'other/notifySlack.md': 'reference/github-slack/notifySlack.md'
+        'other/shellQuote.md': 'reference/utilities/shellQuote.md'
+        'other/slackPayload.md': 'reference/github-slack/slackPayload.md'
+        'other/slackShouldNotify.md': 'reference/github-slack/slackShouldNotify.md'
+        'other/useScript.md': 'reference/utilities/useScript.md'
+        'other/versionBase.md': 'reference/utilities/versionBase.md'
+        'other/versionImageTag.md': 'reference/utilities/versionImageTag.md'
+        'other/versionResolve.md': 'reference/utilities/versionResolve.md'
+        'other/versionShortSha.md': 'reference/utilities/versionShortSha.md'
+        'other/versionSlug.md': 'reference/utilities/versionSlug.md'
+
+validation:
+  links:
+    not_found: warn
+    anchors: warn
+
 nav:
   - Home: index.md
-  - CI/CD:
-    - Overview: ci-cd/index.md
-    - Language builds & tests:
-      - goBuild: ci-cd/goBuild.md
-      - goLint: ci-cd/goLint.md
-      - goPackage: ci-cd/goPackage.md
-      - goTest: ci-cd/goTest.md
-      - gradleBuild: ci-cd/gradleBuild.md
-      - gradleLint: ci-cd/gradleLint.md
-      - gradleOpts: ci-cd/gradleOpts.md
-      - gradlePackage: ci-cd/gradlePackage.md
-      - gradleTest: ci-cd/gradleTest.md
-      - mavenBuild: ci-cd/mavenBuild.md
-      - mavenLint: ci-cd/mavenLint.md
-      - mavenOpts: ci-cd/mavenOpts.md
-      - mavenPackage: ci-cd/mavenPackage.md
-      - mavenTest: ci-cd/mavenTest.md
-      - nodeBuild: ci-cd/nodeBuild.md
-      - nodeInstall: ci-cd/nodeInstall.md
-      - nodeLint: ci-cd/nodeLint.md
-      - nodePackage: ci-cd/nodePackage.md
-      - nodeTest: ci-cd/nodeTest.md
-      - pythonBuild: ci-cd/pythonBuild.md
-      - pythonLint: ci-cd/pythonLint.md
-      - pythonPackage: ci-cd/pythonPackage.md
-      - pythonTest: ci-cd/pythonTest.md
-      - pythonVenv: ci-cd/pythonVenv.md
-      - dockerOnlyBuild: ci-cd/dockerOnlyBuild.md
-      - dockerOnlyLint: ci-cd/dockerOnlyLint.md
-      - dockerOnlyPackage: ci-cd/dockerOnlyPackage.md
-      - dockerOnlyTest: ci-cd/dockerOnlyTest.md
-    - Images & containers:
-      - buildImage: ci-cd/buildImage.md
-      - buildImageBuildah: ci-cd/buildImageBuildah.md
-      - buildImageKanikoDocker: ci-cd/buildImageKanikoDocker.md
-      - buildImageKanikoK8s: ci-cd/buildImageKanikoK8s.md
-      - imageExtraTags: ci-cd/imageExtraTags.md
-      - imageLabels: ci-cd/imageLabels.md
-      - kanikoArgs: ci-cd/kanikoArgs.md
-      - kanikoDockerConfig: ci-cd/kanikoDockerConfig.md
-      - withRegistryAuth: ci-cd/withRegistryAuth.md
-      - imageDigest: ci-cd/imageDigest.md
-      - inBuildContainer: ci-cd/inBuildContainer.md
-      - inContainer: ci-cd/inContainer.md
-      - inToolContainer: ci-cd/inToolContainer.md
-      - usingToolbox: ci-cd/usingToolbox.md
-      - signImage: ci-cd/signImage.md
-      - generateSbom: ci-cd/generateSbom.md
+  - Getting started:
+    - getting-started/index.md
+    - Examples: getting-started/examples.md
+    - Reading the step reference: getting-started/reading-the-reference.md
+  - Guides:
+    - Pipelines: guides/pipelines.md
+    - Configuration: guides/configuration.md
+    - Deployments: guides/deployments.md
+    - Infrastructure as code: guides/infrastructure-as-code.md
+    - Images & supply chain: guides/images-and-supply-chain.md
+    - Credentials & environment: guides/credentials.md
+  - Step reference:
+    - reference/index.md
+    - Pipelines:
+      - reference/pipelines/index.md
+      - appArtifacts: reference/pipelines/appArtifacts.md
+      - appCacheDir: reference/pipelines/appCacheDir.md
+      - appCoverageFile: reference/pipelines/appCoverageFile.md
+      - appLintReport: reference/pipelines/appLintReport.md
+      - appSonarProps: reference/pipelines/appSonarProps.md
+      - appTestReport: reference/pipelines/appTestReport.md
+      - appToolImage: reference/pipelines/appToolImage.md
+      - buildApp: reference/pipelines/buildApp.md
+      - cdPipeline: reference/pipelines/cdPipeline.md
+      - initPipeline: reference/pipelines/initPipeline.md
+      - lintApp: reference/pipelines/lintApp.md
+      - packageApp: reference/pipelines/packageApp.md
+      - standardPipeline: reference/pipelines/standardPipeline.md
+      - terraformDriftPipeline: reference/pipelines/terraformDriftPipeline.md
+      - testApp: reference/pipelines/testApp.md
+    - Languages:
+      - reference/languages/index.md
+      - dockerOnlyBuild: reference/languages/dockerOnlyBuild.md
+      - dockerOnlyLint: reference/languages/dockerOnlyLint.md
+      - dockerOnlyPackage: reference/languages/dockerOnlyPackage.md
+      - dockerOnlyTest: reference/languages/dockerOnlyTest.md
+      - goBuild: reference/languages/goBuild.md
+      - goLint: reference/languages/goLint.md
+      - goPackage: reference/languages/goPackage.md
+      - goTest: reference/languages/goTest.md
+      - gradleBuild: reference/languages/gradleBuild.md
+      - gradleLint: reference/languages/gradleLint.md
+      - gradleOpts: reference/languages/gradleOpts.md
+      - gradlePackage: reference/languages/gradlePackage.md
+      - gradleTest: reference/languages/gradleTest.md
+      - mavenBuild: reference/languages/mavenBuild.md
+      - mavenLint: reference/languages/mavenLint.md
+      - mavenOpts: reference/languages/mavenOpts.md
+      - mavenPackage: reference/languages/mavenPackage.md
+      - mavenTest: reference/languages/mavenTest.md
+      - nodeBuild: reference/languages/nodeBuild.md
+      - nodeInstall: reference/languages/nodeInstall.md
+      - nodeLint: reference/languages/nodeLint.md
+      - nodePackage: reference/languages/nodePackage.md
+      - nodeTest: reference/languages/nodeTest.md
+      - pythonBuild: reference/languages/pythonBuild.md
+      - pythonLint: reference/languages/pythonLint.md
+      - pythonPackage: reference/languages/pythonPackage.md
+      - pythonTest: reference/languages/pythonTest.md
+      - pythonVenv: reference/languages/pythonVenv.md
+    - Images:
+      - reference/images/index.md
+      - buildImage: reference/images/buildImage.md
+      - buildImageBuildah: reference/images/buildImageBuildah.md
+      - buildImageKanikoDocker: reference/images/buildImageKanikoDocker.md
+      - buildImageKanikoK8s: reference/images/buildImageKanikoK8s.md
+      - generateSbom: reference/images/generateSbom.md
+      - imageDigest: reference/images/imageDigest.md
+      - imageExtraTags: reference/images/imageExtraTags.md
+      - imageLabels: reference/images/imageLabels.md
+      - inBuildContainer: reference/images/inBuildContainer.md
+      - inContainer: reference/images/inContainer.md
+      - inToolContainer: reference/images/inToolContainer.md
+      - kanikoArgs: reference/images/kanikoArgs.md
+      - kanikoDockerConfig: reference/images/kanikoDockerConfig.md
+      - signImage: reference/images/signImage.md
+      - usingToolbox: reference/images/usingToolbox.md
+      - withRegistryAuth: reference/images/withRegistryAuth.md
     - Quality & scanning:
-      - qualityChecks: ci-cd/qualityChecks.md
-      - checkCoverage: ci-cd/checkCoverage.md
-      - coveragePercent: ci-cd/coveragePercent.md
-      - scanDependencies: ci-cd/scanDependencies.md
-      - scanIac: ci-cd/scanIac.md
-      - scanSecrets: ci-cd/scanSecrets.md
-      - scanSonar: ci-cd/scanSonar.md
-      - scanTrivy: ci-cd/scanTrivy.md
-      - sonarProperties: ci-cd/sonarProperties.md
-      - sonarWaitForGate: ci-cd/sonarWaitForGate.md
-      - trivySummary: ci-cd/trivySummary.md
-      - appSonarProps: ci-cd/appSonarProps.md
-      - appLintReport: ci-cd/appLintReport.md
-      - appCoverageFile: ci-cd/appCoverageFile.md
-      - appTestReport: ci-cd/appTestReport.md
-      - lintApp: ci-cd/lintApp.md
-      - archiveLintReports: ci-cd/archiveLintReports.md
-    - Pipeline orchestration:
-      - standardPipeline: ci-cd/standardPipeline.md
-      - cdPipeline: ci-cd/cdPipeline.md
-      - cdResolveImage: ci-cd/cdResolveImage.md
-      - manifestCurrentImage: ci-cd/manifestCurrentImage.md
-      - initPipeline: ci-cd/initPipeline.md
-      - buildApp: ci-cd/buildApp.md
-      - packageApp: ci-cd/packageApp.md
-      - testApp: ci-cd/testApp.md
-      - approvalGate: ci-cd/approvalGate.md
-      - requestApproval: ci-cd/requestApproval.md
-      - postPlanSummary: ci-cd/postPlanSummary.md
-      - postScanSummary: ci-cd/postScanSummary.md
-      - publishArtifact: ci-cd/publishArtifact.md
-      - appArtifacts: ci-cd/appArtifacts.md
-      - appCacheDir: ci-cd/appCacheDir.md
-      - appToolImage: ci-cd/appToolImage.md
-      - manifestBumpImage: ci-cd/manifestBumpImage.md
-      - updateManifest: ci-cd/updateManifest.md
-  - Cloud:
-    - Overview: cloud/index.md
-    - AWS:
-      - assumeAwsRole: cloud/assumeAwsRole.md
-      - withAwsCredentials: cloud/withAwsCredentials.md
-    - ECS:
-      - deployEcs: cloud/deployEcs.md
-      - ecsTaskDefinitionForImage: cloud/ecsTaskDefinitionForImage.md
-    - CloudFormation:
-      - cfnBuild: cloud/cfnBuild.md
-      - cfnChangeSet: cloud/cfnChangeSet.md
-      - cfnDeploy: cloud/cfnDeploy.md
-      - cfnLint: cloud/cfnLint.md
-      - cfnPackage: cloud/cfnPackage.md
-      - cfnTemplates: cloud/cfnTemplates.md
-      - cfnTest: cloud/cfnTest.md
-      - deployCloudFormation: cloud/deployCloudFormation.md
-    - Terraform:
-      - terraformApply: cloud/terraformApply.md
-      - terraformBuild: cloud/terraformBuild.md
-      - terraformInit: cloud/terraformInit.md
-      - terraformLint: cloud/terraformLint.md
-      - terraformPackage: cloud/terraformPackage.md
-      - terraformPlan: cloud/terraformPlan.md
-      - terraformTest: cloud/terraformTest.md
-      - deployTerraform: cloud/deployTerraform.md
-      - terraformDriftPipeline: cloud/terraformDriftPipeline.md
-    - GitOps & deploy routing:
-      - deployGitops: cloud/deployGitops.md
-      - deployToEnvironment: cloud/deployToEnvironment.md
-      - argoSync: cloud/argoSync.md
-      - isInfraRepo: cloud/isInfraRepo.md
-      - configInfraTools: cloud/configInfraTools.md
-  - Other:
-    - Overview: other/index.md
+      - reference/quality/index.md
+      - archiveLintReports: reference/quality/archiveLintReports.md
+      - checkCoverage: reference/quality/checkCoverage.md
+      - coveragePercent: reference/quality/coveragePercent.md
+      - postScanSummary: reference/quality/postScanSummary.md
+      - qualityChecks: reference/quality/qualityChecks.md
+      - scanDependencies: reference/quality/scanDependencies.md
+      - scanIac: reference/quality/scanIac.md
+      - scanSecrets: reference/quality/scanSecrets.md
+      - scanSonar: reference/quality/scanSonar.md
+      - scanTrivy: reference/quality/scanTrivy.md
+      - sonarProperties: reference/quality/sonarProperties.md
+      - sonarWaitForGate: reference/quality/sonarWaitForGate.md
+      - trivySummary: reference/quality/trivySummary.md
+    - Deploy:
+      - reference/deploy/index.md
+      - approvalGate: reference/deploy/approvalGate.md
+      - argoSync: reference/deploy/argoSync.md
+      - cdResolveImage: reference/deploy/cdResolveImage.md
+      - deployEcs: reference/deploy/deployEcs.md
+      - deployGitops: reference/deploy/deployGitops.md
+      - deployToEnvironment: reference/deploy/deployToEnvironment.md
+      - ecsTaskDefinitionForImage: reference/deploy/ecsTaskDefinitionForImage.md
+      - manifestBumpImage: reference/deploy/manifestBumpImage.md
+      - manifestCurrentImage: reference/deploy/manifestCurrentImage.md
+      - publishArtifact: reference/deploy/publishArtifact.md
+      - requestApproval: reference/deploy/requestApproval.md
+      - updateManifest: reference/deploy/updateManifest.md
+    - Infrastructure:
+      - reference/infrastructure/index.md
+      - assumeAwsRole: reference/infrastructure/assumeAwsRole.md
+      - cfnBuild: reference/infrastructure/cfnBuild.md
+      - cfnChangeSet: reference/infrastructure/cfnChangeSet.md
+      - cfnDeploy: reference/infrastructure/cfnDeploy.md
+      - cfnLint: reference/infrastructure/cfnLint.md
+      - cfnPackage: reference/infrastructure/cfnPackage.md
+      - cfnTemplates: reference/infrastructure/cfnTemplates.md
+      - cfnTest: reference/infrastructure/cfnTest.md
+      - configInfraTools: reference/infrastructure/configInfraTools.md
+      - deployCloudFormation: reference/infrastructure/deployCloudFormation.md
+      - deployTerraform: reference/infrastructure/deployTerraform.md
+      - isInfraRepo: reference/infrastructure/isInfraRepo.md
+      - postPlanSummary: reference/infrastructure/postPlanSummary.md
+      - terraformApply: reference/infrastructure/terraformApply.md
+      - terraformBuild: reference/infrastructure/terraformBuild.md
+      - terraformInit: reference/infrastructure/terraformInit.md
+      - terraformLint: reference/infrastructure/terraformLint.md
+      - terraformPackage: reference/infrastructure/terraformPackage.md
+      - terraformPlan: reference/infrastructure/terraformPlan.md
+      - terraformTest: reference/infrastructure/terraformTest.md
+      - withAwsCredentials: reference/infrastructure/withAwsCredentials.md
     - Configuration:
-      - configClosestKey: other/configClosestKey.md
-      - configDefaults: other/configDefaults.md
-      - configDeployStrategies: other/configDeployStrategies.md
-      - configDeprecatedKeys: other/configDeprecatedKeys.md
-      - configEnvDefaults: other/configEnvDefaults.md
-      - configEnvironmentsFor: other/configEnvironmentsFor.md
-      - configGlobToRegex: other/configGlobToRegex.md
-      - configImageBuilders: other/configImageBuilders.md
-      - configLoad: other/configLoad.md
-      - configMerge: other/configMerge.md
-      - configSupportedTools: other/configSupportedTools.md
-      - configUnknownKeys: other/configUnknownKeys.md
-      - configValidate: other/configValidate.md
-    - GitHub integration:
-      - githubApiRequest: other/githubApiRequest.md
-      - githubApiUrl: other/githubApiUrl.md
-      - githubComment: other/githubComment.md
-      - githubCommitFile: other/githubCommitFile.md
-      - githubCredentialsId: other/githubCredentialsId.md
-      - githubFetchFile: other/githubFetchFile.md
-      - githubFileSha: other/githubFileSha.md
-      - githubFindComment: other/githubFindComment.md
-      - githubRelease: other/githubRelease.md
-      - githubRepoSlug: other/githubRepoSlug.md
-      - githubSetStatus: other/githubSetStatus.md
-      - githubUploadReleaseAsset: other/githubUploadReleaseAsset.md
-      - githubUpsertComment: other/githubUpsertComment.md
-    - Notifications:
-      - notifySlack: other/notifySlack.md
-      - slackPayload: other/slackPayload.md
-      - slackShouldNotify: other/slackShouldNotify.md
-    - Logging:
-      - logActor: other/logActor.md
-      - logAudit: other/logAudit.md
-      - logBanner: other/logBanner.md
-      - logDebug: other/logDebug.md
-      - logError: other/logError.md
-      - logInfo: other/logInfo.md
-      - logWarn: other/logWarn.md
-    - Versioning:
-      - versionBase: other/versionBase.md
-      - versionImageTag: other/versionImageTag.md
-      - versionResolve: other/versionResolve.md
-      - versionShortSha: other/versionShortSha.md
-      - versionSlug: other/versionSlug.md
+      - reference/config/index.md
+      - configClosestKey: reference/config/configClosestKey.md
+      - configDefaults: reference/config/configDefaults.md
+      - configDeployStrategies: reference/config/configDeployStrategies.md
+      - configDeprecatedKeys: reference/config/configDeprecatedKeys.md
+      - configEnvDefaults: reference/config/configEnvDefaults.md
+      - configEnvironmentsFor: reference/config/configEnvironmentsFor.md
+      - configGlobToRegex: reference/config/configGlobToRegex.md
+      - configImageBuilders: reference/config/configImageBuilders.md
+      - configLoad: reference/config/configLoad.md
+      - configMerge: reference/config/configMerge.md
+      - configSupportedTools: reference/config/configSupportedTools.md
+      - configUnknownKeys: reference/config/configUnknownKeys.md
+      - configValidate: reference/config/configValidate.md
+    - GitHub & Slack:
+      - reference/github-slack/index.md
+      - githubApiRequest: reference/github-slack/githubApiRequest.md
+      - githubApiUrl: reference/github-slack/githubApiUrl.md
+      - githubComment: reference/github-slack/githubComment.md
+      - githubCommitFile: reference/github-slack/githubCommitFile.md
+      - githubCredentialsId: reference/github-slack/githubCredentialsId.md
+      - githubFetchFile: reference/github-slack/githubFetchFile.md
+      - githubFileSha: reference/github-slack/githubFileSha.md
+      - githubFindComment: reference/github-slack/githubFindComment.md
+      - githubRelease: reference/github-slack/githubRelease.md
+      - githubRepoSlug: reference/github-slack/githubRepoSlug.md
+      - githubSetStatus: reference/github-slack/githubSetStatus.md
+      - githubUploadReleaseAsset: reference/github-slack/githubUploadReleaseAsset.md
+      - githubUpsertComment: reference/github-slack/githubUpsertComment.md
+      - notifySlack: reference/github-slack/notifySlack.md
+      - slackPayload: reference/github-slack/slackPayload.md
+      - slackShouldNotify: reference/github-slack/slackShouldNotify.md
     - Utilities:
-      - shellQuote: other/shellQuote.md
-      - useScript: other/useScript.md
+      - reference/utilities/index.md
+      - logActor: reference/utilities/logActor.md
+      - logAudit: reference/utilities/logAudit.md
+      - logBanner: reference/utilities/logBanner.md
+      - logDebug: reference/utilities/logDebug.md
+      - logError: reference/utilities/logError.md
+      - logInfo: reference/utilities/logInfo.md
+      - logWarn: reference/utilities/logWarn.md
+      - shellQuote: reference/utilities/shellQuote.md
+      - useScript: reference/utilities/useScript.md
+      - versionBase: reference/utilities/versionBase.md
+      - versionImageTag: reference/utilities/versionImageTag.md
+      - versionResolve: reference/utilities/versionResolve.md
+      - versionShortSha: reference/utilities/versionShortSha.md
+      - versionSlug: reference/utilities/versionSlug.md
+  - Contributing:
+    - contributing/index.md
+    - Extending the library: contributing/extending.md
+    - Local development: contributing/local-development.md

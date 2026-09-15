@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-`platform-pipeline` is a Jenkins shared library. Consuming repos call one entry point (`standardPipeline()`, `cdPipeline()`, or `terraformDriftPipeline()`) and put everything else in `.ci/config.yaml`. `README.md` is the full reference for config keys, credentials, and design rationale.
+`platform-pipeline` is a Jenkins shared library. Consuming repos call one entry point (`standardPipeline()`, `cdPipeline()`, or `terraformDriftPipeline()`) and put everything else in `.ci/config.yaml`. The full docs live in `docs/` (mkdocs): `docs/guides/` covers config keys, deployments, IaC and credentials; `docs/contributing/` covers design rationale and extending; `docs/reference/` has one page per step.
 
 ## Commands
 
@@ -47,7 +47,7 @@ make lint                                    # ./gradlew codenarcMain codenarcTe
 - Tests are JUnit 4 with quoted-string method names and AssertJ assertions.
 
 Guard tests that commonly fail after a change:
-- `DocsCoverageTest`: every `vars/<name>.groovy` needs `docs/<section>/<name>.md` (section is `ci-cd`, `cloud`, or `other`) and an entry in the `mkdocs.yml` nav. Removing a step means removing its doc page too.
+- `DocsCoverageTest`: every `vars/<name>.groovy` needs `docs/reference/<section>/<name>.md` (section is `pipelines`, `languages`, `images`, `quality`, `deploy`, `infrastructure`, `config`, `github-slack`, or `utilities`) and an entry in the `mkdocs.yml` nav. Removing a step means removing its doc page too.
 - `ExamplesConfigTest`: every `examples/*/.ci/config.yaml` must load cleanly, and every example Jenkinsfile must call a real entry point. Keep the examples in sync when you change config keys.
 - `ManifestBumpImageTest`: covers kustomize, plain manifests, Helm values, registries with ports, and no-ops. A regex that silently fails to match leaves the old image deployed while the build goes green.
 - Renaming a config key requires an old → new mapping in `configDeprecatedKeys`.
