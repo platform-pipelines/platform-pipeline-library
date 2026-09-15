@@ -306,20 +306,41 @@ version in `toolbox/Dockerfile`.
 ### Local stack
 
 ```bash
-make local-up        # build and start Jenkins + SonarQube + Nexus in the background
+make toolbox-build    # once: the image build steps run in (CI_TOOLBOX_IMAGE)
+make local-up         # build and start Jenkins + agent + SonarQube in the background
+make local-up NEXUS=1 # ... plus Nexus, for publish.nexusRepo
 make local-logs       # follow logs for all services
 make local-down       # stop the stack, keep data volumes
 make local-clean      # stop the stack and delete data volumes
 make local-restart    # local-down + local-up
 ```
 
-Set `GITHUB_TOKEN`, `SONAR_TOKEN`, and `SLACK_WEBHOOK` in your environment
-before `make local-up` if you want those integrations to work against the
-local stack. Every credential in the table below is wired from an environment
-variable in `local/casc/jenkins.yaml`.
+Jenkins :8080 (`admin` / `$JENKINS_ADMIN_PASSWORD`, default `admin`),
+SonarQube :9000 (admin/admin), Nexus :8081. Jenkins builds from
+`local/plugins.txt` — pinned, no UI installs. The `agent` service is the
+`linux-agent-1` node every stage runs on; it reaches Docker through the host
+socket and runs build steps inside `ci-toolbox:local`.
 
-Jenkins :8080, SonarQube :9000 (admin/admin), Nexus :8081. Jenkins builds
-from `local/plugins.txt` — pinned, no UI installs.
+**The library is your checkout, not GitHub.** Compose mounts this repo into
+Jenkins as the `platform-pipeline` library, so local commits are testable
+without pushing. Jenkins reads commits, not uncommitted edits — commit (no
+push needed), then pick the branch in the test job:
+
+```groovy
+@Library('platform-pipeline@my-branch') _
+standardPipeline()
+```
+
+Set `LIBRARY_REMOTE` to a git URL to load from a remote instead.
+
+Set `GITHUB_TOKEN`, `SONAR_TOKEN`, `SLACK_WEBHOOK` (and any other credential
+in the table below) in your environment before `make local-up` if you want
+those integrations to work; compose passes them to
+`local/casc/jenkins.yaml`. After editing that file, `make local-up` applies
+it — no `local-clean` needed.
+
+Nexus is opt-in because it is the first thing Docker Desktop OOM-kills: the
+stack wants roughly 4 GB free in the Docker VM with Nexus, 3 GB without.
 
 ## Versioning this library
 

@@ -1,9 +1,12 @@
 FROM jenkins/jenkins:2.568.2-lts-jdk21
 
 USER root
+# docker-cli, not docker.io: on Debian 13 docker.io is only the daemon.
 RUN apt-get update \
- && apt-get install -y --no-install-recommends docker.io python3 curl \
- && rm -rf /var/lib/apt/lists/*
+ && apt-get install -y --no-install-recommends docker-cli python3 curl \
+ && rm -rf /var/lib/apt/lists/* \
+ # The library is bind-mounted from the host, owned by a different uid.
+ && git config --system --add safe.directory '*'
 USER jenkins
 
 # Plugins are pinned in one file. Nobody installs through the UI.

@@ -20,7 +20,7 @@ help:
 	@echo "  make check             test + lint (what CI runs)"
 	@echo ""
 	@echo "Local stack (Jenkins + SonarQube + Nexus, see local/docker-compose.yml):"
-	@echo "  make local-up          build and start the stack in the background"
+	@echo "  make local-up          build and start the stack in the background (NEXUS=1 adds Nexus)"
 	@echo "  make local-logs        follow logs for all services"
 	@echo "  make local-down        stop the stack, keep data volumes"
 	@echo "  make local-clean       stop the stack and delete data volumes"
@@ -44,19 +44,20 @@ lint:
 check: test lint
 
 local-up:
-	$(COMPOSE) up -d --build
-	@echo "Jenkins   http://localhost:8080"
+	$(COMPOSE) $(if $(NEXUS),--profile nexus) up -d --build
+	@echo "Jenkins   http://localhost:8080  (admin / \$${JENKINS_ADMIN_PASSWORD:-admin})"
 	@echo "SonarQube http://localhost:9000  (admin/admin)"
-	@echo "Nexus     http://localhost:8081"
+	@$(if $(NEXUS),echo "Nexus     http://localhost:8081",echo "Nexus     not started (make local-up NEXUS=1)")
 
 local-logs:
-	$(COMPOSE) logs -f
+	$(COMPOSE) --profile nexus logs -f
 
+# --profile nexus so an opt-in Nexus is stopped too.
 local-down:
-	$(COMPOSE) down
+	$(COMPOSE) --profile nexus down
 
 local-clean:
-	$(COMPOSE) down -v
+	$(COMPOSE) --profile nexus down -v
 
 local-restart: local-down local-up
 
